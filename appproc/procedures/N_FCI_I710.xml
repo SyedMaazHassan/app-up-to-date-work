@@ -1,0 +1,3313 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_FCI_I710">
+    <description>Procedure Purpose:	FCI SCAN Setup
+ 
+Procedure Version:	3
+Responsibility:	Claudia Tranquilli
+Last Modified Date:	12.12.2022 
+Change History:
+
+Version 3: (CT - 12.12.2022)
+- Updated PAF enum values for MS and REPSEQ.
+
+Version 2: (CT - 22.07.2022)
+- Procedure updated to update the scan scenario also when FCI is in OBSERVATION mode to update MS and scan pattern. 
+- updated to assign SL/SSL/RS slot depending on instrument mode.
+- added argument SETUP_WP and updated PAF arguments to enum; removed unused arguments.
+
+Version 1: (CT - 09.02.2022)
+- System procedure created from sequence described in FOM. Procedure sets up the instrument scan configuration;
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1.
+
+Procedure Objectives:
+
+- This procedure sets FCI Scan configuration in terms of Mission Scenario, REPSEQ and FWP. It can be used also to update MS or REPSEQ and FWP only by setting argument appropriately.
+ 
+Procedure Overview:
+
+This procedure can perform the following activities:
+	- Checks pre-conditions applicable to procedure execution;
+	- The SL slot is assigned depending on FCI mode: if mode is WAIT, SL will be transferred to slot 1 of SCAE; if mode is OBSERVATION, SL will be transferred to the slot that is not ACTIVE. The SSL slot matches the SL one.
+	- Sets the scan scenation by transferring the SL to the SCAE and uploads the SSL;
+	- Updates the REPSEQ to PF and FCI and FWP parameters Rally and IR Calibration Periodicity.
+ 
+Procedure Pre-conditions:	S/C in FPM/NOM, FCI in WAIT or OBSERVATION mode
+ 
+Procedure Constraints:	None
+ 
+Spacecraft Configuration:	FPM/NOM
+ 
+Ground Segment Configuration:	None
+
+Remarks:	The REPSEQ is uploaded to the 1st slot (1 for FCI, 0 for PF) as the 2nd slot is used for transition only.</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>FCI SCAN Setup</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_FCI_I710</UniqueId>
+    <author>tranquilli_OPRE</author>
+    <LastModifiedDate>2022-12-12T14:27:23.036Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+MTI1::N_SAT_I530 called by steps: P.2.B4.B1
+MTI1::N_FCI_I070 called by steps: P.2.B4.B2
+Default:NomSysPF::N_SYS_0700 called by steps: P.2.B5.B1
+MTI1::N_FCI_I075 called by steps: P.2.B5.B2
+MTI1::N_SAT_I520 called by steps: P.3.B2.B2
+MTI1::N_FCI_I081 called by steps: P.3.B3.B1
+MTI1::N_FCI_I082 called by steps: P.3.B3.B2
+MTI1::N_FCI_I065 called by steps: P.3.B4.B1
+</hierarchy>
+    <version>35.0</version>
+    <history>Version 3: (CT - 12.12.2022)
+- Updated PAF enum values for MS and REPSEQ.</history>
+    <duration></duration>
+    <VerificationVersion>03.07.03</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>SETUP_MS</name>
+            <description>Do you want to setup the Mission Scenario?</description>
+            <type>12</type>
+            <value>Transfer&amp;Select</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>Transfer</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>Select</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>Transfer&amp;Select</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SCAE_SLOT</name>
+            <description>Index of the Scan Law ID slot in SCAE</description>
+            <type>5</type>
+            <value>1</value>
+            <MinValue>1</MinValue>
+            <MaxValue>2</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SETUP_RS</name>
+            <description>Do you want to setup the REPSEQ?</description>
+            <type>12</type>
+            <value>Load&amp;Select</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>Load</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>Select</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>Load&amp;Select</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SETUP_WP</name>
+            <description>Update FCI WP - Rally and IR Calibration Periodicity</description>
+            <type>12</type>
+            <value>YES</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_MS</name>
+            <description>Select PAF for Mission Scenario and SSL</description>
+            <type>12</type>
+            <value>NULL</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NULL</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>MS1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>MS2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>MS3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>MS4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>MS5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>MS6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>MS7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>MS8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>EXTRA</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_REPSEQ</name>
+            <description>Insert PAF ID for REPSEQ</description>
+            <type>12</type>
+            <value>NULL</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NULL</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>MS1_FDSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>MS1_FDSS_RESYNC_MINUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>MS1_FDSS_RESYNC_PLUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>MS1_FDSS-RSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>MS1_ISS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>MS1_RSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>MS1_RSS_RESYNC_MINUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>MS1_RSS_RESYNC_PLUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>MS1_RSS-FDSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>MS5_FDSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>MS5_FDSS_RESYNC_MINUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>MS5_FDSS_RESYNC_PLUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>MS5_FDSS-RSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>MS5_ISS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>MS5_RSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>MS5_RSS_RESYNC_MINUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>MS5_RSS_RESYNC_PLUS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>MS5_RSS-FDSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>MS8_LAC4_1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>EXTRA</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV1_dur</name>
+            <description>Duration of Coverage 1 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV2_dur</name>
+            <description>Duration of Coverage 2 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV3_dur</name>
+            <description>Duration of Coverage 3 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV4_dur</name>
+            <description>Duration of Coverage 4 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV_ID1</name>
+            <description>FCI Coverage ID 1</description>
+            <type>5</type>
+            <value>3</value>
+            <MinValue>3</MinValue>
+            <MaxValue>6</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV_ID2</name>
+            <description>FCI Coverage ID 2</description>
+            <type>5</type>
+            <value>3</value>
+            <MinValue>3</MinValue>
+            <MaxValue>6</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>COV_ID3</name>
+            <description>FCI Coverage ID 3</description>
+            <type>5</type>
+            <value>3</value>
+            <MinValue>3</MinValue>
+            <MaxValue>6</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>FCI_GRS_ID</name>
+            <description>FCI Ground-assigned identifier of the Repeat Sequence FCI_RS_ID</description>
+            <type>5</type>
+            <value>1</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>FCI_GSSL_ID</name>
+            <description>FCI Ground-assigned ID for SSL</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>FCI_RS_ID</name>
+            <description>FCI slot to load REPSEQ</description>
+            <type>12</type>
+            <value>REP_SEQ1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>REP_SEQ1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>REP_SEQ2</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>IRCALPER</name>
+            <description>FCI IR calibration period</description>
+            <type>5</type>
+            <value>1</value>
+            <MinValue>1</MinValue>
+            <MaxValue>4</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>MISS_SCEN</name>
+            <description>Mission Scenario slot ID in the SMU/MM</description>
+            <type>5</type>
+            <value>1</value>
+            <MinValue>1</MinValue>
+            <MaxValue>8</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>N_RC</name>
+            <description>Number of Repeat Cycles</description>
+            <type>12</type>
+            <value>1_RC</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>1_RC</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>2_RC</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>3_RC</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PART_ID_1</name>
+            <description>PF Coverage ID 1</description>
+            <type>12</type>
+            <value>LAC_PARTS1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDC_PART</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>LAC_PARTS1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>LAC_PARTS2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>LAC_PARTS3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>LAC_PARTS4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>TRANS_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>TRANS_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>TRANS_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>TRANS_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>TRANS_PART5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>TRANS_PART6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>TRANS_PART7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>TRANS_PART8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>TRANS_PART9</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>TRANS_PAR10</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>TRANS_PAR11</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>TRANS_PAR12</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>TRANS_PAR13</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>TRANS_PAR14</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>TRANS_PAR15</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>TRANS_PAR16</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>21</key>
+                    <value>RALLY_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>22</key>
+                    <value>RALLY_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>23</key>
+                    <value>RALLY_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>24</key>
+                    <value>RALLY_PART4</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PART_ID_2</name>
+            <description>PF Coverage ID 2</description>
+            <type>12</type>
+            <value>TRANS_PART1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDC_PART</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>LAC_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>LAC_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>LAC_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>LAC_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>TRANS_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>TRANS_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>TRANS_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>TRANS_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>TRANS_PART5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>TRANS_PART6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>TRANS_PART7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>TRANS_PART8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>TRANS_PART9</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>TRANS_PAR10</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>TRANS_PAR11</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>TRANS_PAR12</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>TRANS_PAR13</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>TRANS_PAR14</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>TRANS_PAR15</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>TRANS_PAR16</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>21</key>
+                    <value>RALLY_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>22</key>
+                    <value>RALLY_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>23</key>
+                    <value>RALLY_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>24</key>
+                    <value>RALLY_PART4</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PART_ID_3</name>
+            <description>PF Coverage ID 3</description>
+            <type>12</type>
+            <value>LAC_PARTS1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDC_PART</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>TRANS_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>TRANS_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>TRANS_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>TRANS_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>TRANS_PART5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>TRANS_PART6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>TRANS_PART7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>TRANS_PART8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>TRANS_PART9</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>TRANS_PAR10</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>TRANS_PAR11</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>TRANS_PAR12</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>TRANS_PAR13</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>TRANS_PAR14</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>TRANS_PAR15</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>TRANS_PAR16</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>21</key>
+                    <value>RALLY_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>22</key>
+                    <value>RALLY_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>23</key>
+                    <value>RALLY_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>24</key>
+                    <value>RALLY_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>LAC_PARTS1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>LAC_PARTS2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>LAC_PARTS3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>LAC_PARTS4</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PART_ID_4</name>
+            <description>PF Coverage ID 4</description>
+            <type>12</type>
+            <value>TRANS_PART1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDC_PART</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>LAC_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>LAC_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>LAC_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>LAC_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>TRANS_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>TRANS_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>TRANS_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>TRANS_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>TRANS_PART5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>TRANS_PART6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>TRANS_PART7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>TRANS_PART8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>TRANS_PART9</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>TRANS_PAR10</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>TRANS_PAR11</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>TRANS_PAR12</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>TRANS_PAR13</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>TRANS_PAR14</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>TRANS_PAR15</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>TRANS_PAR16</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>21</key>
+                    <value>RALLY_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>22</key>
+                    <value>RALLY_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>23</key>
+                    <value>RALLY_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>24</key>
+                    <value>RALLY_PART4</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PART_ID_5</name>
+            <description>PF Coverage ID 5</description>
+            <type>12</type>
+            <value>LAC_PARTS1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDC_PART</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>TRANS_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>TRANS_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>TRANS_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>TRANS_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>TRANS_PART5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>TRANS_PART6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>TRANS_PART7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>TRANS_PART8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>TRANS_PART9</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>TRANS_PAR10</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>TRANS_PAR11</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>TRANS_PAR12</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>TRANS_PAR13</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>TRANS_PAR14</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>TRANS_PAR15</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>TRANS_PAR16</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>21</key>
+                    <value>RALLY_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>22</key>
+                    <value>RALLY_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>23</key>
+                    <value>RALLY_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>24</key>
+                    <value>RALLY_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>LAC_PARTS1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>LAC_PARTS2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>LAC_PARTS3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>LAC_PARTS4</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PART_ID_6</name>
+            <description>PF Coverage ID 6</description>
+            <type>12</type>
+            <value>TRANS_PART1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDC_PART</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>LAC_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>LAC_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>LAC_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>LAC_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>TRANS_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>TRANS_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>7</key>
+                    <value>TRANS_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>8</key>
+                    <value>TRANS_PART4</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>9</key>
+                    <value>TRANS_PART5</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>10</key>
+                    <value>TRANS_PART6</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>11</key>
+                    <value>TRANS_PART7</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>12</key>
+                    <value>TRANS_PART8</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>13</key>
+                    <value>TRANS_PART9</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>14</key>
+                    <value>TRANS_PAR10</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>15</key>
+                    <value>TRANS_PAR11</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>16</key>
+                    <value>TRANS_PAR12</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>17</key>
+                    <value>TRANS_PAR13</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>18</key>
+                    <value>TRANS_PAR14</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>19</key>
+                    <value>TRANS_PAR15</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>20</key>
+                    <value>TRANS_PAR16</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>21</key>
+                    <value>RALLY_PART1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>22</key>
+                    <value>RALLY_PART2</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>23</key>
+                    <value>RALLY_PART3</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>24</key>
+                    <value>RALLY_PART4</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PF_RS_ID</name>
+            <description>PF REPSEQ slot ID</description>
+            <type>5</type>
+            <value>0</value>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>RALLY1_dur</name>
+            <description>Duration of Rally 1 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>RALLY2_dur</name>
+            <description>Duration of Rally 2 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>RALLY3_dur</name>
+            <description>Duration of Rally 3 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>RALLY4_dur</name>
+            <description>Duration of Rally 4 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>RALLY_ID</name>
+            <description>FCI Rally ID</description>
+            <type>5</type>
+            <value>1</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS10_dur</name>
+            <description>Duration of Transition 10 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS11_dur</name>
+            <description>Duration of Transition 11 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS12_dur</name>
+            <description>Duration of Transition 12 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS13_dur</name>
+            <description>Duration of Transition 13 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS14_dur</name>
+            <description>Duration of Transition 14 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS15_dur</name>
+            <description>Duration of Transition 15 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS16_dur</name>
+            <description>Duration of Transition 16 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS1_dur</name>
+            <description>Duration of Transition 1 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS2_dur</name>
+            <description>Duration of Transition 2 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS3_dur</name>
+            <description>Duration of Transition 3 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS4_dur</name>
+            <description>Duration of Transition 4 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS5_dur</name>
+            <description>Duration of Transition 5 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS6_dur</name>
+            <description>Duration of Transition 6 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS7_dur</name>
+            <description>Duration of Transition 7 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS8_dur</name>
+            <description>Duration of Transition 8 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS9_dur</name>
+            <description>Duration of Transition 9 in ms</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS_ID1</name>
+            <description>FCI Transition ID 1</description>
+            <type>5</type>
+            <value>7</value>
+            <MinValue>7</MinValue>
+            <MaxValue>22</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS_ID2</name>
+            <description>FCI Transition ID 2</description>
+            <type>5</type>
+            <value>7</value>
+            <MinValue>7</MinValue>
+            <MaxValue>22</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>TRANS_ID3</name>
+            <description>FCI Transition ID 3</description>
+            <type>5</type>
+            <value>7</value>
+            <MinValue>7</MinValue>
+            <MaxValue>22</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables>
+        <ProcedureVariable>
+            <name>FCI_RS_SLOT</name>
+            <description>Index of the RS slot in ICU-I</description>
+            <type>12</type>
+            <value>REP_SEQ1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>REP_SEQ1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>REP_SEQ2</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>PF_RS_SLOT</name>
+            <description>Index of the RS slot in SMU/RAM</description>
+            <type>5</type>
+            <MinValue>0</MinValue>
+            <MaxValue>1</MaxValue>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>SSL_SLOT</name>
+            <description>Index of the SSL slot in ICU-I</description>
+            <type>12</type>
+            <value>SIMP_S_LAW1</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>SIMP_S_LAW1</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>SIMP_S_LAW2</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureVariable>
+    </ProcedureVariables>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Pre-conditions checks</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.1.A1">
+    <description>The satellite mode has to be in NOM/FPM mode</description>
+    <title>Check Satellite Mode</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>(#P!P88E000X == "NOM") &amp;&amp; (#P!A99E000Z == "FPM")</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A2">
+    <description></description>
+    <title>Check FCI mode</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>(#P!FASEM01X == "WAIT" &amp;&amp; #P!P88E527X == "PFCI_WAIT") || (#P!FASEM01X == "OBSERVATION" &amp;&amp; #P!P88E527X == "PFCI_OPERA")</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>Setup Mission Scenario?</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#PR!!SETUP_MS != "NO"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.2.B1">
+        <description></description>
+        <title>Load PAF?</title>
+        <label></label>
+        <StepBody xsi:type="IfStepBody" type="If Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!PAF_MS != "NULL"</condition>
+            <Branches>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.2.B1.A1">
+                            <description></description>
+                            <title>Load PAF</title>
+                            <label></label>
+                            <StepBody xsi:type="LoadPafStepBody" type="Load PAF">
+<MaxExecutionTime></MaxExecutionTime>
+<PafName>#PR!!PAF_MS</PafName>
+<OpenInteractionIfNoPaf>true</OpenInteractionIfNoPaf>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+                <branch>
+                    <title>false</title>
+                    <steps/>
+                    <condition>false</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B2">
+        <description></description>
+        <title>Assign SL slot</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X</condition>
+            <Branches>
+                <branch>
+                    <title>WAIT</title>
+                    <steps/>
+                    <condition>WAIT</condition>
+                </branch>
+                <branch>
+                    <title>OBSERVATION</title>
+                    <steps>
+                        <step identifier="P.2.B2.B1">
+                            <description></description>
+                            <title>Load INACTIVE slot</title>
+                            <label></label>
+                            <StepBody xsi:type="CaseStepBody" type="Case Step">
+<MaxExecutionTime></MaxExecutionTime>
+<condition>#P!FSNM494Z != "ACTIVE" &amp;&amp; #P!FSNM495Z == "ACTIVE"</condition>
+<Branches>
+    <branch>
+        <title>true</title>
+        <steps>
+            <step identifier="P.2.B2.B1.A1">
+                <description></description>
+                <title>Load index 1</title>
+                <label></label>
+                <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <argument>Arg:SCAE_SLOTValue:null</argument>
+                    <ArgumentValue>1</ArgumentValue>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>true</condition>
+    </branch>
+    <branch>
+        <title>false</title>
+        <steps>
+            <step identifier="P.2.B2.B1.B1">
+                <description></description>
+                <title>Load index 2</title>
+                <label></label>
+                <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <argument>Arg:SCAE_SLOTValue:null</argument>
+                    <ArgumentValue>2</ArgumentValue>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>false</condition>
+    </branch>
+</Branches>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>OBSERVATION</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B3">
+        <description></description>
+        <title>Assign SSL slot</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!SCAE_SLOT</condition>
+            <Branches>
+                <branch>
+                    <title>1</title>
+                    <steps>
+                        <step identifier="P.2.B3.A1">
+                            <description></description>
+                            <title>Load index 1</title>
+                            <label></label>
+                            <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+<MaxExecutionTime></MaxExecutionTime>
+<variable>Arg:SSL_SLOTValue:null</variable>
+<VariableValue>SIMP_S_LAW1</VariableValue>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>1</condition>
+                </branch>
+                <branch>
+                    <title>2</title>
+                    <steps>
+                        <step identifier="P.2.B3.B1">
+                            <description></description>
+                            <title>Load index 2</title>
+                            <label></label>
+                            <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+<MaxExecutionTime></MaxExecutionTime>
+<variable>Arg:SSL_SLOTValue:null</variable>
+<VariableValue>SIMP_S_LAW2</VariableValue>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>2</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B4">
+        <description></description>
+        <title>Transfer Scan Law?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!SETUP_MS != "Select"</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps/>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.2.B4.B1">
+                            <description></description>
+                            <title>N_SAT_I530 - Transfer SL to SCAE</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>FCI_SL_ID_MM</name>
+        <description>Index of the Scan Law ID slot in PF Mass Memory</description>
+        <type>5</type>
+        <value>#PR!!MISS_SCEN</value>
+        <MinValue>1</MinValue>
+        <MaxValue>8</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_SL_ID_SCA</name>
+        <description>Index of the Scan Law ID slot in SCAE</description>
+        <type>5</type>
+        <value>#PR!!SCAE_SLOT</value>
+        <MinValue>1</MinValue>
+        <MaxValue>2</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_SAT_I530</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>Scan Law Transfer from PF to FCI</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.2.B4.B2">
+                            <description></description>
+                            <title>N_FCI_I070 - Upload SSL</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>COV1_dur</name>
+        <description>Duration of Coverage 1 in ms</description>
+        <type>5</type>
+        <value>#PR!!COV1_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>COV2_dur</name>
+        <description>Duration of Coverage 2 in ms</description>
+        <type>5</type>
+        <value>#PR!!COV2_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>COV3_dur</name>
+        <description>Duration of Coverage 3 in ms</description>
+        <type>5</type>
+        <value>#PR!!COV3_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>COV4_dur</name>
+        <description>Duration of Coverage 4 in ms</description>
+        <type>5</type>
+        <value>#PR!!COV4_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_GSSL_ID</name>
+        <description>FCI Ground-assigned identifier of the Simplified Scan Law associated to FCI Scan Law FCI_SSL_ID</description>
+        <type>5</type>
+        <value>#PR!!FCI_GSSL_ID</value>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_SSL_ID</name>
+        <description>FCI Simplified Scan Law Index</description>
+        <type>12</type>
+        <value>#PR!!SSL_SLOT</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>SIMP_S_LAW1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>SIMP_S_LAW2</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>SIMP_S_LAW1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>RALLY1_dur</name>
+        <description>Duration of Rally 1 in ms</description>
+        <type>5</type>
+        <value>#PR!!RALLY1_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>RALLY2_dur</name>
+        <description>Duration of Rally 2 in ms</description>
+        <type>5</type>
+        <value>#PR!!RALLY2_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>RALLY3_dur</name>
+        <description>Duration of Rally 3 in ms</description>
+        <type>5</type>
+        <value>#PR!!RALLY3_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>RALLY4_dur</name>
+        <description>Duration of Rally 4 in ms</description>
+        <type>5</type>
+        <value>#PR!!RALLY4_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS10_dur</name>
+        <description>Duration of Transition 10 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS10_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS11_dur</name>
+        <description>Duration of Transition 11 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS11_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS12_dur</name>
+        <description>Duration of Transition 12 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS12_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS13_dur</name>
+        <description>Duration of Transition 13 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS13_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS14_dur</name>
+        <description>Duration of Transition 14 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS14_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS15_dur</name>
+        <description>Duration of Transition 15 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS15_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS16_dur</name>
+        <description>Duration of Transition 16 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS16_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS1_dur</name>
+        <description>Duration of Transition 1 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS1_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS2_dur</name>
+        <description>Duration of Transition 2 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS2_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS3_dur</name>
+        <description>Duration of Transition 3 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS3_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS4_dur</name>
+        <description>Duration of Transition 4 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS4_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS5_dur</name>
+        <description>Duration of Transition 5 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS5_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS6_dur</name>
+        <description>Duration of Transition 6 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS6_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS7_dur</name>
+        <description>Duration of Transition 7 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS7_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS8_dur</name>
+        <description>Duration of Transition 8 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS8_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS9_dur</name>
+        <description>Duration of Transition 9 in ms</description>
+        <type>5</type>
+        <value>#PR!!TRANS9_dur</value>
+        <EnumValues/>
+        <DefaultValue>9000</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_FCI_I070</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>New SSL Upload</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B5">
+        <description></description>
+        <title>Select MS?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!SETUP_MS != "Transfer"</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps/>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.2.B5.B1">
+                            <description></description>
+                            <title>N_SYS_0700 Select PF MS APC</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>Activity</name>
+        <description>Select activity</description>
+        <type>12</type>
+        <value>Select Mission Scenario</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>Downlink Scan Law</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>Downlink APC Data</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>Transfer Scan Law</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>Select Mission Scenario</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>Downlink Scan Law</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>APC_DATA</name>
+        <description>APC data parts</description>
+        <type>12</type>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>ALL</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>APC_HEADER</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>FDC_PART</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PARTS1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PARTS2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>5</key>
+                <value>LAC_PARTS3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>LAC_PARTS4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>25</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>26</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>ALL</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>MS_SLOTID</name>
+        <description>Mission Scenario slot ID</description>
+        <type>5</type>
+        <value>#PR!!MISS_SCEN</value>
+        <MinValue>1</MinValue>
+        <MaxValue>8</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_SYS_0700</ProcedureId>
+<DomainId>Default:NomSysPF:</DomainId>
+<title>Mission Scenario Management</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.2.B5.B2">
+                            <description></description>
+                            <title>N_FCI_I075 - Select SL and SSL</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>FCI_GSSL_ID</name>
+        <description>FCI Ground-assigned identifier of the Simplified Scan Law associated to FCI Scan Law FCI_SSL_ID</description>
+        <type>8</type>
+        <value>#PR!!FCI_GSSL_ID</value>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_SL_ID</name>
+        <description>FCI Scan Law Index</description>
+        <type>5</type>
+        <value>#PR!!SCAE_SLOT</value>
+        <MinValue>1</MinValue>
+        <MaxValue>2</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_SSL_ID</name>
+        <description>FCI Simplified Scan Law Index</description>
+        <type>12</type>
+        <value>#PR!!SSL_SLOT</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>SIMP_S_LAW1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>SIMP_S_LAW2</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>SIMP_S_LAW1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_FCI_I075</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>FCI Select Scan Law and Simplified Scan Law</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Setup Repeat Sequence</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#PR!!SETUP_RS != "NO"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.3.B1">
+        <description></description>
+        <title>Load PAF?</title>
+        <label></label>
+        <StepBody xsi:type="IfStepBody" type="If Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!PAF_REPSEQ != "NULL"</condition>
+            <Branches>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.3.B1.A1">
+                            <description></description>
+                            <title>Load PAF</title>
+                            <label></label>
+                            <StepBody xsi:type="LoadPafStepBody" type="Load PAF">
+<MaxExecutionTime></MaxExecutionTime>
+<PafName>#PR!!PAF_REPSEQ</PafName>
+<OpenInteractionIfNoPaf>true</OpenInteractionIfNoPaf>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+                <branch>
+                    <title>false</title>
+                    <steps/>
+                    <condition>false</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B2">
+        <description></description>
+        <title>Load Repeat Sequence?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!SETUP_RS != "Select"</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps/>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.3.B2.B1">
+                            <description></description>
+                            <title>Assign RS slot</title>
+                            <label></label>
+                            <StepBody xsi:type="CaseStepBody" type="Case Step">
+<MaxExecutionTime></MaxExecutionTime>
+<condition>#P!FASEM01X</condition>
+<Branches>
+    <branch>
+        <title>WAIT</title>
+        <steps>
+            <step identifier="P.3.B2.B1.A1">
+                <description></description>
+                <title>FCI SLOT 1</title>
+                <label></label>
+                <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <variable>Arg:FCI_RS_SLOTValue:null</variable>
+                    <VariableValue>REP_SEQ1</VariableValue>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.3.B2.B1.A2">
+                <description></description>
+                <title>PF SLOT 0</title>
+                <label></label>
+                <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <variable>Arg:PF_RS_SLOTValue:null</variable>
+                    <VariableValue>0</VariableValue>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>WAIT</condition>
+    </branch>
+    <branch>
+        <title>OBSERVATION</title>
+        <steps>
+            <step identifier="P.3.B2.B1.B1">
+                <description></description>
+                <title>Load INACTIVE slot</title>
+                <label></label>
+                <StepBody xsi:type="CaseStepBody" type="Case Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <condition>#P!FASE704Z != "ACTIVE" &amp;&amp; #P!FASE705Z == "ACTIVE"</condition>
+                    <Branches>
+                        <branch>
+                            <title>true</title>
+                            <steps>
+<step identifier="P.3.B2.B1.B1.A1">
+    <description></description>
+    <title>FCI SLOT 1</title>
+    <label></label>
+    <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <variable>Arg:FCI_RS_SLOTValue:null</variable>
+        <VariableValue>REP_SEQ1</VariableValue>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.B2.B1.B1.A2">
+    <description></description>
+    <title>PF SLOT 0</title>
+    <label></label>
+    <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <variable>Arg:PF_RS_SLOTValue:null</variable>
+        <VariableValue>0</VariableValue>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                            <condition>true</condition>
+                        </branch>
+                        <branch>
+                            <title>false</title>
+                            <steps>
+<step identifier="P.3.B2.B1.B1.B1">
+    <description></description>
+    <title>FCI SLOT 2</title>
+    <label></label>
+    <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <variable>Arg:FCI_RS_SLOTValue:null</variable>
+        <VariableValue>REP_SEQ2</VariableValue>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.B2.B1.B1.B2">
+    <description></description>
+    <title>PF SLOT 1</title>
+    <label></label>
+    <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <variable>Arg:PF_RS_SLOTValue:null</variable>
+        <VariableValue>1</VariableValue>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                            <condition>false</condition>
+                        </branch>
+                    </Branches>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>OBSERVATION</condition>
+    </branch>
+</Branches>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.3.B2.B2">
+                            <description></description>
+                            <title>N_SAT_I520 - RepSeq Update</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>COV_ID1</name>
+        <description>FCI Coverage ID 1</description>
+        <type>5</type>
+        <value>#PR!!COV_ID1</value>
+        <MinValue>3</MinValue>
+        <MaxValue>6</MaxValue>
+        <EnumValues/>
+        <DefaultValue>3</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>COV_ID2</name>
+        <description>FCI Coverage ID 2</description>
+        <type>5</type>
+        <value>#PR!!COV_ID2</value>
+        <MinValue>3</MinValue>
+        <MaxValue>6</MaxValue>
+        <EnumValues/>
+        <DefaultValue>3</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>COV_ID3</name>
+        <description>FCI Coverage ID 3</description>
+        <type>5</type>
+        <value>#PR!!COV_ID3</value>
+        <MinValue>3</MinValue>
+        <MaxValue>6</MaxValue>
+        <EnumValues/>
+        <DefaultValue>3</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_GRS_ID</name>
+        <description>FCI Ground-assigned identifier of the Repeat Sequence FCI_RS_ID</description>
+        <type>5</type>
+        <value>#PR!!FCI_GRS_ID</value>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_RS_ID</name>
+        <description>FCI slot to load REPSEQ</description>
+        <type>12</type>
+        <value>#PR!!FCI_RS_SLOT</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>REP_SEQ1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>REP_SEQ2</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>REP_SEQ1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>N_RC</name>
+        <description>Number of Repeat Cycles</description>
+        <type>12</type>
+        <value>#PR!!N_RC</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>1_RC</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>2_RC</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>3_RC</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>1_RC</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PART_ID_1</name>
+        <description>PF Coverage ID 1</description>
+        <type>12</type>
+        <value>#PR!!PART_ID_1</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>LAC_PARTS1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>LAC_PARTS2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PARTS3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PARTS4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>5</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>LAC_PARTS1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PART_ID_2</name>
+        <description>PF Coverage ID 2</description>
+        <type>12</type>
+        <value>#PR!!PART_ID_2</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>LAC_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>LAC_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>5</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>TRANS_PART1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PART_ID_3</name>
+        <description>PF Coverage ID 3</description>
+        <type>12</type>
+        <value>#PR!!PART_ID_3</value>
+        <EnumValues>
+            <EnumValue>
+                <key>5</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>LAC_PARTS1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>LAC_PARTS2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PARTS3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PARTS4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>LAC_PARTS1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PART_ID_4</name>
+        <description>PF Coverage ID 4</description>
+        <type>12</type>
+        <value>#PR!!PART_ID_4</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>LAC_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>LAC_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>5</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>TRANS_PART1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PART_ID_5</name>
+        <description>PF Coverage ID 5</description>
+        <type>12</type>
+        <value>#PR!!PART_ID_5</value>
+        <EnumValues>
+            <EnumValue>
+                <key>5</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>LAC_PARTS1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>LAC_PARTS2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PARTS3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PARTS4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>LAC_PARTS1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PART_ID_6</name>
+        <description>PF Coverage ID 6</description>
+        <type>12</type>
+        <value>#PR!!PART_ID_6</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>LAC_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>LAC_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>3</key>
+                <value>LAC_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>4</key>
+                <value>LAC_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>5</key>
+                <value>TRANS_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>6</key>
+                <value>TRANS_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>7</key>
+                <value>TRANS_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>8</key>
+                <value>TRANS_PART4</value>
+            </EnumValue>
+            <EnumValue>
+                <key>9</key>
+                <value>TRANS_PART5</value>
+            </EnumValue>
+            <EnumValue>
+                <key>10</key>
+                <value>TRANS_PART6</value>
+            </EnumValue>
+            <EnumValue>
+                <key>11</key>
+                <value>TRANS_PART7</value>
+            </EnumValue>
+            <EnumValue>
+                <key>12</key>
+                <value>TRANS_PART8</value>
+            </EnumValue>
+            <EnumValue>
+                <key>13</key>
+                <value>TRANS_PART9</value>
+            </EnumValue>
+            <EnumValue>
+                <key>14</key>
+                <value>TRANS_PAR10</value>
+            </EnumValue>
+            <EnumValue>
+                <key>15</key>
+                <value>TRANS_PAR11</value>
+            </EnumValue>
+            <EnumValue>
+                <key>16</key>
+                <value>TRANS_PAR12</value>
+            </EnumValue>
+            <EnumValue>
+                <key>17</key>
+                <value>TRANS_PAR13</value>
+            </EnumValue>
+            <EnumValue>
+                <key>18</key>
+                <value>TRANS_PAR14</value>
+            </EnumValue>
+            <EnumValue>
+                <key>19</key>
+                <value>TRANS_PAR15</value>
+            </EnumValue>
+            <EnumValue>
+                <key>20</key>
+                <value>TRANS_PAR16</value>
+            </EnumValue>
+            <EnumValue>
+                <key>21</key>
+                <value>RALLY_PART1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>22</key>
+                <value>RALLY_PART2</value>
+            </EnumValue>
+            <EnumValue>
+                <key>23</key>
+                <value>RALLY_PART3</value>
+            </EnumValue>
+            <EnumValue>
+                <key>24</key>
+                <value>RALLY_PART4</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>TRANS_PART1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>PF_RS_ID</name>
+        <description>PF REPSEQ slot ID</description>
+        <type>5</type>
+        <value>#PR!!PF_RS_SLOT</value>
+        <MinValue>0</MinValue>
+        <MaxValue>1</MaxValue>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS_ID1</name>
+        <description>FCI Transition ID 1</description>
+        <type>5</type>
+        <value>#PR!!TRANS_ID1</value>
+        <MinValue>7</MinValue>
+        <MaxValue>22</MaxValue>
+        <EnumValues/>
+        <DefaultValue>7</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS_ID2</name>
+        <description>FCI Transition ID 2</description>
+        <type>5</type>
+        <value>#PR!!TRANS_ID2</value>
+        <MinValue>7</MinValue>
+        <MaxValue>22</MaxValue>
+        <EnumValues/>
+        <DefaultValue>7</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>TRANS_ID3</name>
+        <description>FCI Transition ID 3</description>
+        <type>5</type>
+        <value>#PR!!TRANS_ID3</value>
+        <MinValue>7</MinValue>
+        <MaxValue>22</MaxValue>
+        <EnumValues/>
+        <DefaultValue>7</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_SAT_I520</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>RepSeq Update</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B3">
+        <description></description>
+        <title>Setup Work Plan?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!SETUP_WP</condition>
+            <Branches>
+                <branch>
+                    <title>NO</title>
+                    <steps/>
+                    <condition>NO</condition>
+                </branch>
+                <branch>
+                    <title>YES</title>
+                    <steps>
+                        <step identifier="P.3.B3.B1">
+                            <description></description>
+                            <title>N_FCI_I081 - FWP Update RALLY</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>Rally_ID</name>
+        <description>Selected Rally Phase</description>
+        <type>5</type>
+        <value>#PR!!RALLY_ID</value>
+        <MinValue>1</MinValue>
+        <MaxValue>4</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_FCI_I081</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>FCI Update Selected Rally Phase</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.3.B3.B2">
+                            <description></description>
+                            <title>N_FCI_I082 - FWP Update IR Calibration Periodicity</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>IR_calib_Period</name>
+        <description>Periodicity of the Automatic IR Calibration</description>
+        <type>5</type>
+        <value>#PR!!IRCALPER</value>
+        <MinValue>1</MinValue>
+        <MaxValue>4</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_FCI_I082</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>FCI Update IR calibration periodicity</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>YES</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B4">
+        <description></description>
+        <title>Select Repeat Sequence?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!SETUP_RS != "Load"</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps/>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.3.B4.B1">
+                            <description></description>
+                            <title>N_FCI_I065 - Select RepSeq</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>FCI_RS_ID</name>
+        <description>FCI Repeat Sequence Identifier (1 or 2)</description>
+        <type>12</type>
+        <value>#PR!!FCI_RS_SLOT</value>
+        <EnumValues>
+            <EnumValue>
+                <key>1</key>
+                <value>REP_SEQ1</value>
+            </EnumValue>
+            <EnumValue>
+                <key>2</key>
+                <value>REP_SEQ2</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>REP_SEQ1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>FCI_GRS_ID</name>
+        <description>FCI Ground-assigned identifier of the Repeat Sequence FCI_RS_ID</description>
+        <type>5</type>
+        <value>#PR!!FCI_GRS_ID</value>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_FCI_I065</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>FCI Select Repeat Sequence</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>END</title>
+                    <label>END</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText></LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

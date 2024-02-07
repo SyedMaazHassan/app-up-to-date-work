@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ tmtcdb[1] }}
+        {% if is_admin %}
+          <td>
+              <a href="/tmtcdb/update/{{tmtcdb[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/tmtcdb/delete/{{tmtcdb[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+        {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">TMTCDB Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>TMTCDB Name: </strong> {{ tmtcdb[1] }}</li>
+              <li><strong>Version: </strong> {{ tmtcdb[2] }}</li>
+              <li><strong>Reason for update: </strong> {{ tmtcdb[3] }}</li>
+              <li><strong>Link: </strong> <a href="{{tmtcdb[4]}}">{{ tmtcdb[4] }}</a></li>
+              <li><strong>S/C: </strong> {{ tmtcdb[5] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

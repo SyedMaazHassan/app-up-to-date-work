@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ pus[2] }}
+        {% if is_admin %}
+        <td>
+            <a href="/pus/update/{{pus[0]}}" class="btn-md" role="button">
+                <i class="mdi mdi-update"></i>
+            </a>
+        </td>
+        <td>
+            <a href="/api/pus/delete/{{pus[0]}}" class="btn-md" role="button">
+                <i class="mdi mdi-delete"></i>
+            </a>
+        </td>
+        {% endif %}
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">PUS Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>PUS Service: </strong> {{ pus[1] }}</li>
+              <li><strong>PUS Name: </strong> {{ pus[2] }}</li>
+              <li><strong>Service, Subservice: </strong> {{ pus[3] }}</li>
+              <li><strong>Description Service, SubService: </strong> {{ pus[4] }}</li>
+              <li><strong>Space Segment Applicability: </strong> {{ pus[5] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

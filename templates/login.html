@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<!-- Custom CSS -->
+	<style>
+		body {
+			padding-top: 50px;
+			background-color: #f7f7f7;
+		}
+		.form-signin {
+			max-width: 330px;
+			padding: 15px;
+			margin: 0 auto;
+			background-color: #fff;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+		}
+		.form-signin .form-signin-heading,
+		.form-signin .checkbox {
+			margin-bottom: 10px;
+		}
+		.form-signin input[type="text"],
+		.form-signin input[type="password"] {
+			font-size: 16px;
+			height: auto;
+			margin-bottom: 15px;
+			padding: 7px 9px;
+			background-color: #f2f2f2;
+			border: none;
+			border-radius: 3px;
+		}
+		.form-signin input[type="submit"] {
+			font-size: 16px;
+			font-weight: bold;
+			padding: 7px 0;
+			background-color: #337ab7;
+			border: none;
+			border-radius: 3px;
+			cursor: pointer;
+			transition: background-color 0.2s ease-in-out;
+		}
+		.form-signin input[type="submit"]:hover {
+			background-color: #286090;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<form class="form-signin" method="POST" action="{{ url_for('login') }}">
+			<h2 class="form-signin-heading">Login</h2>
+			{% if error %}
+				<div class="alert alert-danger">{{ error }}</div>
+			{% endif %}
+			<label class="sr-only">Username</label>
+			<input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+			<label class="sr-only">Password</label>
+			<input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+			<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+		</form>
+	</div>
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<!-- Bootstrap JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>

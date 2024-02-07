@@ -1,0 +1,2257 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_AOC_I500">
+    <description>Procedure Purpose:         	FPM RW angular monmentum drift management
+
+Procedure Version:         	22
+Responsibility:   	Christian Bihr
+Last Modified Date:        	06.12.2022
+
+
+History
+
+[CBi 2022/12/06 EUM v. 22.0] 
+edits for AR6290:
+-inserted dump TC in branches Enable and Disable P.1.A1 and P.1.B1
+-inserted case steps P.1.A2 and P.1.B2 and moved the TCs under the true branches (i.e. only execute, if status is different, i.e. send enable TC, when status was disabled)
+-inserted log message in false branches to inform already enabled or disabled (P.1.A2.B1 and P.1.B2.B1)
+
+Objective
+
+This procedure is used to manage the FPM Reaction Wheels momentum, which allows to drift the RW speed evolution on long term and to delay as much as possible the zero crossing of specific RW speeds. 
+
+With this procedure the function can be enabled / disabled, and the FPM drift momentum torque FPM_AJ_wheelMomentumDriftTorque uploaded.</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>FPM RW angular monmentum drift management</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_AOC_I500</UniqueId>
+    <author>bihr_OPRE</author>
+    <LastModifiedDate>2022-12-06T09:32:42.656Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+</hierarchy>
+    <version>22.0</version>
+    <history>[CBi 2022/12/06 EUM v. 22.0] 
+edits for AR6290:
+-inserted dump TC in branches Enable and Disable P.1.A1 and P.1.B1
+-inserted case steps P.1.A2 and P.1.B2 and moved the TCs under the true branches (i.e. only execute, if status is different, i.e. send enable TC, when status was disabled)
+-inserted log message in false branches to inform already enabled or disabled (P.1.A2.B1 and P.1.B2.B1)
+
+[CBi 2022/11/02 EUM v. 21.0] based on SATMAN Version 6; Date: 31/08/2022 - FOM06
+
+Changes EUM:
+-tick of wait for verification box for all TC's as required per EUM pre VTR template
+- P.1.C1+C3: reset solstice TC parameter values to 0.0 as per change of SATMAN (see changes in FOM06 below and confirmation in AR5877)
+-copied steps P.1.D1 and /D2 as per change of SATMAN (see changes in FOM06 below)
+-added variables as per FOM06 change
+-changed wrong variable type from string to enum and asserted missing values (AR5877)
+-moved P.1.D3 and /D4 under true branch steps P.1.D2.A2 and /A3
+-inserted report drift torque values TC in each of the 5 RW branches (P.1.D2.B3.A2 /B2 /C2 /D2 /E2) - see AR5877) 
+-inserted Confirm values of RWs Drift Momentum torques TC in each of the 5 RW branches (P.1.D2.B3.A3 /B3 /C3 /D3 /E3) - see AR5877)  
+-corrected TM check to the commanded values per each wheel and in each RW branch (Steps P.1.D2.B3.A3.A1 /A2 /A3 /A4 /A5
+P.1.D2.B3.B3.A1 /A2 /A3 /A4 /A5
+P.1.D2.B3.C3.A1 /A2 /A3 /A4 /A5
+P.1.D2.B3.D3.A1 /A2 /A3 /A4 /A5
+P.1.D2.B3.E3.A1 /A2 /A3 /A4 /A5
+see AR5877
+
+Changes reported by SATMAN: 
+"Changes / AIM#223175: RW momentum drift Mgt review
+@P.1.C1+C3: reset solstice TC parameter values to 0.0 (ref. FOM PF Chap. 9.5.10
+@P.1.D2: Set RW momentum drift torque to 4 RWs values"
+
+
+
+
+
+[CBi 2022/08/04 EUM v. 19.0] based on SATMAN Version 5; Date: 24/07/19 FOM05
+Changes:
+-History and description aligned to EUM template, version numbering aligned with OPRE
+
+</history>
+    <duration></duration>
+    <VerificationVersion>03.07.03</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>Case</name>
+            <description></description>
+            <type>12</type>
+            <value>Upload equinox torque</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>Enable</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>Disable</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>Upload equinox torque</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>Upload solstice torque</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables>
+        <ProcedureVariable>
+            <name>RW_failed</name>
+            <description></description>
+            <type>12</type>
+            <value>RW5_failed</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>RW1_failed</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>RW2_failed</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>RW3_failed</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>RW4_failed</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>RW5_failed</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>5RWs</name>
+            <description></description>
+            <type>1</type>
+            <value>true</value>
+            <EnumValues/>
+        </ProcedureVariable>
+    </ProcedureVariables>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Case</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#PR!!Case</condition>
+                        <Branches>
+                            <branch>
+<title>Enable</title>
+<steps>
+    <step identifier="P.1.A1">
+        <description></description>
+        <title>Report Wheels Angular Momentum Drift Management status (A99C05GP)</title>
+        <label></label>
+        <confirmation>
+            <WaitCondition xsi:type="TemporalWaitCondition">
+                <mode>Delay</mode>
+                <delay>1</delay>
+            </WaitCondition>
+            <CheckExpression></CheckExpression>
+        </confirmation>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>P88H302U</name>
+                    <description>N_Param</description>
+                    <type>6</type>
+                    <MinValue>0</MinValue>
+                    <MaxValue>65535</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue>1</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88H303X</name>
+                    <description>Parameter ID</description>
+                    <type>9</type>
+                    <EnumValues/>
+                    <DefaultValue>"A99EAF8X"</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>A99C05GP</CommandId>
+            <CommandDescription>TC152129A99EAF8X</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+            <MapId></MapId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.A2">
+        <description></description>
+        <title>Drift Momentum Management Disabled?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!A99EAF8X == "FALSE"</condition>
+            <Branches>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.1.A2.A1">
+                            <description></description>
+                            <title>Enable Wheels Angular Momentum Drift Management (A99C5153)</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>1</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>A99HA07X</name>
+        <description>NewStat_16_23</description>
+        <type>12</type>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>FALSE</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>TRUE</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>TRUE</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+</arguments>
+<CommandId>A99C4152</CommandId>
+<CommandDescription>ENARWANGMOMDRIFT</CommandDescription>
+<critical>false</critical>
+<authorised>false</authorised>
+<WaitForVerification>true</WaitForVerification>
+<OnBoardVerification>false</OnBoardVerification>
+<OverrideStaticPTV>false</OverrideStaticPTV>
+<OverrideDynamicPTV>false</OverrideDynamicPTV>
+<DisableCEV>false</DisableCEV>
+<TransmissionTime></TransmissionTime>
+<ExecutionTime></ExecutionTime>
+<SubscheduleId></SubscheduleId>
+<MapId></MapId>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.1.A2.A2">
+                            <description></description>
+                            <title>Report Wheels Angular Momentum Drift Management status (A99C05GP)</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>1</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>P88H302U</name>
+        <description>N_Param</description>
+        <type>6</type>
+        <MinValue>0</MinValue>
+        <MaxValue>65535</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+    <argument>
+        <name>P88H303X</name>
+        <description>Parameter ID</description>
+        <type>9</type>
+        <EnumValues/>
+        <DefaultValue>"A99EAF8X"</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+</arguments>
+<CommandId>A99C05GP</CommandId>
+<CommandDescription>TC152129A99EAF8X</CommandDescription>
+<critical>false</critical>
+<authorised>false</authorised>
+<WaitForVerification>true</WaitForVerification>
+<OnBoardVerification>false</OnBoardVerification>
+<OverrideStaticPTV>false</OverrideStaticPTV>
+<OverrideDynamicPTV>false</OverrideDynamicPTV>
+<DisableCEV>false</DisableCEV>
+<TransmissionTime></TransmissionTime>
+<ExecutionTime></ExecutionTime>
+<SubscheduleId></SubscheduleId>
+<MapId></MapId>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.1.A2.B1">
+                            <description></description>
+                            <title>Already enabled</title>
+                            <label></label>
+                            <StepBody xsi:type="LogStepBody" type="Log Step">
+<MaxExecutionTime></MaxExecutionTime>
+<LogText>No TC to enable was sent, as A99EAF8X reads already TRUE.</LogText>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.A3">
+        <description></description>
+        <title>Confirm Wheels Angular Momentum Drift Management ENABLED</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>#P!A99EAF8X == "TRUE"</expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>Enable</condition>
+                            </branch>
+                            <branch>
+<title>Disable</title>
+<steps>
+    <step identifier="P.1.B1">
+        <description></description>
+        <title>Report Wheels Angular Momentum Drift Management status (A99C05GP)</title>
+        <label></label>
+        <confirmation>
+            <WaitCondition xsi:type="TemporalWaitCondition">
+                <mode>Delay</mode>
+                <delay>1</delay>
+            </WaitCondition>
+            <CheckExpression></CheckExpression>
+        </confirmation>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>P88H302U</name>
+                    <description>N_Param</description>
+                    <type>6</type>
+                    <MinValue>0</MinValue>
+                    <MaxValue>65535</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue>1</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88H303X</name>
+                    <description>Parameter ID</description>
+                    <type>9</type>
+                    <EnumValues/>
+                    <DefaultValue>"A99EAF8X"</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>A99C05GP</CommandId>
+            <CommandDescription>TC152129A99EAF8X</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+            <MapId></MapId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.B2">
+        <description></description>
+        <title>Drift Momentum Management Enabled?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!A99EAF8X == "TRUE"</condition>
+            <Branches>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.1.B2.A1">
+                            <description></description>
+                            <title>Disable Wheels Angular Momentum Drift Management (A99C5153)</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>1</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>A99HA07X</name>
+        <description>NewStat_16_23</description>
+        <type>12</type>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>FALSE</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>TRUE</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>FALSE</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+</arguments>
+<CommandId>A99C5153</CommandId>
+<CommandDescription>DISRWANGMOMDRIFT</CommandDescription>
+<critical>false</critical>
+<authorised>false</authorised>
+<WaitForVerification>true</WaitForVerification>
+<OnBoardVerification>false</OnBoardVerification>
+<OverrideStaticPTV>false</OverrideStaticPTV>
+<OverrideDynamicPTV>false</OverrideDynamicPTV>
+<DisableCEV>false</DisableCEV>
+<TransmissionTime></TransmissionTime>
+<ExecutionTime></ExecutionTime>
+<SubscheduleId></SubscheduleId>
+<MapId></MapId>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.1.B2.A2">
+                            <description></description>
+                            <title>Report Wheels Angular Momentum Drift Management status (A99C05GP)</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>1</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>P88H302U</name>
+        <description>N_Param</description>
+        <type>6</type>
+        <MinValue>0</MinValue>
+        <MaxValue>65535</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+    <argument>
+        <name>P88H303X</name>
+        <description>Parameter ID</description>
+        <type>9</type>
+        <EnumValues/>
+        <DefaultValue>"A99EAF8X"</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+</arguments>
+<CommandId>A99C05GP</CommandId>
+<CommandDescription>TC152129A99EAF8X</CommandDescription>
+<critical>false</critical>
+<authorised>false</authorised>
+<WaitForVerification>true</WaitForVerification>
+<OnBoardVerification>false</OnBoardVerification>
+<OverrideStaticPTV>false</OverrideStaticPTV>
+<OverrideDynamicPTV>false</OverrideDynamicPTV>
+<DisableCEV>false</DisableCEV>
+<TransmissionTime></TransmissionTime>
+<ExecutionTime></ExecutionTime>
+<SubscheduleId></SubscheduleId>
+<MapId></MapId>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.1.B2.B1">
+                            <description></description>
+                            <title>Already disabled</title>
+                            <label></label>
+                            <StepBody xsi:type="LogStepBody" type="Log Step">
+<MaxExecutionTime></MaxExecutionTime>
+<LogText>No TC to disable was sent, as A99EAF8X reads already FALSE.</LogText>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.B3">
+        <description></description>
+        <title>Confirm Wheels Angular Momentum Drift Management DISABLED</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>#P!A99EAF8X == "FALSE"</expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>Disable</condition>
+                            </branch>
+                            <branch>
+<title>Upload equinox torque</title>
+<steps>
+    <step identifier="P.1.C1">
+        <description></description>
+        <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+        <label></label>
+        <confirmation>
+            <WaitCondition xsi:type="TemporalWaitCondition">
+                <mode>Delay</mode>
+                <delay>10</delay>
+            </WaitCondition>
+            <CheckExpression></CheckExpression>
+        </confirmation>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>A99HA01X</name>
+                    <description>RW1_TORQUE</description>
+                    <type>8</type>
+                    <value>0.0</value>
+                    <MinValue>-3.4028234663852886E38</MinValue>
+                    <MaxValue>3.4028234663852886E38</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue></DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>A99HA02X</name>
+                    <description>RW2_TORQUE</description>
+                    <type>8</type>
+                    <value>0.0</value>
+                    <MinValue>-3.4028234663852886E38</MinValue>
+                    <MaxValue>3.4028234663852886E38</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue></DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>A99HA03X</name>
+                    <description>RW3_TORQUE</description>
+                    <type>8</type>
+                    <value>0.0</value>
+                    <MinValue>-3.4028234663852886E38</MinValue>
+                    <MaxValue>3.4028234663852886E38</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue></DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>A99HA04X</name>
+                    <description>RW4_TORQUE</description>
+                    <type>8</type>
+                    <value>0.0</value>
+                    <MinValue>-3.4028234663852886E38</MinValue>
+                    <MaxValue>3.4028234663852886E38</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue></DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>A99HA05X</name>
+                    <description>RW5_TORQUE</description>
+                    <type>8</type>
+                    <value>0.0</value>
+                    <MinValue>-3.4028234663852886E38</MinValue>
+                    <MaxValue>3.4028234663852886E38</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue></DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>A99CM020</CommandId>
+            <CommandDescription>TC_160_020</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+            <MapId></MapId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.C2">
+        <description></description>
+        <title>Report drift torque values</title>
+        <label></label>
+        <confirmation>
+            <WaitCondition xsi:type="TemporalWaitCondition">
+                <mode>Delay</mode>
+                <delay>10</delay>
+            </WaitCondition>
+            <CheckExpression></CheckExpression>
+        </confirmation>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>P88H302U</name>
+                    <description>N_Param</description>
+                    <type>6</type>
+                    <MinValue>0</MinValue>
+                    <MaxValue>65535</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue>1</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88H303X</name>
+                    <description>Parameter ID</description>
+                    <type>9</type>
+                    <EnumValues/>
+                    <DefaultValue>"A99EAV0X"</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>A99C04XP</CommandId>
+            <CommandDescription>TC152129A99EAV0X</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+            <MapId></MapId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.C3">
+        <description></description>
+        <title>Confirm values of RWs Drift Momentum torques</title>
+        <label></label>
+        <confirmation>
+            <WaitCondition xsi:type="TemporalWaitCondition">
+                <mode>Delay</mode>
+                <delay>50</delay>
+            </WaitCondition>
+            <CheckExpression></CheckExpression>
+        </confirmation>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.1.C3.A1">
+                        <description></description>
+                        <title>Confirm value of RW1 Drift torque</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!A99F07AT.raw-value == 0.0</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.1.C3.A2">
+                        <description></description>
+                        <title>Confirm value of RW2 Drift torque</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!A99F07BT.raw-value == 0.0</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.1.C3.A3">
+                        <description></description>
+                        <title>Confirm value of RW3 Drift torque</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!A99F07CT.raw-value == 0.0</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.1.C3.A4">
+                        <description></description>
+                        <title>Confirm value of RW4 Drift torque</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!A99F07DT.raw-value == 0.0</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.1.C3.A5">
+                        <description></description>
+                        <title>Confirm value of RW5 Drift torque</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!A99F07ET.raw-value == 0.0</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>Upload equinox torque</condition>
+                            </branch>
+                            <branch>
+<title>Upload solstice torque</title>
+<steps>
+    <step identifier="P.1.D1">
+        <description></description>
+        <title>5 RWs ?</title>
+        <label></label>
+        <StepBody xsi:type="ConfirmInteractionStepBody" type="Confirm Interaction Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <message>5 RWs ?</message>
+            <ResponseWindow></ResponseWindow>
+            <choices>
+                <choice>true</choice>
+                <choice>false</choice>
+            </choices>
+            <ResultVariable>5RWs</ResultVariable>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.D2">
+        <description></description>
+        <title>5 RWs ?</title>
+        <label></label>
+        <StepBody xsi:type="IfStepBody" type="If Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#PR!!5RWs</condition>
+            <Branches>
+                <branch>
+                    <title>true</title>
+                    <steps>
+                        <step identifier="P.1.D2.A1">
+                            <description></description>
+                            <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>10</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>A99HA01X</name>
+        <description>RW1_TORQUE</description>
+        <type>8</type>
+        <value>-0.000000781</value>
+        <MinValue>-3.4028234663852886E38</MinValue>
+        <MaxValue>3.4028234663852886E38</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>A99HA02X</name>
+        <description>RW2_TORQUE</description>
+        <type>8</type>
+        <value>0.000000298</value>
+        <MinValue>-3.4028234663852886E38</MinValue>
+        <MaxValue>3.4028234663852886E38</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>A99HA03X</name>
+        <description>RW3_TORQUE</description>
+        <type>8</type>
+        <value>0.000000298</value>
+        <MinValue>-3.4028234663852886E38</MinValue>
+        <MaxValue>3.4028234663852886E38</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>A99HA04X</name>
+        <description>RW4_TORQUE</description>
+        <type>8</type>
+        <value>-0.000000781</value>
+        <MinValue>-3.4028234663852886E38</MinValue>
+        <MaxValue>3.4028234663852886E38</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>A99HA05X</name>
+        <description>RW5_TORQUE</description>
+        <type>8</type>
+        <value>0.000000966</value>
+        <MinValue>-3.4028234663852886E38</MinValue>
+        <MaxValue>3.4028234663852886E38</MaxValue>
+        <EnumValues/>
+        <DefaultValue></DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<CommandId>A99CM020</CommandId>
+<CommandDescription>TC_160_020</CommandDescription>
+<critical>false</critical>
+<authorised>false</authorised>
+<WaitForVerification>true</WaitForVerification>
+<OnBoardVerification>false</OnBoardVerification>
+<OverrideStaticPTV>false</OverrideStaticPTV>
+<OverrideDynamicPTV>false</OverrideDynamicPTV>
+<DisableCEV>false</DisableCEV>
+<TransmissionTime></TransmissionTime>
+<ExecutionTime></ExecutionTime>
+<SubscheduleId></SubscheduleId>
+<MapId></MapId>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.1.D2.A2">
+                            <description></description>
+                            <title>Report drift torque values</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>10</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>P88H302U</name>
+        <description>N_Param</description>
+        <type>6</type>
+        <MinValue>0</MinValue>
+        <MaxValue>65535</MaxValue>
+        <EnumValues/>
+        <DefaultValue>1</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+    <argument>
+        <name>P88H303X</name>
+        <description>Parameter ID</description>
+        <type>9</type>
+        <EnumValues/>
+        <DefaultValue>"A99EAV0X"</DefaultValue>
+        <required>false</required>
+        <modifiable>false</modifiable>
+    </argument>
+</arguments>
+<CommandId>A99C04XP</CommandId>
+<CommandDescription>TC152129A99EAV0X</CommandDescription>
+<critical>false</critical>
+<authorised>false</authorised>
+<WaitForVerification>true</WaitForVerification>
+<OnBoardVerification>false</OnBoardVerification>
+<OverrideStaticPTV>false</OverrideStaticPTV>
+<OverrideDynamicPTV>false</OverrideDynamicPTV>
+<DisableCEV>false</DisableCEV>
+<TransmissionTime></TransmissionTime>
+<ExecutionTime></ExecutionTime>
+<SubscheduleId></SubscheduleId>
+<MapId></MapId>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.1.D2.A3">
+                            <description></description>
+                            <title>Confirm values of RWs Drift Momentum torques</title>
+                            <label></label>
+                            <confirmation>
+<WaitCondition xsi:type="TemporalWaitCondition">
+    <mode>Delay</mode>
+    <delay>50</delay>
+</WaitCondition>
+<CheckExpression></CheckExpression>
+                            </confirmation>
+                            <StepBody xsi:type="BlockStepBody" type="Block Step">
+<MaxExecutionTime></MaxExecutionTime>
+<StepList>
+    <title></title>
+    <steps>
+        <step identifier="P.1.D2.A3.A1">
+            <description></description>
+            <title>Confirm value of RW1 Drift torque</title>
+            <label></label>
+            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <WaitCondition xsi:type="ExpressionWaitCondition">
+                    <expression>#P!A99F07AT.raw-value == -0.000000781</expression>
+                    <window>60</window>
+                </WaitCondition>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.1.D2.A3.A2">
+            <description></description>
+            <title>Confirm value of RW2 Drift torque</title>
+            <label></label>
+            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <WaitCondition xsi:type="ExpressionWaitCondition">
+                    <expression>#P!A99F07BT.raw-value == 0.000000298</expression>
+                    <window>60</window>
+                </WaitCondition>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.1.D2.A3.A3">
+            <description></description>
+            <title>Confirm value of RW3 Drift torque</title>
+            <label></label>
+            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <WaitCondition xsi:type="ExpressionWaitCondition">
+                    <expression>#P!A99F07CT.raw-value == 0.000000298</expression>
+                    <window>60</window>
+                </WaitCondition>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.1.D2.A3.A4">
+            <description></description>
+            <title>Confirm value of RW4 Drift torque</title>
+            <label></label>
+            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <WaitCondition xsi:type="ExpressionWaitCondition">
+                    <expression>#P!A99F07DT.raw-value == -0.000000781</expression>
+                    <window>60</window>
+                </WaitCondition>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.1.D2.A3.A5">
+            <description></description>
+            <title>Confirm value of RW5 Drift torque</title>
+            <label></label>
+            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <WaitCondition xsi:type="ExpressionWaitCondition">
+                    <expression>#P!A99F07ET.raw-value == 0.000000966</expression>
+                    <window>60</window>
+                </WaitCondition>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>true</condition>
+                </branch>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.1.D2.B1">
+                            <description></description>
+                            <title>Using 4 RWs</title>
+                            <label></label>
+                            <StepBody xsi:type="LogStepBody" type="Log Step">
+<MaxExecutionTime></MaxExecutionTime>
+<LogText></LogText>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.1.D2.B2">
+                            <description></description>
+                            <title>Identify RW failed</title>
+                            <label></label>
+                            <StepBody xsi:type="VariableInteractionStepBody" type="Variable Interaction Step">
+<MaxExecutionTime></MaxExecutionTime>
+<message></message>
+<ResponseWindow></ResponseWindow>
+<variables>
+    <variable>RW_failed</variable>
+</variables>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.1.D2.B3">
+                            <description></description>
+                            <title>RW failed ?</title>
+                            <label></label>
+                            <StepBody xsi:type="CaseStepBody" type="Case Step">
+<MaxExecutionTime></MaxExecutionTime>
+<condition>#PR!!RW_failed</condition>
+<Branches>
+    <branch>
+        <title>RW1_failed</title>
+        <steps>
+            <step identifier="P.1.D2.B3.A1">
+                <description></description>
+                <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+                <label></label>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>A99HA01X</name>
+                            <description>RW1_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA02X</name>
+                            <description>RW2_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA03X</name>
+                            <description>RW3_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA04X</name>
+                            <description>RW4_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA05X</name>
+                            <description>RW5_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99CM020</CommandId>
+                    <CommandDescription>TC_160_020</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>true</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.A2">
+                <description></description>
+                <title>Report drift torque values</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>10</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>P88H302U</name>
+                            <description>N_Param</description>
+                            <type>6</type>
+                            <MinValue>0</MinValue>
+                            <MaxValue>65535</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue>1</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                        <argument>
+                            <name>P88H303X</name>
+                            <description>Parameter ID</description>
+                            <type>9</type>
+                            <EnumValues/>
+                            <DefaultValue>"A99EAV0X"</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99C04XP</CommandId>
+                    <CommandDescription>TC152129A99EAV0X</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>false</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.A3">
+                <description></description>
+                <title>Confirm values of RWs Drift Momentum torques</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>50</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="BlockStepBody" type="Block Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <StepList>
+                        <title></title>
+                        <steps>
+                            <step identifier="P.1.D2.B3.A3.A1">
+<description></description>
+<title>Confirm value of RW1 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07AT.raw-value == 0.0</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.A3.A2">
+<description></description>
+<title>Confirm value of RW2 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07BT.raw-value == 0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.A3.A3">
+<description></description>
+<title>Confirm value of RW3 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07CT.raw-value == -0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.A3.A4">
+<description></description>
+<title>Confirm value of RW4 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07DT.raw-value == 0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.A3.A5">
+<description></description>
+<title>Confirm value of RW5 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07ET.raw-value == -0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                    </StepList>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>RW1_failed</condition>
+    </branch>
+    <branch>
+        <title>RW2_failed</title>
+        <steps>
+            <step identifier="P.1.D2.B3.B1">
+                <description></description>
+                <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+                <label></label>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>A99HA01X</name>
+                            <description>RW1_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA02X</name>
+                            <description>RW2_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA03X</name>
+                            <description>RW3_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA04X</name>
+                            <description>RW4_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA05X</name>
+                            <description>RW5_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99CM020</CommandId>
+                    <CommandDescription>TC_160_020</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>true</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.B2">
+                <description></description>
+                <title>Report drift torque values</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>10</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>P88H302U</name>
+                            <description>N_Param</description>
+                            <type>6</type>
+                            <MinValue>0</MinValue>
+                            <MaxValue>65535</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue>1</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                        <argument>
+                            <name>P88H303X</name>
+                            <description>Parameter ID</description>
+                            <type>9</type>
+                            <EnumValues/>
+                            <DefaultValue>"A99EAV0X"</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99C04XP</CommandId>
+                    <CommandDescription>TC152129A99EAV0X</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>false</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.B3">
+                <description></description>
+                <title>Confirm values of RWs Drift Momentum torques</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>50</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="BlockStepBody" type="Block Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <StepList>
+                        <title></title>
+                        <steps>
+                            <step identifier="P.1.D2.B3.B3.A1">
+<description></description>
+<title>Confirm value of RW1 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07AT.raw-value == -0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.B3.A2">
+<description></description>
+<title>Confirm value of RW2 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07BT.raw-value == 0.0</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.B3.A3">
+<description></description>
+<title>Confirm value of RW3 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07CT.raw-value == 0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.B3.A4">
+<description></description>
+<title>Confirm value of RW4 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07DT.raw-value == -0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.B3.A5">
+<description></description>
+<title>Confirm value of RW5 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07ET.raw-value == 0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                    </StepList>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>RW2_failed</condition>
+    </branch>
+    <branch>
+        <title>RW3_failed</title>
+        <steps>
+            <step identifier="P.1.D2.B3.C1">
+                <description></description>
+                <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+                <label></label>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>A99HA01X</name>
+                            <description>RW1_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA02X</name>
+                            <description>RW2_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA03X</name>
+                            <description>RW3_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA04X</name>
+                            <description>RW4_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA05X</name>
+                            <description>RW5_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99CM020</CommandId>
+                    <CommandDescription>TC_160_020</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>true</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.C2">
+                <description></description>
+                <title>Report drift torque values</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>10</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>P88H302U</name>
+                            <description>N_Param</description>
+                            <type>6</type>
+                            <MinValue>0</MinValue>
+                            <MaxValue>65535</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue>1</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                        <argument>
+                            <name>P88H303X</name>
+                            <description>Parameter ID</description>
+                            <type>9</type>
+                            <EnumValues/>
+                            <DefaultValue>"A99EAV0X"</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99C04XP</CommandId>
+                    <CommandDescription>TC152129A99EAV0X</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>false</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.C3">
+                <description></description>
+                <title>Confirm values of RWs Drift Momentum torques</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>50</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="BlockStepBody" type="Block Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <StepList>
+                        <title></title>
+                        <steps>
+                            <step identifier="P.1.D2.B3.C3.A1">
+<description></description>
+<title>Confirm value of RW1 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07AT.raw-value == -0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.C3.A2">
+<description></description>
+<title>Confirm value of RW2 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07BT.raw-value == 0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.C3.A3">
+<description></description>
+<title>Confirm value of RW3 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07CT.raw-value == 0.0</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.C3.A4">
+<description></description>
+<title>Confirm value of RW4 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07DT.raw-value == -0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.C3.A5">
+<description></description>
+<title>Confirm value of RW5 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07ET.raw-value == 0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                    </StepList>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>RW3_failed</condition>
+    </branch>
+    <branch>
+        <title>RW4_failed</title>
+        <steps>
+            <step identifier="P.1.D2.B3.D1">
+                <description></description>
+                <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+                <label></label>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>A99HA01X</name>
+                            <description>RW1_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA02X</name>
+                            <description>RW2_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA03X</name>
+                            <description>RW3_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA04X</name>
+                            <description>RW4_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA05X</name>
+                            <description>RW5_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99CM020</CommandId>
+                    <CommandDescription>TC_160_020</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>true</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.D2">
+                <description></description>
+                <title>Report drift torque values</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>10</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>P88H302U</name>
+                            <description>N_Param</description>
+                            <type>6</type>
+                            <MinValue>0</MinValue>
+                            <MaxValue>65535</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue>1</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                        <argument>
+                            <name>P88H303X</name>
+                            <description>Parameter ID</description>
+                            <type>9</type>
+                            <EnumValues/>
+                            <DefaultValue>"A99EAV0X"</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99C04XP</CommandId>
+                    <CommandDescription>TC152129A99EAV0X</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>false</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.D3">
+                <description></description>
+                <title>Confirm values of RWs Drift Momentum torques</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>50</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="BlockStepBody" type="Block Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <StepList>
+                        <title></title>
+                        <steps>
+                            <step identifier="P.1.D2.B3.D3.A1">
+<description></description>
+<title>Confirm value of RW1 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07AT.raw-value == -0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.D3.A2">
+<description></description>
+<title>Confirm value of RW2 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07BT.raw-value == 0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.D3.A3">
+<description></description>
+<title>Confirm value of RW3 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07CT.raw-value == -0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.D3.A4">
+<description></description>
+<title>Confirm value of RW4 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07DT.raw-value == 0.0</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.D3.A5">
+<description></description>
+<title>Confirm value of RW5 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07ET.raw-value == 0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                    </StepList>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>RW4_failed</condition>
+    </branch>
+    <branch>
+        <title>RW5_failed</title>
+        <steps>
+            <step identifier="P.1.D2.B3.E1">
+                <description></description>
+                <title>Set Manoeuvre values for Wheels Angular Momentum Drift Management (A99CM020)</title>
+                <label></label>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>A99HA01X</name>
+                            <description>RW1_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA02X</name>
+                            <description>RW2_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA03X</name>
+                            <description>RW3_TORQUE</description>
+                            <type>8</type>
+                            <value>-0.0000008053</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA04X</name>
+                            <description>RW4_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0000004977</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                        <argument>
+                            <name>A99HA05X</name>
+                            <description>RW5_TORQUE</description>
+                            <type>8</type>
+                            <value>0.0</value>
+                            <MinValue>-3.4028234663852886E38</MinValue>
+                            <MaxValue>3.4028234663852886E38</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue></DefaultValue>
+                            <required>true</required>
+                            <modifiable>true</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99CM020</CommandId>
+                    <CommandDescription>TC_160_020</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>true</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.E2">
+                <description></description>
+                <title>Report drift torque values</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>10</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <arguments>
+                        <argument>
+                            <name>P88H302U</name>
+                            <description>N_Param</description>
+                            <type>6</type>
+                            <MinValue>0</MinValue>
+                            <MaxValue>65535</MaxValue>
+                            <EnumValues/>
+                            <DefaultValue>1</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                        <argument>
+                            <name>P88H303X</name>
+                            <description>Parameter ID</description>
+                            <type>9</type>
+                            <EnumValues/>
+                            <DefaultValue>"A99EAV0X"</DefaultValue>
+                            <required>false</required>
+                            <modifiable>false</modifiable>
+                        </argument>
+                    </arguments>
+                    <CommandId>A99C04XP</CommandId>
+                    <CommandDescription>TC152129A99EAV0X</CommandDescription>
+                    <critical>false</critical>
+                    <authorised>false</authorised>
+                    <WaitForVerification>true</WaitForVerification>
+                    <OnBoardVerification>false</OnBoardVerification>
+                    <OverrideStaticPTV>false</OverrideStaticPTV>
+                    <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                    <DisableCEV>false</DisableCEV>
+                    <TransmissionTime></TransmissionTime>
+                    <ExecutionTime></ExecutionTime>
+                    <SubscheduleId></SubscheduleId>
+                    <MapId></MapId>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+            <step identifier="P.1.D2.B3.E3">
+                <description></description>
+                <title>Confirm values of RWs Drift Momentum torques</title>
+                <label></label>
+                <confirmation>
+                    <WaitCondition xsi:type="TemporalWaitCondition">
+                        <mode>Delay</mode>
+                        <delay>50</delay>
+                    </WaitCondition>
+                    <CheckExpression></CheckExpression>
+                </confirmation>
+                <StepBody xsi:type="BlockStepBody" type="Block Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <StepList>
+                        <title></title>
+                        <steps>
+                            <step identifier="P.1.D2.B3.E3.A1">
+<description></description>
+<title>Confirm value of RW1 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07AT.raw-value == -0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.E3.A2">
+<description></description>
+<title>Confirm value of RW2 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07BT.raw-value == 0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.E3.A3">
+<description></description>
+<title>Confirm value of RW3 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07CT.raw-value == -0.0000008053</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.E3.A4">
+<description></description>
+<title>Confirm value of RW4 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07DT.raw-value == 0.0000004977</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                            <step identifier="P.1.D2.B3.E3.A5">
+<description></description>
+<title>Confirm value of RW5 Drift torque</title>
+<label></label>
+<StepBody xsi:type="WaitStepBody" type="Wait Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <WaitCondition xsi:type="ExpressionWaitCondition">
+        <expression>#P!A99F07ET.raw-value == 0.0</expression>
+        <window>60</window>
+    </WaitCondition>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                    </StepList>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>RW5_failed</condition>
+    </branch>
+</Branches>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>Upload solstice torque</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

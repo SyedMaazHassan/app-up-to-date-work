@@ -1,0 +1,2115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_FCI_I700">
+    <description>Procedure Purpose:         FCI Activation (N)
+
+Procedure Version:         	6
+Responsibility:   	Julien Rogissart
+Last Modified Date:        	09.03.2023
+
+Change History:
+
+Version 6: (CT - 09.03.2023)
+Procedure updated as per AR/6801 
+
+Version 5.1: (JRo - 03.02.2023)
+Verify the position of the COM (in Shutter position - FASESG9Z) before executing recom-23 (steps P3.B1.A1.A1 to P3.B1.A1.A8).
+
+Version 5: (JRo - 30.01.2023)
+- *** Procedure updated wrt PST COM recommendation-23 ***: Need to move the COM wheel to shutter_ref position before reaching heater mode.
+After the shutter_safe command, the COM is in shutter as observed by the plateform via the BSMs, but , as observed by the ICU, (optical switched) the COM wheel is not in shutter.
+Going to heater warm up mode with COM not in shutter ref would trigger an FDIR ==&gt; SOR.
+Step P3.B1 created (with sub-steps P3.B1.A1 to P3.B1.A8)
+
+Version 4: (CRN - 26.01.2023)
+- *** Procedure updated wrt PST COM recommendation-16 ***:
+Step P.3.B1.A4 (Switch‐Off FCI STC) removed.
+
+Version 3: (JRo - 26.01.2023)
+- *** Procedure updated wrt PST COM recommendation-13 ***:
+During the FCI switch ON to decontamination operation, it is recommended to set at the beginning of the sequence the maximum power granted for the Platform thermal control from 1000W to 720W:
+Remove the step P.2.B1.A1, which sets the peak power limit to 500W.
+TCS_AJ_SF_POWER_LIM_MAX_W shall be set by ground operator by TC(152,128) to 720W.
+In N_FCI_I700, the step P.2.B1.A1 (before execution of N_FCI_701: “FCI Switch ON to STANBY mode”) should be replaced by these 2 TCs:
+‐ TC T99C0V3P “Set AJ TCS Heater Power Limit Max” with parameter:
+o T99H00VX = 720
+‐ T99C0V4P Report Value of Heater Power Limit
+o Check: T99EA00W.raw‐value == 720
+
+- *** Procedure updated wrt PST COM recommendation-16 ***:
+
+Version 2: (CT - 10.10.2022)
+- Procedure updated in step p.5 to define HKTM Packet 115 for FWP phase monitoring as per AIM 246488.
+- Procedure updated as per AIM 225572 &amp; AIM 225504 (FOM06).
+
+Version 1: (CT - 18.01.2022)
+- Copied from FOM procedure N_FCI_I200 version 1 (delivered in FOM5)
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1;
+- Procedure updated to cover only the activation of nominal equipment. Additionally, procedure allows partial activation to/from intermediate modes. PF commanding such as FCI macro mode update and STC switch off have been moved from the instrument procedure to the parent.
+
+Procedure Objectives:
+
+- This System procedure activates FCI from SURVIVAL mode to WAIT mode with Nominal equipment only.
+- Procedure allowes partial activation (mode lower than WAIT) and activation resumption (from a mode higher that SURVIVAL)
+
+Procedure Overview:
+
+This procedure 
+- checks the pre-conditions prior activation;
+- depending on arguments values, performes activation calling the related instrument procedures;
+- checks post-conditions.
+
+Procedure Pre-conditions:            FCI in any mode lower than WAIT, SAT in FPM/NOM mode.
+
+Procedure Constraints:   None
+
+Spacecraft Configuration:           FPM/NOM
+
+Ground Segment Configuration: None
+
+Remarks: 	None</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>FCI Activation (N)</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_FCI_I700</UniqueId>
+    <author>tranquilli_OPRE</author>
+    <LastModifiedDate>2023-03-09T14:59:23.835Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+MTI1::N_FCI_I701 called by steps: P.2.B1.A4
+Default::N_FCI_I118 called by steps: P.3.B2.A1
+MTI1::N_FCI_I703 called by steps: P.3.B2.A2
+Default::N_FCI_I119 called by steps: P.4.B1.A2
+MTI1::N_FCI_I705 called by steps: P.4.B1.A3
+Default::N_FCI_I120 called by steps: P.5.B1.A2
+MTI1::N_FCI_I707 called by steps: P.5.B1.A3
+</hierarchy>
+    <version>20.0</version>
+    <history>Version 6: (CT - 09.03.2023)
+Procedure updated as per AR/6801</history>
+    <duration></duration>
+    <VerificationVersion>03.07.05</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>END_MODE</name>
+            <description>FCI mode at end of activation</description>
+            <type>12</type>
+            <value>WAIT</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>STANDBY</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>HEATERWARMUP</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>CONFIGURATIO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>WAIT</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>E2P_Bank</name>
+            <description>Bank to load SW image from </description>
+            <type>12</type>
+            <value>BankA</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>BankA</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>BankB</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables/>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Pre-conditions checks</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.1.A1">
+    <description>The satellite mode has to be in NOM/FPM mode</description>
+    <title>Check Satellite Mode</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>(#P!P88E000X == "NOM") &amp;&amp; (#P!A99E000Z == "FPM")</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A2">
+    <description></description>
+    <title>Check SHUTTER position reading from PF</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!HDHF096Z == "IN_SHUTTER"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>FCI in SURVIVAL</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!P88E527X == "PFCI_SURV"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.2.B1">
+        <description></description>
+        <title>FCI SURVIVAL MECHANISMS UNLOCKED to STANDBY</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.B1.A1">
+                        <description></description>
+                        <title>TC T99C0V - Set AJ TCS Heater Power Limit Max to 720W</title>
+                        <label></label>
+                        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>P88H302U</name>
+    <description>N_Param</description>
+    <type>6</type>
+    <MinValue>0</MinValue>
+    <MaxValue>65535</MaxValue>
+    <EnumValues/>
+    <DefaultValue>1</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>P88H303X</name>
+    <description>Parameter ID</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"T99EA00W"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>T99H00VX</name>
+    <description>TcsAjMaxPowW</description>
+    <type>6</type>
+    <value>720</value>
+    <MinValue>0</MinValue>
+    <MaxValue>65535</MaxValue>
+    <EnumValues/>
+    <DefaultValue>0</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <CommandId>T99C0V3P</CommandId>
+                            <CommandDescription>TC152128T99EA00W</CommandDescription>
+                            <critical>false</critical>
+                            <authorised>false</authorised>
+                            <WaitForVerification>true</WaitForVerification>
+                            <OnBoardVerification>true</OnBoardVerification>
+                            <OverrideStaticPTV>false</OverrideStaticPTV>
+                            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                            <DisableCEV>false</DisableCEV>
+                            <TransmissionTime></TransmissionTime>
+                            <ExecutionTime></ExecutionTime>
+                            <SubscheduleId></SubscheduleId>
+                            <MapId></MapId>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.B1.A2">
+                        <description></description>
+                        <title>Report Value of Heater Power Limit (T99C0V4P)</title>
+                        <label></label>
+                        <confirmation>
+                            <WaitCondition xsi:type="TemporalWaitCondition">
+<mode>Delay</mode>
+<delay>5</delay>
+                            </WaitCondition>
+                            <CheckExpression></CheckExpression>
+                        </confirmation>
+                        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>P88H302U</name>
+    <description>N_Param</description>
+    <type>6</type>
+    <MinValue>0</MinValue>
+    <MaxValue>65535</MaxValue>
+    <EnumValues/>
+    <DefaultValue>1</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>P88H303X</name>
+    <description>Parameter ID</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"T99EA00W"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+                            </arguments>
+                            <CommandId>T99C0V4P</CommandId>
+                            <CommandDescription>TC152129T99EA00W</CommandDescription>
+                            <critical>false</critical>
+                            <authorised>false</authorised>
+                            <WaitForVerification>true</WaitForVerification>
+                            <OnBoardVerification>false</OnBoardVerification>
+                            <OverrideStaticPTV>false</OverrideStaticPTV>
+                            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                            <DisableCEV>false</DisableCEV>
+                            <TransmissionTime></TransmissionTime>
+                            <ExecutionTime></ExecutionTime>
+                            <SubscheduleId></SubscheduleId>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.B1.A3">
+                        <description></description>
+                        <title>Check TCS_POWER_LIM_MAX_W</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!T99EA00W.raw-value == 720</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.B1.A4">
+                        <description></description>
+                        <title>N_FCI_I701 - FCI to STANDBY</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>E2P_Bank</name>
+    <description>ank to load SW image from </description>
+    <type>12</type>
+    <value>#PR!!E2P_Bank</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>BankA</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>BankB</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>BankA</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I701</ProcedureId>
+                            <DomainId>MTI1:</DomainId>
+                            <title>FCI to STANDBY</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.B1.A5">
+                        <description></description>
+                        <title>Update PF macro mode for FCI</title>
+                        <label></label>
+                        <StepBody xsi:type="BlockStepBody" type="Block Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <StepList>
+<title></title>
+<steps>
+    <step identifier="P.2.B1.A5.A1">
+        <description></description>
+        <title>Set FCI Macro Mode to PFCI_STBY</title>
+        <label></label>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>P88HK02X</name>
+                    <description>N_PARAMETER</description>
+                    <type>6</type>
+                    <MinValue>0</MinValue>
+                    <MaxValue>65535</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue>1</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88H303X</name>
+                    <description>Parameter ID</description>
+                    <type>9</type>
+                    <EnumValues/>
+                    <DefaultValue>"P88E527X"</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88HK07X</name>
+                    <description>PlFciMacroMode</description>
+                    <type>12</type>
+                    <value>PFCI_STBY</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>PFCI_SURV</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>2</key>
+                            <value>PFCI_STBY</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>4</key>
+                            <value>PFCI_WAIT</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>8</key>
+                            <value>PFCI_OPERA</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>1</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>P88C9805</CommandId>
+            <CommandDescription>TC152131P88E527X</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B1.A5.A2">
+        <description>PlFciMacroMode</description>
+        <title>Check FCI macro mode is PFCI_STBY</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>#P!P88E527X == "PFCI_STBY"</expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+                            </StepList>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.B1.A6">
+                        <description></description>
+                        <title>Dump and Check FCI Configuration Table</title>
+                        <label></label>
+                        <StepBody xsi:type="BlockStepBody" type="Block Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <StepList>
+<title></title>
+<steps>
+    <step identifier="P.2.B1.A6.A1">
+        <description></description>
+        <title>Send Configuration Report TC (FASCC001)</title>
+        <label></label>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments/>
+            <CommandId>FASCC001</CommandId>
+            <CommandDescription>ConfigReport</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+            <MapId></MapId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B1.A6.A2">
+        <description></description>
+        <title>Check reported Configuration table</title>
+        <label></label>
+        <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <message>Check reported Configuration table in FASTMPKC000A. If NOK, update FCI Conf Table with C_FCI_I020.</message>
+            <ResponseWindow></ResponseWindow>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+                            </StepList>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B2">
+        <description></description>
+        <title>Continue activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.2.B2.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>FCI in STANDBY</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "STANDBY" &amp;&amp; (#PR!!END_MODE == "HEATERWARMUP" || #PR!!END_MODE == "CONFIGURATIO" || #PR!!END_MODE == "WAIT") </condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.3.B1">
+        <description> (Commissioning Recommendation-23)</description>
+        <title>Move the COM wheel to shutter_ref position before reaching heater mode</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.3.B1.A1">
+                        <description></description>
+                        <title>COM in SHUTTER Position ?</title>
+                        <label></label>
+                        <StepBody xsi:type="CaseStepBody" type="Case Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <condition>#P!FASESG9Z == "SHUTTER"</condition>
+                            <Branches>
+<branch>
+    <title>false</title>
+    <steps>
+        <step identifier="P.3.B1.A1.A1">
+            <description></description>
+            <title>Switch ON motors relays with TC(208,6) FASCS01K</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>FASHS45Z</name>
+                        <description>COM_Id</description>
+                        <type>12</type>
+                        <value>NOMINAL</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>SIDE_1</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>SIDE_2</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>2</key>
+<value>NOMINAL</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>3</key>
+<value>REDUNDANT</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <CommandId>FASCS01K</CommandId>
+                <CommandDescription>COM Motor On</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A2">
+            <description></description>
+            <title>Switch ON LCL with TC(208,4) FASCS01H</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>FASHS43Z</name>
+                        <description>COM_Id</description>
+                        <type>12</type>
+                        <value>NOMINAL</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>SIDE_1</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>SIDE_2</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>2</key>
+<value>NOMINAL</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>3</key>
+<value>REDUNDANT</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <CommandId>FASCS01H</CommandId>
+                <CommandDescription>LCL On</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A3">
+            <description></description>
+            <title>Sent TC(208,20) to unlock COM motor FASCS01Y</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments/>
+                <CommandId>FASCS01Y</CommandId>
+                <CommandDescription>Motor Unlock</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A4">
+            <description></description>
+            <title>Sent TC go to Reference position for the COM motor TC(208,21) FASCS01Z</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments/>
+                <CommandId>FASCS01Z</CommandId>
+                <CommandDescription>Go To Ref Pos</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A5">
+            <description></description>
+            <title>Verify the COM is in shutter position</title>
+            <label></label>
+            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <WaitCondition xsi:type="ExpressionWaitCondition">
+                    <expression>#P!FASESG9Z == "SHUTTER"</expression>
+                    <window>60</window>
+                </WaitCondition>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A6">
+            <description></description>
+            <title>Sent TC(208,19) to relock COM motor FASCS01X</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments/>
+                <CommandId>FASCS01X</CommandId>
+                <CommandDescription>Motor Lock</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A7">
+            <description></description>
+            <title>Switch OFF LCL with TC(208,5) FASCS01J</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>FASHS44Z</name>
+                        <description>COM_Id</description>
+                        <type>12</type>
+                        <value>NOMINAL</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>SIDE_1</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>SIDE_2</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>2</key>
+<value>NOMINAL</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>3</key>
+<value>REDUNDANT</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <CommandId>FASCS01J</CommandId>
+                <CommandDescription>LCL Off</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.3.B1.A1.A8">
+            <description></description>
+            <title>Switch OFF motors relays with TC(208,7) FASCS01L</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>FASHS46Z</name>
+                        <description>COM_Id</description>
+                        <type>12</type>
+                        <value>NOMINAL</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>SIDE_1</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>SIDE_2</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>2</key>
+<value>NOMINAL</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>3</key>
+<value>REDUNDANT</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <CommandId>FASCS01L</CommandId>
+                <CommandDescription>COM Motor Off</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>true</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+    <condition>false</condition>
+</branch>
+<branch>
+    <title>true</title>
+    <steps/>
+    <condition>true</condition>
+</branch>
+                            </Branches>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B2">
+        <description></description>
+        <title>FCI STANDBY to HEATERWARMUP</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.3.B2.A1">
+                        <description></description>
+                        <title>N_FCI_I118 - Check STANDBY mode target Temperatures </title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I118</ProcedureId>
+                            <DomainId>Default:</DomainId>
+                            <title>FCI Check OTL temperatures before going to Heater Mode</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.3.B2.A2">
+                        <description></description>
+                        <title>N_FCI_I703 - FCI to HEATERWARMUP</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I703</ProcedureId>
+                            <DomainId>MTI1:</DomainId>
+                            <title>FCI STANDBY to HEATERWARMUP</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.3.B2.A3">
+                        <description></description>
+                        <title>Update PF macro mode for FCI</title>
+                        <label></label>
+                        <StepBody xsi:type="BlockStepBody" type="Block Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <StepList>
+<title></title>
+<steps>
+    <step identifier="P.3.B2.A3.A1">
+        <description></description>
+        <title>Set FCI Macro Mode to PFCI_WAIT</title>
+        <label></label>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>P88HK02X</name>
+                    <description>N_PARAMETER</description>
+                    <type>6</type>
+                    <MinValue>0</MinValue>
+                    <MaxValue>65535</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue>1</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88H303X</name>
+                    <description>Parameter ID</description>
+                    <type>9</type>
+                    <EnumValues/>
+                    <DefaultValue>"P88E527X"</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88HK07X</name>
+                    <description>PlFciMacroMode</description>
+                    <type>12</type>
+                    <value>PFCI_WAIT</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>PFCI_SURV</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>2</key>
+                            <value>PFCI_STBY</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>4</key>
+                            <value>PFCI_WAIT</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>8</key>
+                            <value>PFCI_OPERA</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>1</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>P88C9805</CommandId>
+            <CommandDescription>TC152131P88E527X</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>false</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B2.A3.A2">
+        <description>PlFciMacroMode</description>
+        <title>Check FCI macro mode is PFCI_WAIT</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>#P!P88E527X == "PFCI_WAIT"</expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+                            </StepList>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B3">
+        <description></description>
+        <title>Continue activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.3.B3.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>FCI in HEATERWARMUP</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "HEATERWARMUP" &amp;&amp; (#PR!!END_MODE == "CONFIGURATIO" || #PR!!END_MODE == "WAIT") </condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.4.B1">
+        <description></description>
+        <title>FCI HEATERWARMUP to CONFIGURATION</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.4.B1.A1">
+                        <description></description>
+                        <title>WAIT </title>
+                        <label></label>
+                        <StepBody xsi:type="WhileStepBody" type="While Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <condition>(#P!FASE1BVX.raw-value &lt; 15 ) || (#P!FASE1BVX.raw-value &gt; 37) </condition>
+                            <StepList>
+<title>Repeat</title>
+<steps>
+    <step identifier="P.4.B1.A1.A1">
+        <description></description>
+        <title>FCI-OTL-30 - SCAU N/S Encoder</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>(#P!FASE1BVX.raw-value &lt; 15 ) || (#P!FASE1BVX.raw-value &gt; 37) </expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+                            </StepList>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.4.B1.A2">
+                        <description></description>
+                        <title>N_FCI_I119 - Check HEATERWARMUP mode target Temperatures</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I119</ProcedureId>
+                            <DomainId>Default:</DomainId>
+                            <title>FCI Check OTL temperatures before going to CONFIGURATION</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.4.B1.A3">
+                        <description></description>
+                        <title>N_FCI_I705 - FCI to CONFIGURATION</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I705</ProcedureId>
+                            <DomainId>MTI1:</DomainId>
+                            <title>FCI HEATERWARMUP to CONFIGURATION</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.4.B2">
+        <description></description>
+        <title>Continue activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.4.B2.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.5">
+                    <description></description>
+                    <title>FCI in CONFIGURATION</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "CONFIGURATIO" &amp;&amp; #PR!!END_MODE == "WAIT"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.5.B1">
+        <description></description>
+        <title>FCI CONFIGURATION to WAIT</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.5.B1.A1">
+                        <description></description>
+                        <title>WAIT </title>
+                        <label></label>
+                        <StepBody xsi:type="WhileStepBody" type="While Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <condition>#P!FCNM242Z != "COLD_PLATEAU"</condition>
+                            <StepList>
+<title>Repeat</title>
+<steps>
+    <step identifier="P.5.B1.A1.A1">
+        <description>COLD_PLATEAU_STA</description>
+        <title>Check CCU in Cold Plateau phase</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>#P!FCNM242Z != "COLD_PLATEAU"</expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+                            </StepList>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.5.B1.A2">
+                        <description></description>
+                        <title>N_FCI_I120 - Check CONFIGURATION mode target Temperatures</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I120</ProcedureId>
+                            <DomainId>Default:</DomainId>
+                            <title>FCI Check OTL temperatures before going to WAIT</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.5.B1.A3">
+                        <description></description>
+                        <title>N_FCI_I707 - FCI to WAIT</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_FCI_I707</ProcedureId>
+                            <DomainId>MTI1:</DomainId>
+                            <title>FCI CONFIGURATION to WAIT</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.5.B1.A4">
+                        <description>Waiting duration of 10 hours shall be applied before entering Observation mode to ensure stability of detectors as required in §4.6.5.5 of FCI FOM v7.</description>
+                        <title>Wait 10 h</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="TemporalWaitCondition">
+<mode>Until</mode>
+<delay>now() + 36000</delay>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.5.B2">
+        <description></description>
+        <title>Define FCI HK for WP monitoring</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.5.B2.A1">
+                        <description></description>
+                        <title>F88CK017 - Define FCI WORKPLAN_HK pkt (SID 115)</title>
+                        <label></label>
+                        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>FPUH00PE</name>
+    <description>SID</description>
+    <type>6</type>
+    <MinValue>0</MinValue>
+    <MaxValue>4294967295</MaxValue>
+    <EnumValues/>
+    <DefaultValue>115</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>FPUH00RX</name>
+    <description>COLLECTION_INTER</description>
+    <type>6</type>
+    <MinValue>0</MinValue>
+    <MaxValue>65535</MaxValue>
+    <EnumValues/>
+    <DefaultValue>10</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>FPUH00TU</name>
+    <description>HK_PAR_NB_T</description>
+    <type>6</type>
+    <MinValue>0</MinValue>
+    <MaxValue>65535</MaxValue>
+    <EnumValues/>
+    <DefaultValue>73</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK04X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE701Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK05X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE702Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK06X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE703Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK07X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE704Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK08X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE705Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK09X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70VH"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK0AX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70WZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK0BX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70XX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK0CX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70YX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK0DX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70ZX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK0EX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE710X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK0FX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE711X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK10X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE712H"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK11X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE713H"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK12X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE714X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK13X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE715X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK14X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE716X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK15X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE717X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK16X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE718Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK17X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE719H"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK18X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71AH"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK19X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71BH"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK1AX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71CH"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK1BX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71DH"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK1CX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71EH"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK1DX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71FZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK1FX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FS1M803Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK20X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FS2M803Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK21X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASETX6X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK22X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASETXAX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK23X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FS1M259Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK24X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FS1M263Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK25X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASESFYZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK26X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASESG3Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK27X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASESFZZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK28X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASESG4Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK29X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71GZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK2AX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71HZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK2BX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71JZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK2CX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71KZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK2DX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71LZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK2EX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71MZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK2FX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71NZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK30X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71PZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK31X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71RZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK32X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71SZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK33X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71TZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK34X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71UZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK35X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71VZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK36X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE71WZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK37X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE706X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK38X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASETNRX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK39X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE708X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK3AX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE709X"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK3BX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70AZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK3CX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70BX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK3DX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70CX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK3EX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70DX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK3FX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70FX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK40X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70GX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK41X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70HZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK42X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70JZ"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK43X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70KX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK44X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70LX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK45X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70MX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK46X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70NX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK47X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70PX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK48X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70RX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK49X</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70SX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK4AX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70TX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK4BX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FASE70UX"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK4CX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FS1M188Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+<argument>
+    <name>F88HK4DX</name>
+    <description>PARAM_ID_SEQ_T</description>
+    <type>9</type>
+    <EnumValues/>
+    <DefaultValue>"FS2M188Z"</DefaultValue>
+    <required>false</required>
+    <modifiable>false</modifiable>
+</argument>
+                            </arguments>
+                            <CommandId>F88CK017</CommandId>
+                            <CommandDescription>WORKPLAN_HK</CommandDescription>
+                            <critical>false</critical>
+                            <authorised>false</authorised>
+                            <WaitForVerification>true</WaitForVerification>
+                            <OnBoardVerification>false</OnBoardVerification>
+                            <OverrideStaticPTV>false</OverrideStaticPTV>
+                            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                            <DisableCEV>false</DisableCEV>
+                            <TransmissionTime></TransmissionTime>
+                            <ExecutionTime></ExecutionTime>
+                            <SubscheduleId></SubscheduleId>
+                            <MapId></MapId>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.6">
+                    <description></description>
+                    <title>END</title>
+                    <label>END</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText></LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

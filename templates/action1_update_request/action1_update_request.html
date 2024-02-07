@@ -1,0 +1,79 @@
+<!-- templates/home.html -->
+
+{% extends 'base.html' %}
+
+{% block title %} Action1 {% endblock %}
+
+{% block content %}
+    <div class="schedule-main">
+        <h1> MSG Actions</h1>
+        <hr>
+
+        <div class="row">
+            <div class="col-md-2">
+                <form method="get" action="/action1/add/update/request" enctype="multipart/form-data">
+                    <button type="submit" class="btn btn-primary">New Action</button>
+                </form>
+            </div>
+            {% if is_admin %}
+            <div class="col-md-2">
+                <form method="get" action="/api/delete/all/19">
+                    <button type="submit" class="btn btn-primary">Delete All</button>
+                </form>
+            </div>
+
+            <div class="col-md-2">
+                <form method="post" action="/api/action1/update/request/upload" enctype="multipart/form-data">
+                    <input type="file" name="file" onchange="this.form.submit()">
+                </form>
+            </div>
+            {% endif %}
+        </div>  
+        <br>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Status</th>
+                    <th>Originator</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Complete</th>
+                    <th>Download Files</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>
+                        <a href="/action1/update/request/{{row[0]}}" class="btn-sm" role="button">
+                            <i class="mdi mdi-eye"></i>
+                        </a>
+                    </td>
+                    {% if row[2]|lower == 'verified' %}
+                        <td><span class="badge badge-pill badge-success">VERIFIED</span></td>
+                    {% else %}
+                        <td><span class="badge badge-pill badge-secondary">NOT VERIFIED</span></td>
+                    {% endif %}
+                    <td>{{ row[3] }}</td>                    
+                    <td>{{ row[4] }}</td>                    
+                    <td>{{ row[5] }}</td>                    
+                    <td>{{ row[8] }}</td>
+                    {% if row[12]|lower == 'implemented' %}
+                        <td><span class="badge badge-pill badge-success">Complete</span></td>
+                    {% else %}
+                        <td><span class="badge badge-pill badge-secondary">Not Complete</span></td>
+                    {% endif %}
+                    <td>
+                        <a href="/action1_update_request/download/file/{{ row[0] }}" class="btn-lg" role="button">
+                            <i class="mdi mdi-download"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>  
+    </div>
+{% endblock %}
+

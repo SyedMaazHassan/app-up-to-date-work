@@ -1,0 +1,91 @@
+<!-- templates/home.html -->
+
+{% extends 'base.html' %}
+
+{% block title %} Parameter 1 {% endblock %}
+
+{% block content %}
+    <div class="schedule-main">
+        <h1> MTG Parameters</h1>
+        <hr>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                Filters
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('get_parameters_1') }}">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="title">Parameter Name</label>
+                            <input type="text" class="form-control" id="parameterName" name="parameterName">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="title">Parameter DESCR</label>
+                            <input type="text" class="form-control" id="parameterDescr" name="parameterDescr">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="title">Parameter PID</label>
+                            <input type="text" class="form-control" id="parameterPid" name="parameterPid">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="title">Hyperlink</label>
+                            <input type="text" class="form-control" id="Hyperlink" name="Hyperlink">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-11"></div>
+            {% if is_admin %}
+            <div clas="col-md-1">
+                <form method="post" action="/api/parameter_1/upload" enctype="multipart/form-data">
+                    <input type="file" name="file" onchange="this.form.submit()">
+                </form>
+            </div>
+            <div class="col-md-2">
+                <form method="get" action="/api/delete/all/14">
+                    <button type="submit" class="btn btn-primary">Delete All</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>  
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Parameter Name</th>
+                    <th>Parameter DESCR</th>
+                    <th>Hyperlink</th>
+                    <th>OOL Type</th>
+                    <th>OOL LVALU</th>
+                    <th>OOL HVALU</th>
+                    <th>OOL RLCHK</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for parameter_1 in parameters_1 %}
+                <tr>
+                    <td>
+                        <a href="/parameter_1/{{parameter_1[0]}}" class="btn-sm" role="button">
+                            <i class="mdi mdi-eye"></i>
+                        </a>
+                    </td>
+                    <td>{{ parameter_1[1] }}</td>                    
+                    <td>{{ parameter_1[2] }}</td>
+                    <td><a href="{{parameter_1[4]}}">{{ parameter_1[4] }}</a></td>
+                    <td>{{ parameter_1[31] }}</td>
+                    <td>{{ parameter_1[32] }}</td>
+                    <td>{{ parameter_1[33] }}</td>
+                    <td>{{ parameter_1[34] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>  
+    </div>
+{% endblock %}
+

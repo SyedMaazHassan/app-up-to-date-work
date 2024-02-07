@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_FCI_I730">
+    <description>Procedure Purpose:         STOP FWP and PF REPSEQ
+
+Procedure Version:         2
+Responsibility:   Claudia Tranquilli
+Last Modified Date:        02.08.2022
+
+Change History:
+
+Version 2: (CT - 02.08.2022)
+Procedure updated to: 
+- Remove WP loop as check already in N_FCI_I600;
+- Disable HK115 (AIM 246488). 
+
+
+Version 1: (CT - 18.02.2022)
+- Copied from FOM procedure N_SAT_I510 version 3 (delivered in FOM5)
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1;
+- Procedure updated for command verification; added loop waiting for transition; FWP and PF REPSEQ stopped in parallel; macro mode update moved to system procedure. 
+
+Procedure Objectives:
+
+- This procedure stops FCI WP and PF REPSEQ at the end of the repeat cycle. 
+
+
+Procedure Overview:
+
+This procedure:
+- Waits for FCI scan to be in Transition;
+- stops in parallel FWP and PF REPSEQ calling N_FCI_I600 and N_SYS_0702;
+- Updates FCI macro mode.
+
+Procedure Pre-conditions:            None
+
+Procedure Constraints:   None
+
+Spacecraft Configuration:            FCI in OBSERVATION
+
+Ground Segment Configuration:	None
+
+Remarks:	None</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>STOP FWP and PF REPSEQ</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_FCI_I730</UniqueId>
+    <author>tranquilli_OPRE</author>
+    <LastModifiedDate>2022-08-02T13:21:49.667Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+MTI1::N_FCI_I600 called by steps: P.2.A1
+MTI1::N_SYS_0702 called by steps: P.2.B1
+</hierarchy>
+    <version>13.0</version>
+    <history>Version 2: (CT - 02.08.2022)
+Procedure updated to: 
+- Remove WP loop as check already in N_FCI_I600;
+- Disable HK115 (AIM 246488). </history>
+    <duration></duration>
+    <VerificationVersion>03.06.05-4</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables/>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Pre-conditions checks</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.1.A1">
+    <description></description>
+    <title>Check FCI Mode</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASEM01X == "OBSERVATION" </expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A2">
+    <description></description>
+    <title>FWP is running</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASE701Z == "RUNNING"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A3">
+    <description></description>
+    <title>REPSEQ is running</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!H99E133Z == "RUNNING"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>STOP FWP at the end of repeat cycle</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ParallelStepBody" type="Parallel Step Body">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <UntilCondition>ALL_COMPLETE</UntilCondition>
+                        <SubThreads>
+                            <SubThread label="">
+<description></description>
+<title>FCI</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>FCI</title>
+    <steps>
+        <step identifier="P.2.A1">
+            <description></description>
+            <title>N_FCI_I600 - STOP FWP</title>
+            <label></label>
+            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>OBERTime</name>
+                        <description>On Board Execution Reference Time</description>
+                        <type>11</type>
+                        <EnumValues/>
+                        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <ProcedureId>N_FCI_I600</ProcedureId>
+                <DomainId>MTI1:</DomainId>
+                <title>FCI OBSERVATION to WAIT</title>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.2.A2">
+            <description></description>
+            <title>FPUC0009 - Disable WORKPLAN_HK</title>
+            <label></label>
+            <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>FPUH00ZU</name>
+                        <description>HK_SID_NB_T</description>
+                        <type>6</type>
+                        <MinValue>0</MinValue>
+                        <MaxValue>65535</MaxValue>
+                        <EnumValues/>
+                        <DefaultValue>1</DefaultValue>
+                        <required>true</required>
+                        <modifiable>false</modifiable>
+                    </argument>
+                    <argument>
+                        <name>FPUH00YE</name>
+                        <description>SID_SEQ_T</description>
+                        <type>6</type>
+                        <value>115</value>
+                        <MinValue>0</MinValue>
+                        <MaxValue>4294967295</MaxValue>
+                        <EnumValues/>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <CommandId>FPUC0009</CommandId>
+                <CommandDescription>DIS_HK_GEN_TC</CommandDescription>
+                <critical>false</critical>
+                <authorised>false</authorised>
+                <WaitForVerification>true</WaitForVerification>
+                <OnBoardVerification>false</OnBoardVerification>
+                <OverrideStaticPTV>false</OverrideStaticPTV>
+                <OverrideDynamicPTV>false</OverrideDynamicPTV>
+                <DisableCEV>false</DisableCEV>
+                <TransmissionTime></TransmissionTime>
+                <ExecutionTime></ExecutionTime>
+                <SubscheduleId></SubscheduleId>
+                <MapId></MapId>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                            <SubThread label="">
+<description></description>
+<title>PF</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>PF</title>
+    <steps>
+        <step identifier="P.2.B1">
+            <description></description>
+            <title>N_SYS_0702 - STOP PF REPSEQ</title>
+            <label></label>
+            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>ACT_TYPE</name>
+                        <description>Repeat Sequence action type</description>
+                        <type>12</type>
+                        <value>STOP</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>STOP</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>START</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue>STOP</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>OBERTime</name>
+                        <description>On Board Execution Reference Time</description>
+                        <type>11</type>
+                        <EnumValues/>
+                        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>REPSEQ_ID</name>
+                        <description>Repeat Sequence ID</description>
+                        <type>5</type>
+                        <MinValue>0</MinValue>
+                        <MaxValue>1</MaxValue>
+                        <EnumValues/>
+                        <DefaultValue>0</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>START_TIME_M</name>
+                        <description>Minor Frame count to start repeat sequence</description>
+                        <type>5</type>
+                        <MinValue>0</MinValue>
+                        <MaxValue>9</MaxValue>
+                        <EnumValues/>
+                        <DefaultValue>0</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>START_TIME_S</name>
+                        <description>CUC coarse time when to start the repeat sequence</description>
+                        <type>8</type>
+                        <MinValue>0.0</MinValue>
+                        <MaxValue>4.294967295E9</MaxValue>
+                        <EnumValues/>
+                        <DefaultValue>0.0</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>STOP_TYPE</name>
+                        <description>Select repeat sequence stop type</description>
+                        <type>12</type>
+                        <value>END_REP_CYC</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>END_REP_CYC</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>IMMEDIATELY</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue>END_REP_CYC</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <ProcedureId>N_SYS_0702</ProcedureId>
+                <DomainId>MTI1:</DomainId>
+                <title>REPSEQ START/STOP</title>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                        </SubThreads>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Update PF macro mode for FCI</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.3.A1">
+    <description></description>
+    <title>Set FCI Macro Mode to PFCI_WAIT</title>
+    <label></label>
+    <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>P88HK02X</name>
+                <description>N_PARAMETER</description>
+                <type>6</type>
+                <MinValue>0</MinValue>
+                <MaxValue>65535</MaxValue>
+                <EnumValues/>
+                <DefaultValue>1</DefaultValue>
+                <required>false</required>
+                <modifiable>false</modifiable>
+            </argument>
+            <argument>
+                <name>P88H303X</name>
+                <description>Parameter ID</description>
+                <type>9</type>
+                <EnumValues/>
+                <DefaultValue>"P88E527X"</DefaultValue>
+                <required>false</required>
+                <modifiable>false</modifiable>
+            </argument>
+            <argument>
+                <name>P88HK07X</name>
+                <description>PlFciMacroMode</description>
+                <type>12</type>
+                <value>PFCI_WAIT</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>PFCI_SURV</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>PFCI_STBY</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>PFCI_WAIT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>8</key>
+                        <value>PFCI_OPERA</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <CommandId>P88C9805</CommandId>
+        <CommandDescription>TC152131P88E527X</CommandDescription>
+        <critical>false</critical>
+        <authorised>false</authorised>
+        <WaitForVerification>true</WaitForVerification>
+        <OnBoardVerification>false</OnBoardVerification>
+        <OverrideStaticPTV>false</OverrideStaticPTV>
+        <OverrideDynamicPTV>false</OverrideDynamicPTV>
+        <DisableCEV>false</DisableCEV>
+        <TransmissionTime></TransmissionTime>
+        <ExecutionTime></ExecutionTime>
+        <SubscheduleId></SubscheduleId>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A2">
+    <description>PlFciMacroMode</description>
+    <title>Check FCI macro mode is PFCI_WAIT</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!P88E527X == "PFCI_WAIT"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>END</title>
+                    <label>END</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText></LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

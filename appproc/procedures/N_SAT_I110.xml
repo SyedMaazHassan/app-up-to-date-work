@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_SAT_I110">
+    <description>Perform Ranging daily planned activity 
+
+- Enable ranging using procedure N_TTC_0030 “Enable/Disable Ranging”
+- Wait for enough ranging data collected (Ground responsibility)
+- Disable ranging using procedure N_TTC_0030 “Enable/Disable Ranging”
+
+PARAMETERS :
+DURATION : requested Ranging Duration
+
+PRECONDITION :
+
+CONFIRMATION :</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>Enable/Disable Ranging</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_SAT_I110</UniqueId>
+    <author>opre_system</author>
+    <LastModifiedDate>2022-03-15T00:57:55.785Z</LastModifiedDate>
+    <confirmation>
+        <CheckExpression></CheckExpression>
+    </confirmation>
+    <hierarchy>Child Procedures:
+Default:NomTTC::N_TTC_0030 called by steps: P.1.A1, P.1.B1, P.3.A1, P.3.B1
+</hierarchy>
+    <version>2.0</version>
+    <history>Version 1: Date 16.01.2020 - FOM04 - Verified with SRDB version MTG_I_PFM_05_01;</history>
+    <VerificationVersion>03.06.03</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>DURATION</name>
+            <description></description>
+            <type>10</type>
+            <value>+000:00:00:10.000Z</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables>
+        <ProcedureVariable>
+            <name>Pre-cond_OK</name>
+            <description></description>
+            <type>1</type>
+            <EnumValues/>
+        </ProcedureVariable>
+    </ProcedureVariables>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Switch active SBT Tx</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!H99F116X</condition>
+                        <Branches>
+                            <branch>
+<title>UNIT_A</title>
+<steps>
+    <step identifier="P.1.A1">
+        <description></description>
+        <title>Enable Ranging on SBT_A</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>SBTActive</name>
+                    <description>"SBT_A", "SBT_B"</description>
+                    <type>12</type>
+                    <value>SBT_A</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SBT_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>SBT_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SBT_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>Activity</name>
+                    <description>"ENABLE_RNG", "DISABLE_RNG"</description>
+                    <type>12</type>
+                    <value>ENABLE_RNG</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>ENABLE_RNG</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>DISABLE_RNG</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>ENABLE_RNG</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>SWorHW_TC</name>
+                    <description>Use SW or HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SW</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>HW</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SW</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>CPDU</name>
+                    <description>CPDU module to be used for HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>CPDU_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>CPDU_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>CPDU_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_TTC_0030</ProcedureId>
+            <DomainId>Default:NomTTC:</DomainId>
+            <title>Enable/Disable Ranging</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>UNIT_A</condition>
+                            </branch>
+                            <branch>
+<title>UNIT_B</title>
+<steps>
+    <step identifier="P.1.B1">
+        <description></description>
+        <title>Enable Ranging on SBT_B</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>SBTActive</name>
+                    <description>"SBT_A", "SBT_B"</description>
+                    <type>12</type>
+                    <value>SBT_B</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SBT_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>SBT_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SBT_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>Activity</name>
+                    <description>"ENABLE_RNG", "DISABLE_RNG"</description>
+                    <type>12</type>
+                    <value>ENABLE_RNG</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>ENABLE_RNG</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>DISABLE_RNG</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>ENABLE_RNG</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>SWorHW_TC</name>
+                    <description>Use SW or HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SW</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>HW</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SW</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>CPDU</name>
+                    <description>CPDU module to be used for HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>CPDU_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>CPDU_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>CPDU_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_TTC_0030</ProcedureId>
+            <DomainId>Default:NomTTC:</DomainId>
+            <title>Enable/Disable Ranging</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>UNIT_B</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>Wait GROUND specified ranging duration</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="WaitStepBody" type="Wait Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <WaitCondition xsi:type="TemporalWaitCondition">
+                            <mode>Delay</mode>
+                            <delay>#PR!!DURATION</delay>
+                        </WaitCondition>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Switch active SBT Tx</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!H99F116X</condition>
+                        <Branches>
+                            <branch>
+<title>UNIT_A</title>
+<steps>
+    <step identifier="P.3.A1">
+        <description></description>
+        <title>Disable Ranging on SBT_A</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>SBTActive</name>
+                    <description>"SBT_A", "SBT_B"</description>
+                    <type>12</type>
+                    <value>SBT_A</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SBT_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>SBT_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SBT_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>Activity</name>
+                    <description>"ENABLE_RNG", "DISABLE_RNG"</description>
+                    <type>12</type>
+                    <value>DISABLE_RNG</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>ENABLE_RNG</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>DISABLE_RNG</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>ENABLE_RNG</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>SWorHW_TC</name>
+                    <description>Use SW or HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SW</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>HW</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SW</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>CPDU</name>
+                    <description>CPDU module to be used for HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>CPDU_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>CPDU_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>CPDU_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_TTC_0030</ProcedureId>
+            <DomainId>Default:NomTTC:</DomainId>
+            <title>Enable/Disable Ranging</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>UNIT_A</condition>
+                            </branch>
+                            <branch>
+<title>UNIT_B</title>
+<steps>
+    <step identifier="P.3.B1">
+        <description></description>
+        <title>Disable Ranging on SBT_B</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>SBTActive</name>
+                    <description>"SBT_A", "SBT_B"</description>
+                    <type>12</type>
+                    <value>SBT_B</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SBT_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>SBT_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SBT_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>Activity</name>
+                    <description>"ENABLE_RNG", "DISABLE_RNG"</description>
+                    <type>12</type>
+                    <value>DISABLE_RNG</value>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>ENABLE_RNG</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>DISABLE_RNG</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>ENABLE_RNG</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>SWorHW_TC</name>
+                    <description>Use SW or HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>SW</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>HW</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>SW</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>CPDU</name>
+                    <description>CPDU module to be used for HW TCs</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>0</key>
+                            <value>CPDU_A</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>CPDU_B</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>CPDU_A</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_TTC_0030</ProcedureId>
+            <DomainId>Default:NomTTC:</DomainId>
+            <title>Enable/Disable Ranging</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>UNIT_B</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

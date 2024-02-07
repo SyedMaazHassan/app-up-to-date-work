@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_SAT_I530">
+    <description>Procedure Purpose:	Scan Law Transfer from PF to FCI
+ 
+Procedure Version:	3
+Responsibility:	Claudia Tranquilli
+Last Modified Date:	15.12.2022
+ 
+Change History:
+
+Version 3: (CT - 15.12.2022)
+- Porcedure updated to allow SL transfer to the inactive SCAE SL slot during observation (AR/6359).
+
+Version 2: (CT - 01.07.2022)
+- Updated at step p.2.a2 as per AIM 226997.
+
+Version 1: (CT - 19.01.2022)
+- Copied from FOM procedure N_SAT_I530 version 5 (FOM05). 
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure updated to check SL slot is not SELECTED.
+- Procedure updated to call FOP procedure N_SYS_0700;
+- Procedure corrected at step p.1.a2 to check correct parameter FSNM175Z;
+- Procedure History field erased and restarted from Version 1.
+
+Procedure Objectives:
+
+- This procedure transfers the Scan Law from the SMU to SCAE.
+ 
+Procedure Overview:
+
+- This satellite level procedure: 
+	- Checks that FCI is ready for Scan Law reception;
+	- Commands Scan Law transfer from PF SMU Mass Memory to SCAE;
+	- Checks transfer was successfull.
+ 
+Procedure Pre-conditions:	FCI in WAIT mode, SCA in Wait mode.
+ 
+Procedure Constraints:	None
+ 
+Spacecraft Configuration:	S/C in FPM/NOM, FCI in WAIT mode
+ 
+Ground Segment Configuration:	None
+
+Remarks:	None
+
+
+</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>Scan Law Transfer from PF to FCI</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_SAT_I530</UniqueId>
+    <author>tranquilli_OPRE</author>
+    <LastModifiedDate>2023-02-02T13:49:38.319Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+MTI1::N_SYS_0700 called by steps: P.5.A1
+</hierarchy>
+    <version>11.0</version>
+    <history>Version 3: (CT - 15.12.2022)
+- Porcedure updated to allow SL transfer to the inactive SCAE SL slot during observation (AR/6359).</history>
+    <duration></duration>
+    <VerificationVersion>03.07.03</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>FCI_SL_ID_MM</name>
+            <description>Index of the Scan Law ID slot in PF Mass Memory</description>
+            <type>5</type>
+            <value>1</value>
+            <MinValue>1</MinValue>
+            <MaxValue>8</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>FCI_SL_ID_SCA</name>
+            <description>Index of the Scan Law ID slot in SCAE</description>
+            <type>5</type>
+            <value>1</value>
+            <MinValue>1</MinValue>
+            <MaxValue>2</MaxValue>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables/>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Pre-conditions at FCI level for Scan Law transfer</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.1.A1">
+    <description></description>
+    <title>Check FCI mode is WAIT or OBSERVATION</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASEM01X == "WAIT" || #P!FASEM01X == "OBSERVATION"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A2">
+    <description></description>
+    <title>Check SCAN mode is WAIT or OPERATIONAL</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FSNM175Z == "WAIT" || #P!FSNM175Z == "OPERATIONAL"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A3">
+    <description></description>
+    <title>Check Scan Law to update not SELECTED</title>
+    <label></label>
+    <StepBody xsi:type="CaseStepBody" type="Case Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <condition>#PR!!FCI_SL_ID_SCA</condition>
+        <Branches>
+            <branch>
+                <title>1</title>
+                <steps>
+                    <step identifier="P.1.A3.A1">
+                        <description></description>
+                        <title>Check Scan Law 1 not SELECTED/ACTIVE</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!FSNM494Z != "SELECTED" &amp;&amp; #P!FSNM494Z != "ACTIVE"</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+                <condition>1</condition>
+            </branch>
+            <branch>
+                <title>2</title>
+                <steps>
+                    <step identifier="P.1.A3.B1">
+                        <description></description>
+                        <title>Check Scan Law 2 not SELECTED/ACTIVE</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!FSNM495Z != "SELECTED" &amp;&amp; #P!FSNM495Z != "ACTIVE"</expression>
+<window>60</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+                <condition>2</condition>
+            </branch>
+        </Branches>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>Pre-conditions at PF level for Scan Law transfer</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.2.A1">
+    <description></description>
+    <title>Check DDU-N FCI-N SpW port enabled</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!W99F127X == "ENABLED"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.2.A2">
+    <description></description>
+    <title>Check DDU-N FCI-N SpW port state</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!W99F042X == "RUNNING"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.2.A3">
+    <description></description>
+    <title>Check DDU-N FCI-N SpW port config</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!W99F044X == "AUTO_START"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Enable transfer at SCAE level</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.3.A1">
+    <description></description>
+    <title>Enable Scan Law transfer in SCAE</title>
+    <label></label>
+    <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>FASHS90Z</name>
+                <description>SCAE_ID</description>
+                <type>12</type>
+                <value>NOMINAL</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>NOMINAL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>REDUNDANT</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue></DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>FASHS91X</name>
+                <description>SL Index</description>
+                <type>6</type>
+                <value>#PR!!FCI_SL_ID_SCA</value>
+                <MinValue>0</MinValue>
+                <MaxValue>255</MaxValue>
+                <EnumValues/>
+                <DefaultValue></DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <CommandId>FASCS04F</CommandId>
+        <CommandDescription>SCA Law enable</CommandDescription>
+        <critical>false</critical>
+        <authorised>false</authorised>
+        <WaitForVerification>false</WaitForVerification>
+        <OnBoardVerification>false</OnBoardVerification>
+        <OverrideStaticPTV>false</OverrideStaticPTV>
+        <OverrideDynamicPTV>false</OverrideDynamicPTV>
+        <DisableCEV>false</DisableCEV>
+        <TransmissionTime></TransmissionTime>
+        <ExecutionTime></ExecutionTime>
+        <SubscheduleId></SubscheduleId>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A2">
+    <description></description>
+    <title>Check Scan Law update selection</title>
+    <label></label>
+    <StepBody xsi:type="CaseStepBody" type="Case Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <condition>#PR!!FCI_SL_ID_SCA</condition>
+        <Branches>
+            <branch>
+                <title>1</title>
+                <steps>
+                    <step identifier="P.3.A2.A1">
+                        <description></description>
+                        <title>Check Scan Law ID 1 selected</title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!FSNM289Z == "SL1"</expression>
+<window>120</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+                <condition>1</condition>
+            </branch>
+            <branch>
+                <title>2</title>
+                <steps>
+                    <step identifier="P.3.A2.B1">
+                        <description></description>
+                        <title>Check Scan Law ID 2 selected </title>
+                        <label></label>
+                        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <WaitCondition xsi:type="ExpressionWaitCondition">
+<expression>#P!FSNM289Z == "SL2"</expression>
+<window>120</window>
+                            </WaitCondition>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+                <condition>2</condition>
+            </branch>
+        </Branches>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>Check DDU-N FCI-N SpW port state</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="WaitStepBody" type="Wait Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <WaitCondition xsi:type="ExpressionWaitCondition">
+                            <expression>#P!W99F042X == "RUNNING"</expression>
+                            <window>60</window>
+                        </WaitCondition>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.5">
+                    <description>branch taken from N_SYS_0100</description>
+                    <title>Transfer SL to SCAE</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.5.A1">
+    <description></description>
+    <title>N_SYS_0700 - Scan Law Transfer</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>Select activity</description>
+                <type>12</type>
+                <value>Transfer Scan Law</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>Downlink Scan Law</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>Downlink APC Data</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>Transfer Scan Law</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>Select Mission Scenario</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>Downlink Scan Law</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>APC_DATA</name>
+                <description>APC data parts</description>
+                <type>12</type>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>ALL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>APC_HEADER</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>FDC_PART</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>LAC_PARTS1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>LAC_PARTS2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>LAC_PARTS3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>6</key>
+                        <value>LAC_PARTS4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>7</key>
+                        <value>TRANS_PART1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>8</key>
+                        <value>TRANS_PART2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>9</key>
+                        <value>TRANS_PART3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>10</key>
+                        <value>TRANS_PART4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>11</key>
+                        <value>TRANS_PART5</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>12</key>
+                        <value>TRANS_PART6</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>13</key>
+                        <value>TRANS_PART7</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>14</key>
+                        <value>TRANS_PART8</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>15</key>
+                        <value>TRANS_PART9</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>16</key>
+                        <value>TRANS_PAR10</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>17</key>
+                        <value>TRANS_PAR11</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>18</key>
+                        <value>TRANS_PAR12</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>19</key>
+                        <value>TRANS_PAR13</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>20</key>
+                        <value>TRANS_PAR14</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>21</key>
+                        <value>TRANS_PAR15</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>22</key>
+                        <value>TRANS_PAR16</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>23</key>
+                        <value>RALLY_PART1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>24</key>
+                        <value>RALLY_PART2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>25</key>
+                        <value>RALLY_PART3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>26</key>
+                        <value>RALLY_PART4</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>ALL</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>MS_SLOTID</name>
+                <description>Mission Scenario slot ID</description>
+                <type>5</type>
+                <value>#PR!!FCI_SL_ID_MM</value>
+                <MinValue>1</MinValue>
+                <MaxValue>8</MaxValue>
+                <EnumValues/>
+                <DefaultValue>1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_SYS_0700</ProcedureId>
+        <DomainId>MTI1:</DomainId>
+        <title>Mission Scenario Management</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.6">
+                    <description></description>
+                    <title>Checks at FCI level</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.6.A1">
+    <description></description>
+    <title>Check Scan Law transfer complete</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FSNM288Z == "COMPLETED"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.7">
+                    <description></description>
+                    <title>END</title>
+                    <label>END</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText></LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

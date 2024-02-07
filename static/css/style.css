@@ -1,0 +1,66 @@
+/* static/css/style.css */
+
+.sidebar {
+    height: 100%;
+    width: 200px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #e9f5fe;
+    overflow-x: hidden;
+}
+
+.sidebar .logo {
+    background-color: #4a90e2; /* blue */
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 16px;
+}
+
+.sidebar .logo a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.sidebar-content {
+    max-height: 1000px; /* Set the desired height */
+    overflow-y: scroll;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.content {
+    margin-left: 200px;
+    padding: 1px 16px;
+    height: 1000px;
+}
+
+.menu-text {
+    margin-left: 10px;
+}
+
+.schedule-main {
+    margin-top: 8px;
+    margin-left: 35px;
+}
+  
+.logout {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 20px 20px 20px;
+}

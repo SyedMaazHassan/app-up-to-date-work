@@ -1,0 +1,103 @@
+<!-- templates/home.html -->
+
+{% extends 'base.html' %}
+
+{% block title %} Event {% endblock %}
+
+{% block content %}
+    <div class="schedule-main">
+        <h1> MSG Events</h1>
+        <hr>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                Filters
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('get_event_all') }}">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="title">Facility</label>
+                            <input type="text" class="form-control" id="facility" name="facility">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="title">Event</label>
+                            <input type="text" class="form-control" id="event" name="event">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="title">Impact</label>
+                            <input type="text" class="form-control" id="impact" name="impact">
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="form-group col-md-3">
+                            <label for="title">FROM</label>
+                            <input type="text" class="form-control" id="from" name="from">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="title">TO</label>
+                            <input type="text" class="form-control" id="to" name="to">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            {% if is_admin %}
+            <div clas="col-md-1">
+                <form method="post" action="/api/event/upload" enctype="multipart/form-data">
+                    <input type="file" name="file" onchange="this.form.submit()">
+                </form>
+            </div>
+            {% endif %}
+            <div class="col-md-2">
+                <form method="post" action="/api/event/export" enctype="multipart/form-data">
+                    <input type="hidden" class="form-control" id="event_id" name="event_id" value="{{ids}}">
+                    <button type="submit" class="btn btn-primary">Export</button>
+                </form>
+            </div>
+            {% if is_admin %}
+            <div class="col-md-2">
+                <form method="get" action="/api/delete/all/7">
+                    <button type="submit" class="btn btn-primary">Delete All</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>  
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Week</th>
+                    <th>From Time</th>
+                    <th>To Time</th>
+                    <th>Facility</th>
+                    <th>Events</th>
+                    <th>AR Link</th>
+                    <th>Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in event_all %}
+                <tr>
+                    <td>
+                        <a href="/event/{{event[0]}}" class="btn-sm" role="button">
+                            <i class="mdi mdi-eye"></i>
+                        </a>
+                    </td>
+                    <td>{{ event[1] }}</td>
+                    <td>{{ event[3] }}</td>                    
+                    <td>{{ event[4] }}</td>
+                    <td>{{ event[6] }}</td>
+                    <td>{{ event[7] }}</td>
+                    <td><a href="{{event[9]}}">{{ event[9] }}</a></td>
+                    <td>{{ event[10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>  
+    </div>
+{% endblock %}
+

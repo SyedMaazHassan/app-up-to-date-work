@@ -1,0 +1,91 @@
+<!-- templates/home.html -->
+
+{% extends 'base.html' %}
+
+{% block title %} SRDB Update Request {% endblock %}
+
+{% block content %}
+    <div class="schedule-main">
+        <h1> SRDB Update Request </h1>
+        <hr>
+
+        <div class="row">
+            <div class="col-md-2">
+                <form method="get" action="/srdb/add/update/request" enctype="multipart/form-data">
+                    <button type="submit" class="btn btn-primary">New CR</button>
+                </form>
+            </div>
+            {% if is_admin %}
+            <div class="col-md-2">
+                <form method="get" action="/api/delete/all/11">
+                    <button type="submit" class="btn btn-primary">Delete All</button>
+                </form>
+            </div>
+
+            <div class="col-md-2">
+                <form method="post" action="/api/srdb/update/request/upload" enctype="multipart/form-data">
+                    <input type="file" name="file" onchange="this.form.submit()">
+                </form>
+            </div>
+            {% endif %}
+        </div>  
+        <br>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Status</th>
+                    <th>Status TL</th>
+                    <th>Originator</th>
+                    <th>Originator Date</th>
+                    <th>Due Date</th>
+                    <th>Title</th>
+                    <th>Implemented</th>
+                    <th>TL</th>
+                    <th>TL Date</th>
+                    <th>Analyst Name</th>
+                    <th>Analyst Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>
+                        <a href="/srdb/update/request/{{row[0]}}" class="btn-sm" role="button">
+                            <i class="mdi mdi-eye"></i>
+                        </a>
+
+                        <a href="/srdb_update_request/download/file/{{ row[0] }}" class="btn-md" role="button">
+                            <i class="mdi mdi-download"></i>
+                        </a>
+                    </td>
+                    {% if row[2]|lower == 'verified' %}
+                        <td><span class="badge badge-pill badge-success">VERIFIED</span></td>
+                    {% else %}
+                        <td><span class="badge badge-pill badge-secondary">NOT VERIFIED</span></td>
+                    {% endif %}
+                    {% if row[3]|lower == 'verified' %}
+                        <td><span class="badge badge-pill badge-success">VERIFIED</span></td>
+                    {% else %}
+                        <td><span class="badge badge-pill badge-secondary">NOT VERIFIED</span></td>
+                    {% endif %}
+                    <td>{{ row[4] }}</td>                    
+                    <td>{{ row[5] }}</td>  
+                    <td>{{ row[19] }}</td>  
+                    <td>{{ row[9] }}</td>
+                    {% if row[13]|lower == 'implemented' %}
+                        <td><span class="badge badge-pill badge-success">Implemented</span></td>
+                    {% else %}
+                        <td><span class="badge badge-pill badge-secondary">Not Implemented</span></td>
+                    {% endif %}
+                    <td>{{ row[14] }}</td>
+                    <td>{{ row[17] }}</td>
+                    <td>{{ row[15] }}</td>
+                    <td>{{ row[18] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>  
+    </div>
+{% endblock %}
+

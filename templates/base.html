@@ -1,0 +1,144 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <script src="https://cdn.materialdesignicons.com/5.4.55/js/materialdesignicons.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+
+    <!-- Required JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <style>
+        /* Define styles for submenus */
+        .submenu {
+            display: none;
+            list-style-type: none;
+            padding-left: 15px;
+        }
+
+        /* Style for the expand/collapse icon */
+        .submenu-toggle::before {
+            content: '\25B6'; /* Unicode for right-pointing triangle (▶) */
+            padding-right: 5px;
+            transition: transform 0.2s;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Rotate the expand/collapse icon when submenu is active */
+        .submenu.active {
+            display: block;
+        }
+
+        .submenu-toggle.active::before {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body onload="toggleSubmenu('{{ menuVal }}')">
+    <div class="sidebar sidebar-content">
+        <div class="logo">
+            <a href="/home">SSS-TTT</a>
+        </div>
+        <ul>
+            <li class="submenu-toggle" data-submenu="submenu1" data-expanded="false" onclick="toggleSubmenu('submenu1')">
+                <span class="menu-text">SSS</span></a>
+                <ul class="submenu" id="submenu1">
+                    <ul>
+                        <li><a href="/schedules"><i class="mdi mdi-calendar"></i><span class="menu-text">SSS Scheduled</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/schedules_2"><i class="mdi mdi-calendar"></i><span class="menu-text">SSS Scheduled 2</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/schedules_3"><i class="mdi mdi-calendar"></i><span class="menu-text">SSS Scheduled 3</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/fd_schedules"><i class="mdi mdi-calendar"></i><span class="menu-text">SSS FD Scheduled</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/event"><i class="mdi mdi-alert"></i><span class="menu-text">SSS Events</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/anomaly"><i class="mdi mdi-alert"></i><span class="menu-text">SSS Anomalies</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/soi"><i class="mdi mdi-alert"></i><span class="menu-text">SSS SOIs</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/procedure"><i class="mdi mdi-alert"></i><span class="menu-text">SSS Procedures</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/parameter"><i class="mdi mdi-alert"></i><span class="menu-text">SSS Parameters</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/tmtcdb"><i class="mdi mdi-alert"></i><span class="menu-text">SSS TMTCDB</span></a></li>
+                    </ul>
+                </ul>
+            </li>
+        </ul>
+        <ul>
+            <li class="submenu-toggle" data-submenu="submenu2" data-expanded="false" onclick="toggleSubmenu('submenu2')">
+                <span class="menu-text">TTT</span></a>
+                <ul class="submenu" id="submenu2">
+                    <ul>
+                        <li><a href="/pus"><i class="mdi mdi-alert"></i><span class="menu-text">TTT PUS</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/srdb"><i class="mdi mdi-alert"></i><span class="menu-text">TTT SRDB</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/soi_1"><i class="mdi mdi-alert"></i><span class="menu-text">TTT SOIs</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/procedure_1"><i class="mdi mdi-alert"></i><span class="menu-text">TTT Procedures</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/parameter_1"><i class="mdi mdi-alert"></i><span class="menu-text">TTT Parameters</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/event_1"><i class="mdi mdi-alert"></i><span class="menu-text">TTT Events</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/schedules_1"><i class="mdi mdi-alert"></i><span class="menu-text">TTT Scheduled</span></a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/fd_schedules_1"><i class="mdi mdi-alert"></i><span class="menu-text">TTT FD Scheduled</span></a></li>
+                    </ul>
+                </ul>
+            </li>
+        </ul>
+        {% if is_admin %}
+        <ul>
+            <li><a href="/user"><i class="mdi mdi-alert"></i><span class="menu-text">User</span></a></li>
+        </ul>
+        {% endif %}
+        <ul>
+            <li><a href="/logout"><i class="mdi mdi-logout"></i><span class="menu-text">Logout</span></a></li>
+        </ul>
+    </div>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    <script>
+        function toggleSubmenu(id) {
+            var submenu = document.getElementById(id);
+            var toggle = document.querySelector('#' + id).parentNode;
+
+            if (submenu.style.display === 'block') {
+                submenu.style.display = 'none';
+                toggle.classList.remove('active');
+            } else {
+                submenu.style.display = 'block';
+                toggle.classList.add('active');
+            }
+        }
+        
+    </script>
+</body>
+</html>

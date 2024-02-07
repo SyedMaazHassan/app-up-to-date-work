@@ -1,0 +1,86 @@
+<!-- templates/home.html -->
+
+{% extends 'base.html' %}
+
+{% block title %} FD Schedules {% endblock %}
+
+{% block content %}
+    <div class="schedule-main">
+        <div class="row">
+            <h1> SSS FD Scheduled Operations</h1>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-3">
+                <form action="/fd_schedules" method="GET">
+                    <input type="text" hidden class="form-control" id="week" name="week" value="{{ week_number - 1 }}">
+                    <button type="submit" class="btn btn-primary">Previous Week</button>
+                </form>
+            </div>
+            <div clas="col-md-1">
+            {% if is_admin %}
+                <form method="post" action="/api/fd_schedule/upload" enctype="multipart/form-data">
+                    <input type="file" name="file" onchange="this.form.submit()">
+                </form>
+            {% endif %}
+            </div>
+            
+            <div class="col-md-1"> WEEK {{week_number}}</div>
+            <div class="col-md-2">
+                <form action="/fd_schedules" method="GET">
+                    <input type="text" hidden class="form-control" id="week" name="week" value="{{ week_number + 1 }}">
+                    <button type="submit" class="btn btn-primary">Next Week</button>
+                </form>
+            </div>
+            {% if is_admin %}
+            <div class="col-md-2">
+                <form method="get" action="/api/delete/all/10">
+                    <button type="submit" class="btn btn-primary">Delete All</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        <br>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Day {{week[0]}}</th>
+                    <th>Day {{week[1]}}</th>
+                    <th>Day {{week[2]}}</th>
+                    <th>Day {{week[3]}}</th>
+                    <th>Day {{week[4]}}</th>
+                    <th>Day {{week[5]}}</th>
+                    <th>Day {{week[6]}}</th>
+                </tr>
+            </thead>
+            <thead class="thead-dark">
+                <tr>
+                    <th>Mon {{days[0]}}</th>
+                    <th>Tue {{days[1]}}</th>
+                    <th>Wed {{days[2]}}</th>
+                    <th>Thu {{days[3]}}</th>
+                    <th>Fri {{days[4]}}</th>
+                    <th>Sat {{days[5]}}</th>
+                    <th>Sun {{days[6]}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fd_schedule in fd_schedules %}
+                <tr>
+                    <td><a href="fd_schedules/{{fd_schedule[0][0]}}">{{ fd_schedule[0][1] }}</a></td>
+                    <td><a href="fd_schedules/{{fd_schedule[1][0]}}">{{ fd_schedule[1][1] }}</a></td>
+                    <td><a href="fd_schedules/{{fd_schedule[2][0]}}">{{ fd_schedule[2][1] }}</a></td>
+                    <td><a href="fd_schedules/{{fd_schedule[3][0]}}">{{ fd_schedule[3][1] }}</a></td>
+                    <td><a href="fd_schedules/{{fd_schedule[4][0]}}">{{ fd_schedule[4][1] }}</a></td>
+                    <td><a href="fd_schedules/{{fd_schedule[5][0]}}">{{ fd_schedule[5][1] }}</a></td>
+                    <td><a href="fd_schedules/{{fd_schedule[6][0]}}">{{ fd_schedule[6][1] }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
+{% endblock %}
+

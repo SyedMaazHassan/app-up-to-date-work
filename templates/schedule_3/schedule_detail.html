@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ schedule[1] }}
+        {% if is_admin %}
+        <td>
+            <a href="/schedule/update/{{schedule[0]}}" class="btn-md" role="button">
+                <i class="mdi mdi-update"></i>
+            </a>
+        </td>
+        <td>
+            <a href="/api/schedule/delete/{{schedule[0]}}" class="btn-md" role="button">
+                <i class="mdi mdi-delete"></i>
+            </a>
+        </td>
+        {% endif %}
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Schedule Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>SC:</strong> {{ schedule[1] }}</li>
+              <li><strong>Year:</strong> {{ schedule[2] }}</li>
+              <li><strong>Quarter:</strong> {{ schedule[3] }}</li>
+              <li><strong>Month:</strong> {{ schedule[4] }}</li>
+              <li><strong>CW:</strong> {{ schedule[5] }}</li>
+              <li><strong>DOY:</strong> {{ schedule[6] }}</li>
+              <li><strong>Procedure: </strong> <a href="{{ schedule[9] }}">{{ schedule[9] }}</a></li>
+              <li><strong>Operations Title:</strong> {{ schedule[10] }}</li>
+              <li><strong>Outage:</strong> {{ schedule[11] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Time Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>Start of Operation:</strong> {{ schedule[7] }}</li>
+              <li><strong>End of Operation:</strong> {{ schedule[8] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

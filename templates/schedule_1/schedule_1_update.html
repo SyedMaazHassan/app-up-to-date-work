@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">Schedule 1 Details</h1>
+      </div>
+    </div>
+    <div class="row">
+        <form method="POST" action="/api/schedule_1/update/{{schedule[0]}}">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>SC:</label>
+                <input type="text" class="form-control" id="s_c" name="s_c" value="{{ schedule[1] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Year:</label>
+                <input type="text" class="form-control" id="year" name="year" value="{{ schedule[2] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Qtr:</label>
+                <input type="text" class="form-control" id="qtr" name="qtr" value="{{ schedule[3] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Month:</label>
+                <input type="text" class="form-control" id="month" name="month" value="{{ schedule[4] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>cw:</label>
+                <input type="text" class="form-control" id="cw" name="cw" value="{{ schedule[5] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>DOY:</label>
+                <input type="text" class="form-control" id="doy" name="doy" value="{{ schedule[6] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Start of operation:</label>
+                <input type="text" class="form-control" id="start_of_operation" name="start_of_operation" value="{{ schedule[7] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>End of Operation:</label>
+                <input type="text" class="form-control" id="end_of_operation" name="end_of_operation" value="{{ schedule[8] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Status:</label>
+                <input type="text" class="form-control" id="status" name="status" value="{{ schedule[9] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Operations Title:</label>
+                <input type="text" class="form-control" id="operations_title" name="operations_title" value="{{ schedule[10] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Outage:</label>
+                <input type="text" class="form-control" id="outage" name="outage" value="{{ schedule[11] }}">
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end align-items-center">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+          </form>
+      </div>
+  </div>
+{% endblock %}
+

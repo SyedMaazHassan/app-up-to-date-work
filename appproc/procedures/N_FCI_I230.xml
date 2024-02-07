@@ -1,0 +1,1171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_FCI_I230">
+    <description>Procedure Purpose:         SAT VCU Video chain parameter update 
+
+Procedure Version:         1
+Responsibility:   Claudia Tranquilli
+Last Modified Date:        03.03.2023
+
+Change History:
+
+Version 1: (CT - 03.03.2023)
+- Copied from FOM procedure N_FCI_I230 version 1 (delivered in FOM5)
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1;
+- Procedure updated to change FCI mode and update VCU parameters either in WAIT or OBSERVATION. 
+
+Procedure Objectives:
+
+- This procedure is a satellite level procedure calling the FCI level procedure for Video Chain Parameter update and ICID/ICIDVer update and satellite level procedure to stop/start the WP as selected by the user.
+
+
+Procedure Overview:
+
+- Depending on arguments values, procedure allows updateting Numerical offset, Gains and Integration times for channels VIS, NIR, IR1, IR2 and IR3. 
+- After update, procedure reports the parameters. 
+- The FWP is stopped only if argument FCI_MODE is set to WAIT and FCI is in OBSERVATION mode. 
+- Procedure acquires PAF for VCU parameters and ICID/ICIDVer update. 
+- If stopperd, the WP is restarted after update is completed.
+
+Procedure Pre-conditions:            FCI in WAIT or OBSERVATION
+
+Procedure Constraints:   None
+
+Spacecraft Configuration:            FCI in WAIT or OBSERVATION, Sat in NOM/FPM.
+
+Ground Segment Configuration:	None
+
+Remarks:	None</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>Perform FCI Video chain parameter update </title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_FCI_I230</UniqueId>
+    <author>tranquilli_OPRE</author>
+    <LastModifiedDate>2023-03-03T09:00:31.394Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+Default:NomFCI::N_FCI_I080 called by steps: P.2.A1.A4
+MTI1::N_VCU_I700 called by steps: P.2.A1.A5
+MTI1::N_FCI_I810 called by steps: P.2.B1.B1.B1
+</hierarchy>
+    <version>18.0</version>
+    <history>Version 1: (CT - 03.03.2023)
+- Copied from FOM procedure N_FCI_I230 version 1 (delivered in FOM5)
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1;
+- Procedure updated to change FCI mode and update VCU parameters either in WAIT or OBSERVATION. </history>
+    <duration></duration>
+    <VerificationVersion>03.07.05</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>UPDT_MODE</name>
+            <description>Select mode for VCU parameters update</description>
+            <type>12</type>
+            <value>OBSERVATION</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>WAIT</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>OBSERVATION</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>REPSEQ</name>
+            <description>Select REPSEQ for Scan Pattern</description>
+            <type>12</type>
+            <value>FDSS</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FDSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>RSS</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>ISS</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_INSTCONF</name>
+            <description>Type ID of the PAF for VCU parameters and ICID/ICIDVer update</description>
+            <type>9</type>
+            <value>PAF_INSTCONF</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>NOF_Update</name>
+            <description>Update NumOff?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAD_Update_IR1</name>
+            <description>Update IR1 channel GainAdj?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAD_Update_IR2</name>
+            <description>Update IR2 channel GainAdj?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAD_Update_IR3</name>
+            <description>Update IR3 channel GainAdj?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAD_Update_NIR</name>
+            <description>Update NIR channel GainAdj?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAD_Update_VIS</name>
+            <description>Update VIS channel GainAdj?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAIN_IR1</name>
+            <description>Numerical Gain of IR1 detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAIN_IR2</name>
+            <description>Numerical Gain of IR2 detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAIN_IR3</name>
+            <description>Numerical Gain of IR3 detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAIN_NIR</name>
+            <description>Numerical Gain of NIR detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>GAIN_VIS</name>
+            <description>Numerical Gain of VIS detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>ICID</name>
+            <description>ICID</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>ICIDVer</name>
+            <description>ICIDVer</description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_TIME_IR1</name>
+            <description>Integration Time of IR1 detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_TIME_IR2</name>
+            <description>Integration Time of IR2 detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_TIME_IR3</name>
+            <description>Integration Time of IR3 detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_TIME_NIR</name>
+            <description>Integration Time of NIR detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_TIME_VIS</name>
+            <description>Integration Time of VIS detector</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_Update_IR1</name>
+            <description>Update IR1 channel IntTime?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_Update_IR2</name>
+            <description>Update IR2 channel IntTime?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_Update_IR3</name>
+            <description>Update IR3 channel IntTime?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_Update_NIR</name>
+            <description>Update NIR channel IntTime?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>INT_Update_VIS</name>
+            <description>Update VIS channel IntTime?</description>
+            <type>12</type>
+            <value>NO</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>YES</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>NOF_BlkLen</name>
+            <description>Bulk length for Numerical Offset Dump</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>NOF_StartAdd</name>
+            <description>Start Address for Numerical Offset Dump</description>
+            <type>6</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables>
+        <ProcedureVariable>
+            <name>GRS_ID</name>
+            <description>Active RS ID</description>
+            <type>5</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>GSSL_ID</name>
+            <description>Active SSL ID</description>
+            <type>5</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>LastRC</name>
+            <description>Time the last repeat cycle started</description>
+            <type>11</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>MS_SLOT</name>
+            <description>Current mission scenario</description>
+            <type>5</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>RCs</name>
+            <description>Number of RCs from last RC</description>
+            <type>5</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>SL_SLOT</name>
+            <description>Current SL slot</description>
+            <type>5</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>slot</name>
+            <description>Slot duration of 1 RC</description>
+            <type>5</type>
+            <EnumValues/>
+        </ProcedureVariable>
+    </ProcedureVariables>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Check Pre-conditions</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.1.A1">
+    <description></description>
+    <title>Check FCI mode</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASEM01X == "WAIT" || #P!FASEM01X == "OBSERVATION"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>Update</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ParallelStepBody" type="Parallel Step Body">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <UntilCondition>ALL_COMPLETE</UntilCondition>
+                        <SubThreads>
+                            <SubThread label="">
+<description></description>
+<title>VCU Parameters</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>VCU Parameters</title>
+    <steps>
+        <step identifier="P.2.A1">
+            <description></description>
+            <title>Update VCU Parameters</title>
+            <label></label>
+            <StepBody xsi:type="BlockStepBody" type="Block Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <StepList>
+                    <title></title>
+                    <steps>
+                        <step identifier="P.2.A1.A1">
+                            <description></description>
+                            <title>Load PAF</title>
+                            <label></label>
+                            <StepBody xsi:type="LoadPafStepBody" type="Load PAF">
+<MaxExecutionTime></MaxExecutionTime>
+<PafName>#PR!!PAF_INSTCONF</PafName>
+<OpenInteractionIfNoPaf>true</OpenInteractionIfNoPaf>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.2.A1.A2">
+                            <description></description>
+                            <title>Check FCI mode for update</title>
+                            <label></label>
+                            <StepBody xsi:type="WaitStepBody" type="Wait Step">
+<MaxExecutionTime></MaxExecutionTime>
+<WaitCondition xsi:type="ExpressionWaitCondition">
+    <expression>#P!FASEM01X == #PR!!UPDT_MODE</expression>
+    <window>600</window>
+</WaitCondition>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.2.A1.A3">
+                            <description></description>
+                            <title>Check time</title>
+                            <label></label>
+                            <StepBody xsi:type="CaseStepBody" type="Case Step">
+<MaxExecutionTime></MaxExecutionTime>
+<condition>#P!FASEM01X</condition>
+<Branches>
+    <branch>
+        <title>WAIT</title>
+        <steps/>
+        <condition>WAIT</condition>
+    </branch>
+    <branch>
+        <title>OBSERVATION</title>
+        <steps>
+            <step identifier="P.2.A1.A3.B1">
+                <description></description>
+                <title>Check transition starts in &gt; 2 min</title>
+                <label></label>
+                <StepBody xsi:type="IfStepBody" type="If Step">
+                    <MaxExecutionTime></MaxExecutionTime>
+                    <condition>#P!FASE713H.raw-value - now() &gt; 120</condition>
+                    <Branches>
+                        <branch>
+                            <title>true</title>
+                            <steps/>
+                            <condition>true</condition>
+                        </branch>
+                        <branch>
+                            <title>false</title>
+                            <steps>
+<step identifier="P.2.A1.A3.B1.B1">
+    <description></description>
+    <title>Wait for TRANSITION</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASE70WZ == "TRANSITION"</expression>
+            <window>124</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.2.A1.A3.B1.B2">
+    <description></description>
+    <title>Wait for COVERAGE</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASE70WZ == "COVERAGE"</expression>
+            <window>32</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                            <condition>false</condition>
+                        </branch>
+                    </Branches>
+                </StepBody>
+                <StepFailureRecoveries/>
+            </step>
+        </steps>
+        <condition>OBSERVATION</condition>
+    </branch>
+</Branches>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.2.A1.A4">
+                            <description></description>
+                            <title>N_FCI_I080 - Update ICID/ICIDver</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>ICID</name>
+        <description>ICID</description>
+        <type>5</type>
+        <value>#PR!!ICID</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>ICIDver</name>
+        <description>ICIDver</description>
+        <type>5</type>
+        <value>#PR!!ICIDVer</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_FCI_I080</ProcedureId>
+<DomainId>Default:NomFCI:</DomainId>
+<title>FCI Update ICID and ICIDver</title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                        <step identifier="P.2.A1.A5">
+                            <description></description>
+                            <title>N_VCU_I700 - FCI Video Chain Parameter Update</title>
+                            <label></label>
+                            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+<MaxExecutionTime></MaxExecutionTime>
+<arguments>
+    <argument>
+        <name>Activity</name>
+        <description>Reporting or Update?</description>
+        <type>12</type>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>REPORT</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>UPDATE</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>UPDATE</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAD_Update_IR1</name>
+        <description>Update IR1 channel GainAdj</description>
+        <type>12</type>
+        <value>#PR!!GAD_Update_IR1</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAD_Update_IR2</name>
+        <description>Update IR2 channel GainAdj</description>
+        <type>12</type>
+        <value>#PR!!GAD_Update_IR2</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAD_Update_IR3</name>
+        <description>Update IR3 channel GainAdj</description>
+        <type>12</type>
+        <value>#PR!!GAD_Update_IR3</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAD_Update_NIR</name>
+        <description>Update NIR channel GainAdj</description>
+        <type>12</type>
+        <value>#PR!!GAD_Update_NIR</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAD_Update_VIS</name>
+        <description>Update VIS channel GainAdj?</description>
+        <type>12</type>
+        <value>#PR!!GAD_Update_VIS</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAIN_IR1</name>
+        <description>Numerical Gain of IR1 detector</description>
+        <type>6</type>
+        <value>#PR!!GAIN_IR1</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAIN_IR2</name>
+        <description>Numerical Gain of IR2 detector</description>
+        <type>6</type>
+        <value>#PR!!GAIN_IR2</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAIN_IR3</name>
+        <description>Numerical Gain of IR3 detector</description>
+        <type>6</type>
+        <value>#PR!!GAIN_IR3</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAIN_NIR</name>
+        <description>Numerical Gain of NIR detector</description>
+        <type>6</type>
+        <value>#PR!!GAIN_NIR</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>GAIN_VIS</name>
+        <description>Numerical Gain of VIS detector</description>
+        <type>6</type>
+        <value>#PR!!GAIN_VIS</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_TIME_IR1</name>
+        <description>Integration Time of IR1 detector</description>
+        <type>6</type>
+        <value>#PR!!INT_TIME_IR1</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_TIME_IR2</name>
+        <description>Integration Time of IR2 detector</description>
+        <type>6</type>
+        <value>#PR!!INT_TIME_IR2</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_TIME_IR3</name>
+        <description>Integration Time of IR3 detector</description>
+        <type>6</type>
+        <value>#PR!!INT_TIME_IR3</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_TIME_NIR</name>
+        <description>Integration Time of NIR detector</description>
+        <type>6</type>
+        <value>#PR!!INT_TIME_NIR</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_TIME_VIS</name>
+        <description>Integration Time of VIS detector</description>
+        <type>6</type>
+        <value>#PR!!INT_TIME_VIS</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_Update_IR1</name>
+        <description>Update IR1 channel IntTime?</description>
+        <type>12</type>
+        <value>#PR!!INT_Update_IR1</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_Update_IR2</name>
+        <description>Update IR2 channel IntTime?</description>
+        <type>12</type>
+        <value>#PR!!INT_Update_IR2</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_Update_IR3</name>
+        <description>Update IR3 channel IntTime?</description>
+        <type>12</type>
+        <value>#PR!!INT_Update_IR3</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_Update_NIR</name>
+        <description>Update NIR channel IntTime?</description>
+        <type>12</type>
+        <value>#PR!!INT_Update_NIR</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>INT_Update_VIS</name>
+        <description>Update VIS channel IntTime?</description>
+        <type>12</type>
+        <value>#PR!!INT_Update_VIS</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>NOF_BlkLen</name>
+        <description>Bulk length for Numerical Offset Dump</description>
+        <type>6</type>
+        <value>#PR!!NOF_BlkLen</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>NOF_StartAdd</name>
+        <description>Start Address for Numerical Offset Dump</description>
+        <type>6</type>
+        <value>#PR!!NOF_StartAdd</value>
+        <EnumValues/>
+        <DefaultValue>0</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>NOF_Update</name>
+        <description>Update NumOff?</description>
+        <type>12</type>
+        <value>#PR!!NOF_Update</value>
+        <EnumValues>
+            <EnumValue>
+                <key>0</key>
+                <value>NO</value>
+            </EnumValue>
+            <EnumValue>
+                <key>1</key>
+                <value>YES</value>
+            </EnumValue>
+        </EnumValues>
+        <DefaultValue>NO</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+    <argument>
+        <name>OBERTime</name>
+        <description>On Board Execution Reference Time</description>
+        <type>11</type>
+        <EnumValues/>
+        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+        <required>true</required>
+        <modifiable>true</modifiable>
+    </argument>
+</arguments>
+<ProcedureId>N_VCU_I700</ProcedureId>
+<DomainId>MTI1:</DomainId>
+<title>VCU Video chain parameter update </title>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                </StepList>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                            <SubThread label="">
+<description></description>
+<title>FCI mode</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>FCI mode</title>
+    <steps>
+        <step identifier="P.2.B1">
+            <description></description>
+            <title>Check FCI mode</title>
+            <label></label>
+            <StepBody xsi:type="CaseStepBody" type="Case Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <condition>#P!FASEM01X</condition>
+                <Branches>
+                    <branch>
+                        <title>WAIT</title>
+                        <steps>
+                            <step identifier="P.2.B1.A1">
+<description></description>
+<title>Update in WAIT</title>
+<label></label>
+<StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <argument>Arg:UPDT_MODEValue:null</argument>
+    <ArgumentValue>WAIT</ArgumentValue>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                        <condition>WAIT</condition>
+                    </branch>
+                    <branch>
+                        <title>OBSERVATION</title>
+                        <steps>
+                            <step identifier="P.2.B1.B1">
+<description></description>
+<title>FCI mode for update</title>
+<label></label>
+<StepBody xsi:type="CaseStepBody" type="Case Step">
+    <MaxExecutionTime></MaxExecutionTime>
+    <condition>#PR!!UPDT_MODE</condition>
+    <Branches>
+        <branch>
+            <title>OBSERVATION</title>
+            <steps/>
+            <condition>OBSERVATION</condition>
+        </branch>
+        <branch>
+            <title>WAIT</title>
+            <steps>
+                <step identifier="P.2.B1.B1.B1">
+                    <description></description>
+                    <title>N_FCI_I810 - Stop/Resume Scan</title>
+                    <label></label>
+                    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <arguments>
+                            <argument>
+<name>REPSEQ</name>
+<description>Select REPSEQ for Scan Pattern</description>
+<type>12</type>
+<value>#PR!!REPSEQ</value>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>FDSS</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>RSS</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>ISS</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>FDSS</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>OBERTime</name>
+<description>On Board Execution Reference Time</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                        </arguments>
+                        <ProcedureId>N_FCI_I810</ProcedureId>
+                        <DomainId>MTI1:</DomainId>
+                        <title>FCI Stop and Resume Scan</title>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+            <condition>WAIT</condition>
+        </branch>
+    </Branches>
+</StepBody>
+<StepFailureRecoveries/>
+                            </step>
+                        </steps>
+                        <condition>OBSERVATION</condition>
+                    </branch>
+                </Branches>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                        </SubThreads>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Check Post-conditions</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.3.A1">
+    <description></description>
+    <title>Check FCI mode</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!FASEM01X == #PR!!UPDT_MODE</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>END</title>
+                    <label>END</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText></LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

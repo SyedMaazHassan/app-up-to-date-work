@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">SOI Details</h1>
+      </div>
+    </div>
+    <div class="row">
+        <form method="POST" action="/api/soi/update/{{soi[0]}}">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>SOI Number:</label>
+                <input type="text" class="form-control" id="soi_number" name="soi_number" value="{{ soi[1] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>SOI Name:</label>
+                <input type="text" class="form-control" id="soi_name" name="soi_name" value="{{ soi[2] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Version:</label>
+                <input type="text" class="form-control" id="version" name="version" value="{{ soi[3] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Link:</label>
+                <input type="text" class="form-control" id="link" name="link" value="{{ soi[4] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>From:</label>
+                <input type="text" class="form-control" id="from_date" name="from_date" value="{{ soi[5] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>To:</label>
+                <input type="text" class="form-control" id="to" name="to" value="{{ soi[6] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Validity:</label>
+                <input type="text" class="form-control" id="validity" name="validity" value="{{ soi[7] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Today Date:</label>
+                <input type="text" class="form-control" id="today_date" name="today_date" value="{{ soi[8] }}">
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end align-items-center">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+          </form>
+      </div>
+  </div>
+{% endblock %}
+

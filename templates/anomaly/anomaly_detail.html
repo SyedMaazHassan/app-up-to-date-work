@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ anomaly[2] }} 
+          {% if is_admin %}
+          <td>
+              <a href="/anomaly/update/{{anomaly[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/anomaly/delete/{{anomaly[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+          {% endif %}
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Anomaly Details </h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>Facility: </strong> {{ anomaly[1] }}</li>
+              <li><strong>Anomaly: </strong> {{ anomaly[2] }}</li>
+              <li><strong>Event: </strong> {{ anomaly[3] }}</li>
+              <li><strong>BOA CNT: </strong> {{ anomaly[4] }}</li>
+              <li><strong>Impact: </strong> {{ anomaly[5] }}</li>
+              <li><strong>Ar Number: </strong> {{ anomaly[6] }}</li>
+              <li><strong>Recover Action: </strong> {{ anomaly[7] }}</li>
+              <li><strong>Date: </strong> {{ anomaly[8] }}</li>
+              <li><strong>Week: </strong> {{ anomaly[9] }}</li>
+              <li><strong>HyperLink: </strong> <a href="{{ anomaly[10] }}">{{ anomaly[10] }}</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Anomaly BOA </h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              {% for boa in anomaly_boa %}
+              <li>{{ loop.index }}. {{ boa[2] }} , {{ boa[3] }} , {{ boa[4] }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

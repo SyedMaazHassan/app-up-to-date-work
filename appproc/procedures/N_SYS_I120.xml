@@ -1,0 +1,1557 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_SYS_I120">
+    <description>PROCEDURE PURPOSE:              Update OOP Parameters by loading PAF and launching N_AOC_0130 
+
+PROCEDURE VERSION:               20
+RESPONSIBILITY:       AOCS team
+LAST MODIFIED DATE: 2023-01-13
+
+CHANGE HISTORY:     
+[CBi 2023/01/13, EUM v20.0] 
+Changes for AR6491:
+Step P.6 corrected argument association for 
+EPHM_COEF_Z_4_2 and EPHM_COEF_Z_4_3
+
+Perform the daily planned update of the OOP parameters for the following 24 hours.
+
+PRECONDITION :
+The AOCS mode shall be GAM or FPM or SKM 
+The OOP shall be ON
+
+CONFIRMATION :
+Domain Var flag OOP_Update_OK updated to true.
+</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>Update OOP Parameters</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_SYS_I120</UniqueId>
+    <author>bihr_OPRE</author>
+    <LastModifiedDate>2023-01-13T13:03:06.550Z</LastModifiedDate>
+    <confirmation>
+        <CheckExpression>#DVAR!OOP_Update_OK</CheckExpression>
+    </confirmation>
+    <trigger>
+        <CheckExpression>#P!A99E316Z == "ON" &amp;&amp; (#P!A99E000Z == "GAM" || #P!A99E000Z == "FPM" || (#P!A99E000Z == "SKM"))</CheckExpression>
+    </trigger>
+    <hierarchy>Child Procedures:
+Default:NomAOCSsys::N_AOC_0130 called by steps: P.6
+</hierarchy>
+    <version>20.0</version>
+    <history>[CBi 2023/01/13, EUM v20.0] 
+Changes for AR6491:
+Step P.6 corrected argument association for 
+EPHM_COEF_Z_4_2 and EPHM_COEF_Z_4_3
+
+[RTi 2022/10/19, EUM v19.0] 
+
+- added step P.2 and P.3 to correct the arguments EPHM_ADD_DV and SLEW_ENABLED with the one used in the FDS PAF EPHM_ADD_DV  SLEW_ENABLED_i, as per EUM/MTG/AR/5968.1. the steps have been copied form N SAT I 150
+
+[RTi 2022/04/06, EUM v18.0] 
+
+- adde Simoffset parameter type time to add an offset to the FDS input data for simulation
+- added step P.3 to consider the above declared Offset.
+
+
+[CBi 2021/12/16, EUM v16.0] 
+based on latest FOM05 (delivered 2021-10-22, EUM v.14.0) procedure, which has no changes wrt. previous industry delivered version FOM4.4 (EUM v.6.0) Version 1: Date 16.01.2020 - FOM04
+
+********
+Version 1: Date 16.01.2020 - FOM04 - Verified with SRDB version MTG_I_PFM_05_01;
+
+CBi 2021/04/21:
+LOAD PAF step 2 implemented to load the FDS PAF, added Argument PAF_OOP
+
+CBi 2021/06/24:
+removed old 3 string arguments for X,Y,Z and added the 45 arguments for the X,Y,Z coefficients in procedure argument list and also in step P.3 + referencing them
+ 
+[CBi 2021/06/25] added 0.0 for initial values
+
+[CBi 2021/08/13]  Updated to call new PAF file FDS_OPE_PAF_OOP_MTI1_20220629120803_2022063003.xml to have it in line with SATSIM BKP simulating 2022-181..
+
+[CBi 2021/09/24]  Default argument for Ref date set for safety to 2001-196T00:00:00.000Z
+
+[CBi 2021/10/21, v.12.0]
+updates for OSV testing: In procedure arguments PAF_OOP set the name from the specific  FDS_OPE_PAF_OOP_MTI1_20220629120803_2022063003.xml to generic and non available 
+FDS_OPE_PAF_OOP_MTI1_NULL.xml , in order to allow a manually selection of the PAF
+
+[CBi 2021/11/11, v.13.0]
+Argument 'Activity' added for MPS, set by default to 'UPDATE' 
+values can be 'INITIALISE', 'OFF', 'ACTIVE', 'IDLE', 'UPDATE', 'UPDATE_TCs_ONLY', 'OPERATIONAL'
+
+[CBi 2021/11/26, v.15.0] based on previous EUM v.13.0 and checked with latest FOM05 (delivered 2021-10-22, EUM v.14.0) procedure, which has no changes wrt. previous industry delivered version FOM4.4 (EUM v.6.0)
+
+[CBi 2021/12/16, EUM v16.0] 
+- minor edits for procedure details to align with EUM MTGPPR</history>
+    <VerificationVersion>03.07.03</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>Activity</name>
+            <description>'INITIALISE', 'OFF', 'ACTIVE', 'IDLE', 'UPDATE', 'UPDATE_TCs_ONLY', 'OPERATIONAL'</description>
+            <type>12</type>
+            <value>UPDATE</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>INITIALISE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>OFF</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>ACTIVE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>IDLE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>UPDATE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>5</key>
+                    <value>UPDATE_TCs_ONLY</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>6</key>
+                    <value>OPERATIONAL</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_ADD_DV</name>
+            <description>Defines whether the cumulated velocity variations provided by the thrust system are used to update the orbit</description>
+            <type>12</type>
+            <value>FALSE</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FALSE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>TRUE</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_ADD_DV_i</name>
+            <description></description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_1_1</name>
+            <description>Orbit-perturbation coefficients along x</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_1_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_1_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_2_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_2_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_2_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_3_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_3_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_3_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_4_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_4_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_4_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_5_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_5_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_X_5_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_1_1</name>
+            <description>Orbit-perturbation coefficients along y</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_1_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_1_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_2_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_2_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_2_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_3_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_3_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_3_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_4_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_4_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_4_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_5_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_5_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Y_5_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_1_1</name>
+            <description>Orbit-perturbation coefficients along z</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_1_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_1_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_2_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_2_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_2_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_3_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_3_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_3_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_4_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_4_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_4_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_5_1</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_5_2</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COEF_Z_5_3</name>
+            <description></description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_COS_HALF_L</name>
+            <description>Cosine of the half of the sum of the sidereal angle and the nominal longitude of the SC, given at the time OOP_DAT_ephm_refDate</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_END_DATE</name>
+            <description>Time after which the orbit may not be used any longer</description>
+            <type>11</type>
+            <value>2001/07/15,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_QJ2_TOD_1</name>
+            <description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_QJ2_TOD_2</name>
+            <description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_QJ2_TOD_3</name>
+            <description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_QJ2_TOD_4</name>
+            <description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_REF_DATE</name>
+            <description>Time at which the perturbation phase is zero for the orbit perturbation in R_LOFT</description>
+            <type>11</type>
+            <value>2001/07/15,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_SIN_HALF_L</name>
+            <description>Sine of the half of the sum of the sidereal angle and the nominal longitude of the SC, given at the time OOP_DAT_ephm_refDate</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_START_DATE</name>
+            <description>Time after which the orbit may be used</description>
+            <type>11</type>
+            <value>2001/07/15,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_TARGET_X</name>
+            <description>Position along x of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_TARGET_Y</name>
+            <description>Position along y of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>EPHM_TARGET_Z</name>
+            <description>Position along z of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OOP_ExeTime</name>
+            <description>Execution time of the activity ACTIVE or UPDATE</description>
+            <type>11</type>
+            <value>2001/07/15,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_OOP</name>
+            <description></description>
+            <type>9</type>
+            <value>FDS_OPE_PAF_OOP_MTI1_NULL.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SLEW_ENABLED</name>
+            <description>Defines whether quaternion slew signals are generated</description>
+            <type>12</type>
+            <value>FALSE</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>FALSE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>TRUE</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SLEW_ENABLED_i</name>
+            <description></description>
+            <type>5</type>
+            <value>0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SLEW_MAX_JMP_Q</name>
+            <description>Slew maximum initial jump (the cosine of the half angle)</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SLEW_MAX_JMP_W</name>
+            <description>Slew maximum initial rate</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SLEW_MAX_W</name>
+            <description>Slew maximum rate</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SLEW_MAX_W_DOT</name>
+            <description>Slew maximum acceleration. It should re-main at least 20 times smaller than OOP_DAT_slew_maxW</description>
+            <type>8</type>
+            <value>0.0</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>SimOffset</name>
+            <description></description>
+            <type>10</type>
+            <value>+000:00:00:00.000Z</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables/>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Reset confirmation in Domain VAR </title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="SetDomainVariableStepBody" type="Set Domain Var Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <variable>Arg:OOP_Update_OKValue:null</variable>
+                        <VariableValue>false</VariableValue>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>Load PAF</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LoadPafStepBody" type="Load PAF">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <PafName>#PR!!PAF_OOP</PafName>
+                        <OpenInteractionIfNoPaf>true</OpenInteractionIfNoPaf>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>SLEW_ENABLED</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#PR!!SLEW_ENABLED_i</condition>
+                        <Branches>
+                            <branch>
+<title>0</title>
+<steps>
+    <step identifier="P.3.A1">
+        <description></description>
+        <title>FALSE</title>
+        <label></label>
+        <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <argument>Arg:SLEW_ENABLEDValue:null</argument>
+            <ArgumentValue>FALSE</ArgumentValue>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>0</condition>
+                            </branch>
+                            <branch>
+<title>1</title>
+<steps>
+    <step identifier="P.3.B1">
+        <description></description>
+        <title>TRUE</title>
+        <label></label>
+        <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <argument>Arg:SLEW_ENABLEDValue:null</argument>
+            <ArgumentValue>TRUE</ArgumentValue>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>1</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>EPHM_ADD_DV</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#PR!!EPHM_ADD_DV_i</condition>
+                        <Branches>
+                            <branch>
+<title>0</title>
+<steps>
+    <step identifier="P.4.A1">
+        <description></description>
+        <title>FALSE</title>
+        <label></label>
+        <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <argument>Arg:EPHM_ADD_DVValue:null</argument>
+            <ArgumentValue>FALSE</ArgumentValue>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>0</condition>
+                            </branch>
+                            <branch>
+<title>1</title>
+<steps>
+    <step identifier="P.4.B1">
+        <description></description>
+        <title>TRUE</title>
+        <label></label>
+        <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <argument>Arg:EPHM_ADD_DVValue:null</argument>
+            <ArgumentValue>TRUE</ArgumentValue>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>1</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.5">
+                    <description></description>
+                    <title>time adjustment for SIMULATION</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ParallelStepBody" type="Parallel Step Body">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <UntilCondition>ALL_COMPLETE</UntilCondition>
+                        <SubThreads>
+                            <SubThread label="">
+<description></description>
+<title>EPHM start</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>EPHM start</title>
+    <steps>
+        <step identifier="P.5.A1">
+            <description></description>
+            <title>START EPHM</title>
+            <label></label>
+            <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <argument>Arg:EPHM_START_DATEValue:null</argument>
+                <ArgumentValue>#PR!!EPHM_START_DATE - #PR!!SimOffset</ArgumentValue>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                            <SubThread label="">
+<description></description>
+<title>EPHM ref</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>EPHM ref</title>
+    <steps>
+        <step identifier="P.5.B1">
+            <description></description>
+            <title>REF EPHM</title>
+            <label></label>
+            <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <argument>Arg:EPHM_REF_DATEValue:null</argument>
+                <ArgumentValue>#PR!!EPHM_REF_DATE - #PR!!SimOffset</ArgumentValue>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                            <SubThread label="">
+<description></description>
+<title>EPHM end</title>
+<ExecutionMode>0</ExecutionMode>
+<ReentrantFlag>false</ReentrantFlag>
+<EnabledOnStartFlag>true</EnabledOnStartFlag>
+<StepList>
+    <title>EPHM end</title>
+    <steps>
+        <step identifier="P.5.C1">
+            <description></description>
+            <title>END EPHM</title>
+            <label></label>
+            <StepBody xsi:type="SetArgumentStepBody" type="Set Argument Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <argument>Arg:EPHM_END_DATEValue:null</argument>
+                <ArgumentValue>#PR!!EPHM_END_DATE - #PR!!SimOffset</ArgumentValue>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+</StepList>
+                            </SubThread>
+                        </SubThreads>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.6">
+                    <description></description>
+                    <title>Update OOP </title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <arguments>
+                            <argument>
+<name>OOP_ExeTime</name>
+<description>Execution time of the activity ACTIVE or UPDATE</description>
+<type>11</type>
+<value>#PR!!OOP_ExeTime</value>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2018-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_4</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<value>#PR!!EPHM_QJ2_TOD_4</value>
+<EnumValues/>
+<DefaultValue>-0.00271900051273829</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_SIN_HALF_L</name>
+<description>Sine of the half of the sum of the sidereal angle and the nominal longitude of the SC, given at the time OOP_DAT_ephm_refDate</description>
+<type>8</type>
+<value>#PR!!EPHM_SIN_HALF_L</value>
+<EnumValues/>
+<DefaultValue>-0.00447959823783051</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_5_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_5_3</value>
+<EnumValues/>
+<DefaultValue>-0.015528112649917603</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_1_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_1_3</value>
+<EnumValues/>
+<DefaultValue>-0.026772720739245415</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_2_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_2_3</value>
+<EnumValues/>
+<DefaultValue>-0.047363586723804474</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_4_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_4_3</value>
+<EnumValues/>
+<DefaultValue>-0.0698055773973465</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_4_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_4_3</value>
+<EnumValues/>
+<DefaultValue>-0.10341466218233109</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_4_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_4_2</value>
+<EnumValues/>
+<DefaultValue>-0.16977588832378387</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_5_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_5_2</value>
+<EnumValues/>
+<DefaultValue>-0.41769489645957947</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_3_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_3_2</value>
+<EnumValues/>
+<DefaultValue>-0.8793131113052368</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COS_HALF_L</name>
+<description>Cosine of the half of the sum of the sidereal angle and the nominal longitude of the SC, given at the time OOP_DAT_ephm_refDate</description>
+<type>8</type>
+<value>#PR!!EPHM_COS_HALF_L</value>
+<EnumValues/>
+<DefaultValue>-0.999989966549479</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_3_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_3_2</value>
+<EnumValues/>
+<DefaultValue>-1.4022715091705322</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_1_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_1_2</value>
+<EnumValues/>
+<DefaultValue>-10.718908309936523</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_3_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_3_1</value>
+<EnumValues/>
+<DefaultValue>-1008.1203002929688</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_3_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_3_1</value>
+<EnumValues/>
+<DefaultValue>-141.254150390625</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_3_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_3_1</value>
+<EnumValues/>
+<DefaultValue>-165079.703125</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_4_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_4_2</value>
+<EnumValues/>
+<DefaultValue>-2.4501826763153076</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_4_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_4_1</value>
+<EnumValues/>
+<DefaultValue>-2.8553013801574707</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_2_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_2_1</value>
+<EnumValues/>
+<DefaultValue>-2071.712646484375</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_3_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_3_3</value>
+<EnumValues/>
+<DefaultValue>-3.876378059387207</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_5_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_5_1</value>
+<EnumValues/>
+<DefaultValue>-4.38481330871582</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_1_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_1_3</value>
+<EnumValues/>
+<DefaultValue>-6.944993019104004</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_5_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_5_2</value>
+<EnumValues/>
+<DefaultValue>-6.997574806213379</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_1_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_1_1</value>
+<EnumValues/>
+<DefaultValue>-8.450815200805664</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_2_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_2_1</value>
+<EnumValues/>
+<DefaultValue>-9328.5361328125</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_TARGET_Y</name>
+<description>Position along y of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+<type>8</type>
+<value>#PR!!EPHM_TARGET_Y</value>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_TARGET_X</name>
+<description>Position along x of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+<type>8</type>
+<value>#PR!!EPHM_TARGET_X</value>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_JMP_W</name>
+<description>Slew maximum initial rate</description>
+<type>8</type>
+<value>#PR!!SLEW_MAX_JMP_W</value>
+<EnumValues/>
+<DefaultValue>0.001</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_JMP_Q</name>
+<description>Slew maximum initial jump (the cosine of the half angle)</description>
+<type>8</type>
+<value>#PR!!SLEW_MAX_JMP_Q</value>
+<EnumValues/>
+<DefaultValue>0.001</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_3</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<value>#PR!!EPHM_QJ2_TOD_3</value>
+<EnumValues/>
+<DefaultValue>0.00118143628181449</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_5_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_5_3</value>
+<EnumValues/>
+<DefaultValue>0.0018065599724650383</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_4_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_4_3</value>
+<EnumValues/>
+<DefaultValue>0.017278967425227165</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_3_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_3_3</value>
+<EnumValues/>
+<DefaultValue>0.02612014301121235</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_1_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_1_3</value>
+<EnumValues/>
+<DefaultValue>0.03378727659583092</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_3_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_3_3</value>
+<EnumValues/>
+<DefaultValue>0.06909221410751343</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_2_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_2_3</value>
+<EnumValues/>
+<DefaultValue>0.15153320133686066</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_2_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_2_3</value>
+<EnumValues/>
+<DefaultValue>0.23183295130729675</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_5_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_5_2</value>
+<EnumValues/>
+<DefaultValue>0.2666529417037964</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_2_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_2_2</value>
+<EnumValues/>
+<DefaultValue>0.36113759875297546</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_5_3</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_5_3</value>
+<EnumValues/>
+<DefaultValue>0.5407585501670837</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_1_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_1_2</value>
+<EnumValues/>
+<DefaultValue>0.7785651683807373</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_1</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<value>#PR!!EPHM_QJ2_TOD_1</value>
+<EnumValues/>
+<DefaultValue>0.99999560538415</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_4_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_4_2</value>
+<EnumValues/>
+<DefaultValue>1.3109149932861328</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_W_DOT</name>
+<description>Slew maximum acceleration. It should re-main at least 20 times smaller than OOP_DAT_slew_maxW</description>
+<type>8</type>
+<value>#PR!!SLEW_MAX_W_DOT</value>
+<EnumValues/>
+<DefaultValue>1.8375271650788E-9</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_2_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_2_2</value>
+<EnumValues/>
+<DefaultValue>11.086804389953613</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_2_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_2_1</value>
+<EnumValues/>
+<DefaultValue>11.469661712646484</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_5_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_5_1</value>
+<EnumValues/>
+<DefaultValue>160.2013397216797</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_4_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_4_1</value>
+<EnumValues/>
+<DefaultValue>179.9987335205078</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_4_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_4_1</value>
+<EnumValues/>
+<DefaultValue>18.47151756286621</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>OBERTime</name>
+<description>On Board Execution Reference Time</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_2</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<value>#PR!!EPHM_QJ2_TOD_2</value>
+<EnumValues/>
+<DefaultValue>2.13754790631117E-5</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_START_DATE</name>
+<description>Time after which the orbit may be used</description>
+<type>11</type>
+<value>#PR!!EPHM_START_DATE</value>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-300T12:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_REF_DATE</name>
+<description>Time at which the perturbation phase is zero for the orbit perturbation in R_LOFT</description>
+<type>11</type>
+<value>#PR!!EPHM_REF_DATE</value>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-300T12:30:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_END_DATE</name>
+<description>Time after which the orbit may not be used any longer</description>
+<type>11</type>
+<value>#PR!!EPHM_END_DATE</value>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-301T12:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_1_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Z_1_1</value>
+<EnumValues/>
+<DefaultValue>2091.599609375</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_1_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_1_2</value>
+<EnumValues/>
+<DefaultValue>3015.58642578125</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_1_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_1_1</value>
+<EnumValues/>
+<DefaultValue>32636.865234375</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_5_1</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_Y_5_1</value>
+<EnumValues/>
+<DefaultValue>4.542349338531494</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_3_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_3_2</value>
+<EnumValues/>
+<DefaultValue>48.67487335205078</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_TARGET_Z</name>
+<description>Position along z of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+<type>8</type>
+<value>#PR!!EPHM_TARGET_Z</value>
+<EnumValues/>
+<DefaultValue>5.610792</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_2_2</name>
+<description></description>
+<type>8</type>
+<value>#PR!!EPHM_COEF_X_2_2</value>
+<EnumValues/>
+<DefaultValue>7.004881381988525</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_W</name>
+<description>Slew maximum rate</description>
+<type>8</type>
+<value>#PR!!SLEW_MAX_W</value>
+<EnumValues/>
+<DefaultValue>9.187635825394E-8</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_ENABLED</name>
+<description>Defines whether quaternion slew signals are generated</description>
+<type>12</type>
+<value>#PR!!SLEW_ENABLED_i</value>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>FALSE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>TRUE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>TRUE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_ADD_DV</name>
+<description>Defines whether the cumulated velocity variations provided by the thrust system are used to update the orbit</description>
+<type>12</type>
+<value>#PR!!EPHM_ADD_DV_i</value>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>FALSE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>TRUE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>TRUE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>Activity</name>
+<description>'INITIALISE', 'OFF', 'ACTIVE', 'IDLE', 'UPDATE', 'UPDATE_TCs_ONLY', 'OPERATIONAL'</description>
+<type>12</type>
+<value>#PR!!Activity</value>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>INITIALISE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>OFF</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>ACTIVE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>IDLE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>UPDATE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>UPDATE_TCs_ONLY</value>
+    </EnumValue>
+    <EnumValue>
+        <key>6</key>
+        <value>OPERATIONAL</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>UPDATE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                        </arguments>
+                        <ProcedureId>N_AOC_0130</ProcedureId>
+                        <DomainId>Default:NomAOCSsys:</DomainId>
+                        <title>OOP Management</title>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

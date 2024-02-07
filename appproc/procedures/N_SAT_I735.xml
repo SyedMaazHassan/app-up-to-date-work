@@ -1,0 +1,4922 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_SAT_I735">
+    <description>PROCEDURE PURPOSE:  to execute the SAM to FPM transition. 
+
+PROCEDURE VERSION:  7.0
+RESPONSIBILITY: Arturo Del Foco		 
+LAST MODIFIED DATE: 16.11.2022		 
+
+CHANGE HISTORY:  		 
+Version 7.0 (AdF - 16.11.2022)
+Change History:
+- EUM/MTG/AR/5479: corrected message at variable interaction step P.5.A6;
+- AIM 212092 and EUM/MTG/AR/5108: due to TM bandwidth limitations, added call to N_PUS_0003 to disable TM_003_025_HKTM_MT_PF_AOCS_SKM_ATT_QTN_01_EUM (SID 10802) before start of procedure N_SYS_0035;
+- Procedure Description aligned to EUMETSAT template.
+		 
+PROCEDURE OBJECTIVES:
+This procedure is used to:
+- check the Pre-conditions applicable to MTG-I satellites prior to the execution of the transition from SAQ/SAM to NOM/FPM
+- perform a transition from SAQ/SAM to NOM/FPM
+
+PROCEDURE OVERVIEW:
+The basic scheme of the procedure is:
+&lt;&gt; Confirm Pre-conditions OK
+(N_SYS_I035)
+&lt;&gt; If the Pre-conditions are OK:
+(N_SYS_0035)
+- Upload all needed TCs to the MTL
+- Wait for transition from SAM to GAM
+- Wait for OOP initialisation, update and activation
+- Wait for transition from GAM to SKM
+- Wait for transition from SAQ to NOM
+- Enable Ranging for Orbit Determination
+
+PROCEDURE PRE-CONDITIONS:			
+TBW
+
+PROCEDURE CONSTRAINTS
+(1) The procedure assumes that the Payload is in SURVIVAL mode from the start to the end as it is expected in SAT SAQ and AOCS SAM.
+(2) It is highly recommended not to execute other commanding activities during the complete duration of the procedure.
+(3) The transition from SAM to GAM shall not be executed if the spin rate of the satellite is SAM is higher than 0.4 degrees/second (see chapter 4.2.2.1 of MTG-OHB-PF-MA-0024)
+(4) !!! All TCs existing in the MTL at the beginning of execution of the procedure are deleted.
+(5) The first GAM profile needs to have a duration of 1200 seconds.
+
+SPACECRAFT CONFIGURATION
+Start of Procedure:
+- SAT mode: SAQ
+- AOCS mode: SAM (with spin rate &lt;= 0.4 degrees/s)
+- AOCS S/S: nominal configuration for SAM (with STRs and RWs already ON)
+- DHS S/S: nominal configuration
+- TTC S/S: nominal configuration
+- EPS S/S: nominal configuration
+- PDD S/S: OFF
+- TCS S/S: nominal configuration
+- UPS S/S: nominal configuration
+- FCI mode: SURVIVAL (i.e. survival thermal control active)
+- LI mode: SURVIVAL (i.e. survival thermal control active)
+
+End of Procedure:
+- SAT mode: NOM
+- AOCS mode: FPM
+- AOCS S/S: nominal configuration for FPM (with APC disabled)
+- DHS S/S: nominal configuration
+- TTC S/S: nominal configuration (+ Ranging ON)
+- EPS S/S: nominal configuration
+- PDD S/S: OFF
+- TCS S/S: nominal configuration
+- UPS S/S: nominal configuration
+- FCI mode: SURVIVAL (i.e. survival thermal control active)
+- LI mode: SURVIVAL (i.e. survival thermal control active)
+
+GROUND SEGMENT CONFIGURATION:
+TBW	
+
+
+</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>MTG-I SAT Transition from SAQ to NOM</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_SAT_I735</UniqueId>
+    <author>delfoco_OPRE</author>
+    <LastModifiedDate>2022-11-18T17:17:14.073Z</LastModifiedDate>
+    <confirmation>
+        <CheckExpression></CheckExpression>
+    </confirmation>
+    <hierarchy>Child Procedures:
+Default::N_SYS_I035 called by steps: P.2
+Default::N_PUS_0003 called by steps: P.4
+Default::N_SYS_0035 called by steps: P.5
+Default::N_PUS_0015 called by steps: P.6.A7, P.8.A3.A1
+</hierarchy>
+    <version>7.0</version>
+    <history>Version 7.0 (AdF - 16.11.2022)
+Change History:
+- EUM/MTG/AR/5479: corrected message at variable interaction step P.5.A6;
+- AIM 212092 and EUM/MTG/AR/5108: due to TM bandwidth limitations, added call to N_PUS_0003 to disable TM_003_025_HKTM_MT_PF_AOCS_SKM_ATT_QTN_01_EUM (SID 10802) before start of procedure N_SYS_0035;
+- Procedure Description aligned to EUMETSAT template.
+__________
+Version 6.0 (AdF - 10.06.2022)
+Change History:
+- Added procedure argument  PAF_SAG for child procedure N_SYS_0035.
+__________
+Version 4.0 (AdF - 18.05.2022)
+Change History:
+- Added steps to execute the dump and clear of the THL.
+__________
+Version 3.0 (AdF - 13.04.2022)
+Change History:
+- First version.
+__________</history>
+    <duration></duration>
+    <VerificationVersion>03.07.02</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>N_Profiles</name>
+            <description>Number of Attitude Guidance Profiles to be uploaded</description>
+            <type>12</type>
+            <value>NONE</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>1</key>
+                    <value>ONE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>TWO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>THREE</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>FOUR</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>0</key>
+                    <value>NONE</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_GAM_1</name>
+            <description>PAF for first GAM to stop the satellite spin</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-GAM_MTI1_0_0_01.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_GAM_2</name>
+            <description>PAF for first slew</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-GAM_MTI1_0_0_01.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_GAM_3</name>
+            <description>PAF for second slew</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-GAM_MTI1_0_0_02.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_GAM_4</name>
+            <description>PAF for third slew</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-GAM_MTI1_0_0_03.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_MAN</name>
+            <description>PAF for RWOL</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-MAN_MTI1_0_0_01.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_OOP</name>
+            <description>PAF for OOP</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-OOP_MTI1_0_0_01.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_SKM</name>
+            <description>PAF for SKM guidance</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-SKM_MTI1_0_0_01.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>PAF_SAG</name>
+            <description>PAF for SADM Target Angle</description>
+            <type>9</type>
+            <value>FDS_OPE_PAF-SAG_MTI1_0_0_01.xml</value>
+            <EnumValues/>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables>
+        <ProcedureVariable>
+            <name>THLclear</name>
+            <description>Flag to indicate if the Thruster History Log has to be deleted</description>
+            <type>1</type>
+            <value>true</value>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>THLdumpStart</name>
+            <description>Start date of the Thruster History Log dump</description>
+            <type>11</type>
+            <value>2020/01/01,01:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>THLdumpEnd</name>
+            <description>End date of the Thruster History Log dump</description>
+            <type>11</type>
+            <value>2022/05/10,07:22:38:447000000</value>
+            <EnumValues/>
+        </ProcedureVariable>
+    </ProcedureVariables>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Pre-condition: no TT-TCs in MTL</title>
+                    <label></label>
+                    <trigger>
+                        <WaitCondition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ExpressionWaitCondition">
+                            <expression>#P!HPUE020X.raw-value &gt; -1</expression>
+                            <window>60</window>
+                        </WaitCondition>
+                        <CheckExpression></CheckExpression>
+                    </trigger>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="IfStepBody" type="If Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!HPUE020X.raw-value == 0</condition>
+                        <Branches>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.1.A1">
+        <description></description>
+        <title>Confirm no TCs stored in MTL</title>
+        <label></label>
+        <StepBody xsi:type="WaitStepBody" type="Wait Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <WaitCondition xsi:type="ExpressionWaitCondition">
+                <expression>#P!HPUE020X.raw-value == 0</expression>
+                <window>60</window>
+            </WaitCondition>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                            <branch>
+<title>false</title>
+<steps>
+    <step identifier="P.1.B1">
+        <description></description>
+        <title>The MTL is not empty</title>
+        <label></label>
+        <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <message>The MTL is not empty! All TCs currently existing in the MTL will be deleted by procedure N_SYS_0035. Contact the SOE to get the go-ahead to proceed with the execution of this procedure.</message>
+            <ResponseWindow></ResponseWindow>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>false</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>N_SYS_I035: MTG-I Pre-conditions for SAT Transition from SAQ to NOM</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <arguments>
+                            <argument>
+<name>OBERTime</name>
+<description>On Board Execution Reference Time</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                        </arguments>
+                        <ProcedureId>N_SYS_I035</ProcedureId>
+                        <DomainId>Default:</DomainId>
+                        <title>MTG-I Pre-conditions for SAT Transition from SAQ to NOM</title>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Set THLdumpStart (dump executed in FPM)</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <variable>Arg:THLdumpStartValue:null</variable>
+                        <VariableValue>now()</VariableValue>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>N_PUS_0003: DIsable SID 10802 TM_003_025_HKTM_MT_PF_AOCS_SKM_ATT_QTN_01_EUM</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <arguments>
+                            <argument>
+<name>PUS3subservice</name>
+<description>PUS 3 subservice to be executed</description>
+<type>12</type>
+<value>3_6_Dis_HKRep_Gen</value>
+<EnumValues>
+    <EnumValue>
+        <key>1</key>
+        <value>3_1_New_HKRep</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>3_3_Clear_HKRep_Defs</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>3_5_En_HKRep_Gen</value>
+    </EnumValue>
+    <EnumValue>
+        <key>6</key>
+        <value>3_6_Dis_HKRep_Gen</value>
+    </EnumValue>
+    <EnumValue>
+        <key>9</key>
+        <value>3_9_Rep_HKRep_Defs</value>
+    </EnumValue>
+    <EnumValue>
+        <key>130</key>
+        <value>3_130_Change_HKRep_Coll_Int</value>
+    </EnumValue>
+    <EnumValue>
+        <key>139</key>
+        <value>3_139_Def_HKRep_Gen_Cond</value>
+    </EnumValue>
+    <EnumValue>
+        <key>144</key>
+        <value>3_144_Rep_HKRep_Sts</value>
+    </EnumValue>
+    <EnumValue>
+        <key>136</key>
+        <value>3_136_Protect_HK_SID</value>
+    </EnumValue>
+    <EnumValue>
+        <key>137</key>
+        <value>3_137_Unprotect_HK_SID</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>3_1_New_HKRep</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>HK_SID</name>
+<description>SID</description>
+<type>5</type>
+<value>10802</value>
+<EnumValues/>
+<DefaultValue>9002</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COLL_INT</name>
+<description>Collection Interval</description>
+<type>5</type>
+<MinValue>10</MinValue>
+<MaxValue>6000</MaxValue>
+<EnumValues/>
+<DefaultValue>10</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>GEN_PARAM_ID</name>
+<description>Generation Parameter ID</description>
+<type>9</type>
+<EnumValues/>
+<DefaultValue>"A99E000Z"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>Mask</name>
+<description>Mask for the generation</description>
+<type>6</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>Exp_value</name>
+<description>Expected value after applying the mask</description>
+<type>6</type>
+<EnumValues/>
+<DefaultValue>1</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>OBERTime</name>
+<description>On Board Execution Reference Time</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                        </arguments>
+                        <ProcedureId>N_PUS_0003</ProcedureId>
+                        <DomainId>Default:</DomainId>
+                        <title>PUS 3 HK &amp; Diag Management</title>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.5">
+                    <description></description>
+                    <title>N_SYS_0035: SAT Transition from SAQ to NOM</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <arguments>
+                            <argument>
+<name>COEFC11</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC12</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC13</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC14</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC15</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC16</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC17</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC18</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC21</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC22</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC23</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC24</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC25</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC26</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC27</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC28</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC31</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC32</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC33</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC34</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC35</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC36</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC37</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC38</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC41</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC42</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC43</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC44</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC45</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC46</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC47</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>COEFC48</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>ENDTOFF</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>ENDTREF</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TOFFSET_1</name>
+<description>Offset in AOCS cycles for End Time of Profile 1</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TOFFSET_2</name>
+<description>Offset in AOCS cycles for End Time of Profile 2</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TOFFSET_3</name>
+<description>Offset in AOCS cycles for End Time of Profile 3</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TOFFSET_4</name>
+<description>Offset in AOCS cycles for End Time of Profile 4</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TOFFSET_5</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_1</name>
+<description>End second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_1_date</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_2</name>
+<description>End second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_2_date</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_3</name>
+<description>End second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_3_date</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_4</name>
+<description>End second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_4_date</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_5</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>END_TREF_5_date</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_ADD_DV</name>
+<description>Defines whether the cumulated velocity variations provided by the thrust system are used to update the orbit</description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>FALSE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>TRUE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>TRUE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_ADD_DV_i</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_5_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_5_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_X_5_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_5_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_5_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Y_5_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_5_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_5_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COEF_Z_5_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_COS_HALF_L</name>
+<description>Cosine of the half of the sum of the sidereal angle and the nominal longitude of the SC, given at the time OOP_DAT_ephm_refDate</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_END_DATE</name>
+<description>Time after which the orbit may not be used any longer</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_1</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_2</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_3</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_QJ2_TOD_4</name>
+<description>Quaternion giving the rotation from the frame J2000 to the True-of-Date frame (precession and nutation of the Earth rotation axis)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_REF_DATE</name>
+<description>Time at which the perturbation phase is zero for the orbit perturbation in R_LOFT</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_SIN_HALF_L</name>
+<description>Sine of the half of the sum of the sidereal angle and the nominal longitude of the SC, given at the time OOP_DAT_ephm_refDate</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_START_DATE</name>
+<description>Time after which the orbit may be used</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_TARGET_X</name>
+<description>Position along x of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_TARGET_Y</name>
+<description>Position along y of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>EPHM_TARGET_Z</name>
+<description>Position along z of the target point on the Earth in R_LOFT (from the ideal GEO orbit)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_A1_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_A2_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_A3_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_A4_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_B1_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_B2_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_B3_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>LV_B4_state</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>LV_OPEN</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>LV_CLOSE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>LV_CLOSE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MAN_BIAS_X</name>
+<description>Bias in the X axis with respect to the nominal manoeuvre target attitude in radian</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MAN_BIAS_Y</name>
+<description>Bias in the Y axis with respect to the nominal manoeuvre target attitude in radian</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MAN_BIAS_Z</name>
+<description>Bias in the Z axis with respect to the nominal manoeuvre target attitude in radian</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MMH_INITCOGACC_X</name>
+<description>MMH Center of Gravity X position under acceleration in m</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MMH_INITCOGACC_Y</name>
+<description>MMH Center of Gravity Y position under acceleration in m</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MMH_INITCOGACC_Z</name>
+<description>MMH Center of Gravity Z position under acceleration in m</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MMH_INITCOG_0G_X</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MMH_INITCOG_0G_Y</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MMH_INITCOG_0G_Z</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MON_INITCOGACC_X</name>
+<description>MON Center of Gravity X position under acceleration in m</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MON_INITCOGACC_Y</name>
+<description>MON Center of Gravity Y position under acceleration in m</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MON_INITCOGACC_Z</name>
+<description>MON Center of Gravity Z position under acceleration in m</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MON_INITCOG_0G_X</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MON_INITCOG_0G_Y</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>MON_INITCOG_0G_Z</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>N_Profiles</name>
+<description>Number of Attitude Guidance Profiles to be uploaded</description>
+<type>12</type>
+<value>#PR!!N_Profiles</value>
+<EnumValues>
+    <EnumValue>
+        <key>1</key>
+        <value>ONE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>TWO</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>THREE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>FOUR</value>
+    </EnumValue>
+    <EnumValue>
+        <key>0</key>
+        <value>NONE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>NONE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>OBERTime</name>
+<description>used to store the SKM sat</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C1_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C2_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C3_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P1_COEFF_C4_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C1_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C2_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C3_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P2_COEFF_C4_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C1_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C2_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C3_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P3_COEFF_C4_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C1_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C2_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C3_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_1</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_2</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_3</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_4</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_5</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_6</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_7</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>P4_COEFF_C4_8</name>
+<description></description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_GAM_1</name>
+<description>PAF for first GAM to stop the satellite spin</description>
+<type>9</type>
+<value>#PR!!PAF_GAM_1</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-GAM_MTI1_0_0_01.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_GAM_2</name>
+<description>PAF for first slew</description>
+<type>9</type>
+<value>#PR!!PAF_GAM_2</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-GAM_MTI1_0_0_01.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_GAM_3</name>
+<description>PAF for second slew</description>
+<type>9</type>
+<value>#PR!!PAF_GAM_3</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-GAM_MTI1_0_0_02.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_GAM_4</name>
+<description>PAF for third slew</description>
+<type>9</type>
+<value>#PR!!PAF_GAM_4</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-GAM_MTI1_0_0_03.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_MAN</name>
+<description>PAF for RWOL</description>
+<type>9</type>
+<value>#PR!!PAF_MAN</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-MAN_MTI1_0_0_01.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_OOP</name>
+<description>PAF for OOP</description>
+<type>9</type>
+<value>#PR!!PAF_OOP</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-OOP_MTI1_0_0_01.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_SKM</name>
+<description>PAF for SKM guidance</description>
+<type>9</type>
+<value>#PR!!PAF_SKM</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-SKM_MTI1_0_0_01.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PAF_SAG</name>
+<description>PAF for SADM Target Angle</description>
+<type>9</type>
+<value>#PR!!PAF_SAG</value>
+<EnumValues/>
+<DefaultValue>"FDS_OPE_PAF-SAG_MTI1_0_0_01.xml"</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PLU_DV_CORR_FA_X</name>
+<description>Delta V generated by plume in ACA frame scaled with the delta V of the manoeuvre</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PLU_DV_CORR_FA_Y</name>
+<description>Delta V generated by plume in ACA frame scaled with the delta V of the manoeuvre</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PLU_DV_CORR_FA_Z</name>
+<description>Delta V generated by plume in ACA frame scaled with the delta V of the manoeuvre</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PROFID</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>PROFILE_A</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>PROFILE_B</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>PROFILE_A</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PROFILE_ID_1</name>
+<description>Profile ID for profile 1</description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>PROFILE_A</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>PROFILE_B</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>PROFILE_A</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PROFILE_ID_2</name>
+<description>Profile ID for profile 2</description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>PROFILE_A</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>PROFILE_B</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>PROFILE_B</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PROFILE_ID_3</name>
+<description>Profile ID for profile 3</description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>PROFILE_A</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>PROFILE_B</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>PROFILE_A</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>PROFILE_ID_4</name>
+<description>Profile ID for profile 4</description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>PROFILE_A</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>PROFILE_B</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>PROFILE_B</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_1</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>A1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>A2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>A3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>A4</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>B1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>B2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>6</key>
+        <value>B3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>7</key>
+        <value>B4</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>A1</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_10_FORCE</name>
+<description>RCT 10 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_10_MASS_FLOW</name>
+<description>RCT 10 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_10_MIX_RAT</name>
+<description>RCT 10 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_11_FORCE</name>
+<description>RCT 11 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_11_MASS_FLOW</name>
+<description>RCT 11 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_11_MIX_RAT</name>
+<description>RCT 11 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_12_FORCE</name>
+<description>RCT 12 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_12_MASS_FLOW</name>
+<description>RCT 12 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_12_MIX_RAT</name>
+<description>RCT 12 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_13_FORCE</name>
+<description>RCT 13 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_13_MASS_FLOW</name>
+<description>RCT 13 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_13_MIX_RAT</name>
+<description>RCT 13 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_14_FORCE</name>
+<description>RCT 14 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_14_MASS_FLOW</name>
+<description>RCT 14 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_14_MIX_RAT</name>
+<description>RCT 14 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_15_FORCE</name>
+<description>RCT 15 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_15_MASS_FLOW</name>
+<description>RCT 15 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_15_MIX_RAT</name>
+<description>RCT 15 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_16_FORCE</name>
+<description>RCT 16 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_16_MASS_FLOW</name>
+<description>RCT 16 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_16_MIX_RAT</name>
+<description>RCT 16 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_1_FORCE</name>
+<description>RCT 1 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_1_MASS_FLOW</name>
+<description>RCT 1 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_1_MIX_RAT</name>
+<description>RCT 1 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_1_i</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_2</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>A1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>A2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>A3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>A4</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>B1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>B2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>6</key>
+        <value>B3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>7</key>
+        <value>B4</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>A3</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_2_FORCE</name>
+<description>RCT 2 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_2_MASS_FLOW</name>
+<description>RCT 2 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_2_MIX_RAT</name>
+<description>RCT 2 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_2_i</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_3</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>A1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>A2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>A3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>A4</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>B1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>B2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>6</key>
+        <value>B3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>7</key>
+        <value>B4</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>B2</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_3_FORCE</name>
+<description>RCT 3 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_3_MASS_FLOW</name>
+<description>RCT 3 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_3_MIX_RAT</name>
+<description>RCT 3 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_3_i</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_4</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>A1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>A2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>A3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>A4</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>B1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>B2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>6</key>
+        <value>B3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>7</key>
+        <value>B4</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>B4</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_4_FORCE</name>
+<description>RCT 4 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_4_MASS_FLOW</name>
+<description>RCT 4 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_4_MIX_RAT</name>
+<description>RCT 4 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_4_i</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_5</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>D1</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>D2</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>D3</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>D4</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>D1</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_5_FORCE</name>
+<description>RCT 5 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_5_MASS_FLOW</name>
+<description>RCT 5 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_5_MIX_RAT</name>
+<description>RCT 5 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_6_FORCE</name>
+<description>RCT 6 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_6_MASS_FLOW</name>
+<description>RCT 6 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_6_MIX_RAT</name>
+<description>RCT 6 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_7_FORCE</name>
+<description>RCT 7 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_7_MASS_FLOW</name>
+<description>RCT 7 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_7_MIX_RAT</name>
+<description>RCT 7 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_8_FORCE</name>
+<description>RCT 8 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_8_MASS_FLOW</name>
+<description>RCT 8 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_8_MIX_RAT</name>
+<description>RCT 8 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_9_FORCE</name>
+<description>RCT 9 steady state force in N</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_9_MASS_FLOW</name>
+<description>RCT 9 steady state mass flow in g per s</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RCT_9_MIX_RAT</name>
+<description>RCT 9 steady state mixture ratio</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RW1_SPEED_TARGET</name>
+<description>RW target speed in rads per second</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RW2_SPEED_TARGET</name>
+<description>RW target speed in rads per second</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RW3_SPEED_TARGET</name>
+<description>RW target speed in rads per second</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RW4_SPEED_TARGET</name>
+<description>RW target speed in rads per second</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>RW5_SPEED_TARGET</name>
+<description>RW target speed in rads per second</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SADM_Target</name>
+<description>SADM Target Angle for GAM in radians</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SAANGLE</name>
+<description>FDS provided SADM Target Angle</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SKM_MAN_DIR</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>NORTH</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>SOUTH</value>
+    </EnumValue>
+    <EnumValue>
+        <key>2</key>
+        <value>EAST</value>
+    </EnumValue>
+    <EnumValue>
+        <key>3</key>
+        <value>WEST</value>
+    </EnumValue>
+    <EnumValue>
+        <key>4</key>
+        <value>WHEEL_OFFLOAD</value>
+    </EnumValue>
+    <EnumValue>
+        <key>5</key>
+        <value>NONE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>WHEEL_OFFLOAD</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_ENABLED</name>
+<description>Defines whether quaternion slew signals are generated</description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>FALSE</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>TRUE</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>TRUE</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_ENABLED_i</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>1</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_JMP_Q</name>
+<description>Slew maximum initial jump (the cosine of the half angle)</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_JMP_W</name>
+<description>Slew maximum initial rate</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_W</name>
+<description>Slew maximum rate</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>SLEW_MAX_W_DOT</name>
+<description>Slew maximum acceleration. It should re-main at least 20 times smaller than OOP_DAT_slew_maxW</description>
+<type>8</type>
+<EnumValues/>
+<DefaultValue>0.0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TOFFSET</name>
+<description>Offset in AOCS cycles for Start Time</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TOFFSET_1</name>
+<description>Offset in AOCS cycles for Start Time of profile 1</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TOFFSET_2</name>
+<description>Offset in AOCS cycles for Start Time of profile 2</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TOFFSET_3</name>
+<description>Offset in AOCS cycles for Start Time of profile 3</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TOFFSET_4</name>
+<description>Offset in AOCS cycles for Start Time of profile 4</description>
+<type>5</type>
+<MinValue>0</MinValue>
+<MaxValue>9</MaxValue>
+<EnumValues/>
+<DefaultValue>1</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TOFFSET_5</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF</name>
+<description>SKM maneuver start time second</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_1</name>
+<description>Start second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_1_dat</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_2</name>
+<description>Start second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_2_dat</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_3</name>
+<description>Start second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_3_dat</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_4</name>
+<description>Start second of the attitude profile</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_4_dat</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_5</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>START_TREF_5_dat</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>STRTTOFF</name>
+<description></description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>STRTTREF</name>
+<description></description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("2020-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>TargetSA_P1delay</name>
+<description>Seconds after P1 start time to set the SA target angle for the case of only 1 profile used</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>120</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>YAW_FLIP_status</name>
+<description></description>
+<type>12</type>
+<EnumValues>
+    <EnumValue>
+        <key>0</key>
+        <value>YRSAT_SOUTH</value>
+    </EnumValue>
+    <EnumValue>
+        <key>1</key>
+        <value>YRSAT_NORTH</value>
+    </EnumValue>
+</EnumValues>
+<DefaultValue>YRSAT_SOUTH</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                            <argument>
+<name>YF</name>
+<description>Auxiliary</description>
+<type>5</type>
+<EnumValues/>
+<DefaultValue>0</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                        </arguments>
+                        <ProcedureId>N_SYS_0035</ProcedureId>
+                        <DomainId>Default:</DomainId>
+                        <title>SAT Transition from SAQ to NOM</title>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.6">
+                    <description></description>
+                    <title>Dump Thruster History Log</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.6.A1">
+    <description></description>
+    <title>Info on THL dumps during SM recovery</title>
+    <label></label>
+    <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>This is the second dump of the THL executed during the SM recovery. It covers the data between times: from time of the first dump (at Step P.2) until now (after the completion of the RWOL, nominally with the satellite in SAQ/SAM/RWSA).</message>
+        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A2">
+    <description></description>
+    <title>Inform the FD team that the THL dump is about to start</title>
+    <label></label>
+    <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>Inform the FD team that the Thruster History Log dump is about to start.</message>
+        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A3">
+    <description></description>
+    <title>Set THLdumpEnd</title>
+    <label></label>
+    <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <variable>Arg:THLdumpEndValue:null</variable>
+        <VariableValue>now()</VariableValue>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A4">
+    <description></description>
+    <title>Wait 1 second</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="TemporalWaitCondition">
+            <mode>Delay</mode>
+            <delay>1</delay>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A5">
+    <description></description>
+    <title>Confirm THLdumpStart time</title>
+    <label></label>
+    <StepBody xsi:type="VariableInteractionStepBody" type="Variable Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>Confirm THLdumpStart time is after N_SYS_I035 End time and before N_SYS_0035 Start time.</message>
+        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+        <variables>
+            <variable>THLdumpStart</variable>
+        </variables>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A6">
+    <description></description>
+    <title>Confirm THLdumpEnd time</title>
+    <label></label>
+    <StepBody xsi:type="VariableInteractionStepBody" type="Variable Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>Confirm THLdumpEnd time is after N_SYS_0035 End time.</message>
+        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+        <variables>
+            <variable>THLdumpEnd</variable>
+        </variables>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A7">
+    <description></description>
+    <title>N_PUS_0015: Dump Thruster History Log</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>PUS15subservice</name>
+                <description>PUS 15 subservice to be executed</description>
+                <type>12</type>
+                <value>15_9_Dlink_PS_Contnts_Time</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>15_1_En_Stor_in_PS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>15_2_Dis_Stor_in_PS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>9</key>
+                        <value>15_9_Dlink_PS_Contnts_Time</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>10</key>
+                        <value>15_10_Del_PS_Packet</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>129</key>
+                        <value>15_129_Stop_PS_Retrieval</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>15_1_En_Stor_in_PS</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>EnaDisCase</name>
+                <description>Enable Case</description>
+                <type>12</type>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>ALL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>THRSTR_LOG</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>PF_HRDM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>PL1_HRDM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>PL2_HRDM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>SEP_LOG</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>ALL</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>DownlinkCase</name>
+                <description>Downlink Case</description>
+                <type>12</type>
+                <value>1PS_BETWEEN</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>1PS_COMPLETE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>1PS_BETWEEN</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>1PS_COMPLETE</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>DeleteCase</name>
+                <description>Delete Case</description>
+                <type>12</type>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>THRSTR_LOG_COMPLETE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>PF_HRDM_COMPLETE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>PL1_HRDM_COMPLETE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>PL2_HRDM_COMPLETE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>SEP_LOG_COMPLETE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>6</key>
+                        <value>1PS_BEFORE</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>THRSTR_LOG_COMPLETE</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>StopCase</name>
+                <description>Stop Case</description>
+                <type>12</type>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>ALL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>1PS</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>ALL</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>StoreID</name>
+                <description>Store ID</description>
+                <type>12</type>
+                <value>THRSTR_LOG</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>THRSTR_LOG</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>PF_HRDM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>PL1_HRDM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>PL2_HRDM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>SEP_LOG</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>THRSTR_LOG</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>Storage_Time_1</name>
+                <description>Storage time 1</description>
+                <type>11</type>
+                <value>#PR!!THLdumpStart</value>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("2001-196T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>Storage_Time_2</name>
+                <description>Storage time 2</description>
+                <type>11</type>
+                <value>#PR!!THLdumpEnd</value>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("2001-196T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>APID</name>
+                <description>APID</description>
+                <type>12</type>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>TIME</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>HK</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>DIAG</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>EVT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>RMU</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>INR</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>6</key>
+                        <value>MISS_CONF</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>7</key>
+                        <value>FCI</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>8</key>
+                        <value>IRS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>9</key>
+                        <value>LI</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>10</key>
+                        <value>UVN</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>11</key>
+                        <value>DG</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>TIME</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>SQC_CNT</name>
+                <description>Sequence count</description>
+                <type>5</type>
+                <EnumValues/>
+                <DefaultValue>1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_PUS_0015</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>PUS 15 Storage &amp; Retrieval Management</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A8">
+    <description></description>
+    <title>Generate TM for FD - to be updated</title>
+    <label></label>
+    <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>Interact with the MOF team to generate the TM for FD (iMOFCALTM - TBC)</message>
+        <ResponseWindow>+000:00:10:00.000Z</ResponseWindow>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A9">
+    <description></description>
+    <title>Inform the FD team that the THL dump is being transferred to FDS</title>
+    <label></label>
+    <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>Inform the FD team that the Thruster History Log dump is being transferred to FDS.</message>
+        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.7">
+                    <description></description>
+                    <title>New values of Depleted Masses generated</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <message>The FDS team will generate updated values of propellant depleted masses. The FDS team and the AOCS SOE will decide if the new values have to be uploaded.</message>
+                        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.8">
+                    <description></description>
+                    <title>Clear Thruster History Log?</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.8.A1">
+    <description></description>
+    <title>Confirm THL can be cleared</title>
+    <label></label>
+    <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>AOCS / DHS SOE and FD Engineer to confirm that the Thruster History Log on PS-A can be cleared</message>
+        <ResponseWindow>+000:00:10:00.000Z</ResponseWindow>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.8.A2">
+    <description></description>
+    <title>Select THL to be cleared True / False</title>
+    <label></label>
+    <StepBody xsi:type="ConfirmInteractionStepBody" type="Confirm Interaction Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <message>Select True to Clear the Thruster History Log</message>
+        <ResponseWindow>+000:00:05:00.000Z</ResponseWindow>
+        <choices>
+            <choice>true</choice>
+            <choice>false</choice>
+        </choices>
+        <ResultVariable>THLclear</ResultVariable>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.8.A3">
+    <description></description>
+    <title>Clear THL</title>
+    <label></label>
+    <StepBody xsi:type="CaseStepBody" type="Case Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <condition>#PR!!THLclear</condition>
+        <Branches>
+            <branch>
+                <title>true</title>
+                <steps>
+                    <step identifier="P.8.A3.A1">
+                        <description></description>
+                        <title>N_PUS_0015: Clear Thruster History Log PS</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>PUS15subservice</name>
+    <description>PUS 15 subservice to be executed</description>
+    <type>12</type>
+    <value>15_10_Del_PS_Packet</value>
+    <EnumValues>
+        <EnumValue>
+            <key>1</key>
+            <value>15_1_En_Stor_in_PS</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>15_2_Dis_Stor_in_PS</value>
+        </EnumValue>
+        <EnumValue>
+            <key>9</key>
+            <value>15_9_Dlink_PS_Contnts_Time</value>
+        </EnumValue>
+        <EnumValue>
+            <key>10</key>
+            <value>15_10_Del_PS_Packet</value>
+        </EnumValue>
+        <EnumValue>
+            <key>129</key>
+            <value>15_129_Stop_PS_Retrieval</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>15_1_En_Stor_in_PS</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>EnaDisCase</name>
+    <description>Enable Case</description>
+    <type>12</type>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>ALL</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>THRSTR_LOG</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>PF_HRDM</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>PL1_HRDM</value>
+        </EnumValue>
+        <EnumValue>
+            <key>4</key>
+            <value>PL2_HRDM</value>
+        </EnumValue>
+        <EnumValue>
+            <key>5</key>
+            <value>SEP_LOG</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>ALL</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>DownlinkCase</name>
+    <description>Downlink Case</description>
+    <type>12</type>
+    <value>1PS_COMPLETE</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>1PS_COMPLETE</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>1PS_BETWEEN</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>1PS_COMPLETE</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>DeleteCase</name>
+    <description>Delete Case</description>
+    <type>12</type>
+    <EnumValues>
+        <EnumValue>
+            <key>1</key>
+            <value>THRSTR_LOG_COMPLETE</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>PF_HRDM_COMPLETE</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>PL1_HRDM_COMPLETE</value>
+        </EnumValue>
+        <EnumValue>
+            <key>4</key>
+            <value>PL2_HRDM_COMPLETE</value>
+        </EnumValue>
+        <EnumValue>
+            <key>5</key>
+            <value>SEP_LOG_COMPLETE</value>
+        </EnumValue>
+        <EnumValue>
+            <key>6</key>
+            <value>1PS_BEFORE</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>THRSTR_LOG_COMPLETE</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>StopCase</name>
+    <description>Stop Case</description>
+    <type>12</type>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>ALL</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>1PS</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>ALL</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>StoreID</name>
+    <description>Store ID</description>
+    <type>12</type>
+    <value>THRSTR_LOG</value>
+    <EnumValues>
+        <EnumValue>
+            <key>1</key>
+            <value>THRSTR_LOG</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>PF_HRDM</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>PL1_HRDM</value>
+        </EnumValue>
+        <EnumValue>
+            <key>4</key>
+            <value>PL2_HRDM</value>
+        </EnumValue>
+        <EnumValue>
+            <key>5</key>
+            <value>SEP_LOG</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>THRSTR_LOG</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>Storage_Time_1</name>
+    <description>Storage time 1</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("2001-196T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>Storage_Time_2</name>
+    <description>Storage time 2</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("2001-196T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>APID</name>
+    <description>APID</description>
+    <type>12</type>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>TIME</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>HK</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>DIAG</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>EVT</value>
+        </EnumValue>
+        <EnumValue>
+            <key>4</key>
+            <value>RMU</value>
+        </EnumValue>
+        <EnumValue>
+            <key>5</key>
+            <value>INR</value>
+        </EnumValue>
+        <EnumValue>
+            <key>6</key>
+            <value>MISS_CONF</value>
+        </EnumValue>
+        <EnumValue>
+            <key>7</key>
+            <value>FCI</value>
+        </EnumValue>
+        <EnumValue>
+            <key>8</key>
+            <value>IRS</value>
+        </EnumValue>
+        <EnumValue>
+            <key>9</key>
+            <value>LI</value>
+        </EnumValue>
+        <EnumValue>
+            <key>10</key>
+            <value>UVN</value>
+        </EnumValue>
+        <EnumValue>
+            <key>11</key>
+            <value>DG</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue>TIME</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>SQC_CNT</name>
+    <description>Sequence count</description>
+    <type>5</type>
+    <EnumValues/>
+    <DefaultValue>1</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_PUS_0015</ProcedureId>
+                            <DomainId>Default:</DomainId>
+                            <title>PUS 15 Storage &amp; Retrieval Management</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+                <condition>true</condition>
+            </branch>
+            <branch>
+                <title>false</title>
+                <steps>
+                    <step identifier="P.8.A3.B1">
+                        <description></description>
+                        <title>Inform SOE that THL PS-A was not cleared</title>
+                        <label></label>
+                        <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <message>Inform the AOCS / DHS SOEs and FD Engineer that the Thruster History Log on PS-A was NOT cleared.</message>
+                            <ResponseWindow>+000:00:10:00.000Z</ResponseWindow>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+                <condition>false</condition>
+            </branch>
+        </Branches>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.9">
+                    <description></description>
+                    <title>FINISH</title>
+                    <label>FINISH</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText>Procedure finished</LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

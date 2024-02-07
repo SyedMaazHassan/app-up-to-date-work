@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">ADD USER</h1>
+      </div>
+    </div>
+
+    {% if success %}
+    <div style = "color: green;">
+        User Added Successfully
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/user">
+        
+        <label> Username: </label>
+        <input type="text" id="username" name="username">
+        <br><br>
+
+        <label> Password: </label>
+        <input type="password" id="password" name="password"> 
+        <br><br>
+    
+        <label> Is Admin: </label>
+        <input type="checkbox" id="is_admin" name="is_admin"> 
+        <br><br>
+
+        <button type="submit" class="btn btn-primary">ADD</button>
+    </form>
+  </div>
+{% endblock %}
+

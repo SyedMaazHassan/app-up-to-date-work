@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<title>Timers</title>
+	<script>
+		// Code for the timer with start and stop buttons
+		var timer1 = '{{seconds}}';
+		var flagTimer1 = '{{timerFlag}}'
+		var passedseconds = 0;
+		var timerInterval;
+        var timerInterval1;
+		var flag = false;
+		function convertSecondToTimerFormat(timer1, flag){
+			var year = Math.floor(timer1 / (3600 * 24 * 365));
+			var day = Math.floor(timer1 / (3600 * 24)) % 365;
+			var hour = Math.floor(timer1 / 3600) % 24;
+			var minute = Math.floor(timer1 / 60) % 60;
+			var second = timer1 % 60;
+			if (flag) {
+			return year.toString().padStart(2, '0') + ':' +
+					day.toString().padStart(3, '0') + ':' + 
+					hour.toString().padStart(2, '0') + ':' + 
+					minute.toString().padStart(2, '0') + ':' + 
+					second.toString().padStart(2, '0');
+			} else {
+				return day.toString().padStart(3, '0') + ':' + 
+				hour.toString().padStart(2, '0') + ':' + 
+				minute.toString().padStart(2, '0') + ':' + 
+				second.toString().padStart(2, '0');			
+			}
+		}
+		function startTimer() {
+			console.log(flag)
+			if (!flag) {
+				timerInterval = setInterval(updateTimer, 1000);
+				flag=true;
+			}
+		}
+		function stopTimer() {
+			clearInterval(timerInterval);
+			flag=false;
+		}
+		function updateTimer() {
+			var timerDisplay = document.getElementById('timer-display2');
+			passedseconds++;
+			timerDisplay.textContent = convertSecondToTimerFormat(passedseconds, false);
+		}
+
+		function startTimer1() {
+			timerInterval1 = setInterval(updateTimer1, 1000);
+		}
+		function updateTimer1() {
+			var timerDisplay = document.getElementById('timer-display1');
+			console.log(flagTimer1)
+			if (flagTimer1 === "up") {
+				timer1++;
+			} else{
+				timer1--;
+			}
+			if (timer1 === 0) {
+				clearInterval(timerInterval1);
+			}
+			timerDisplay.textContent = convertSecondToTimerFormat(timer1, true);
+		}
+        startTimer1()
+    </script>
+	<style>
+        /* Add your CSS styles here */
+        .row {
+            background-color: lightBlue;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .col-1 {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sub-menu {
+            display: none;
+        }
+
+        .col-1.active .sub-menu {
+            display: block;
+        }
+
+        .col-1.active::before {
+            content: '▼ ';
+        }
+    </style>
+</head>
+<body>
+	<h1>Timers</h1>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col-4 d-flex align-items-center justify-content-center" style="background-color: lightBlue; border-radius: 10px; padding: 10px;">
+			<p class="m-0" style="font-size: 50px;" id="timer-display1">00:000:00:00:00</p>
+		</div>
+		<div class="col-1"></div>
+		<div class="col-4 d-flex align-items-center justify-content-center" style="background-color: lightBlue; border-radius: 10px; padding: 10px;">
+			<div class="d-flex align-items-center justify-content-center flex-column">
+				<p style="font-size:50px;" id="timer-display2">000:00:00:00</p>
+				<div class="d-flex justify-content-center">
+					<button class="btn btn-primary mr-2" onclick="startTimer()">Start</button>
+					<button class="btn btn-primary" onclick="stopTimer()">Stop</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<br><br>
+	
+	<div class="row">
+		<div class="col-2"></div>
+		<div class="col-2 text-center black">
+			<a href="/srdb/update/request" style="color: black;">
+			  <i class="mdi mdi-database" style="color: black; font-size: 80px;"></i>
+			  <br>
+			  <span>Request SRDB Update</span>
+			</a>
+		</div>
+		<div class="col-2 text-center black">
+			<a href="/procedure/update/request" style="color: black;">
+				<img style ="padding-top:20px" width="75px" height="115px" src={{ url_for('static', filename='images/procedure.png') }} alt="icon"></img>
+			  <br>
+			  <span>Request Procedure Update</span>
+			</a>
+		</div>
+		<div class="col-2 text-center black">
+			<a href="/action1/update/request" style="color: black;">
+			  <img style ="padding-top:20px" width="120px" height="115px" src={{ url_for('static', filename='images/Action.png') }} alt="icon"></img>
+			  <br>
+			  <span>SSS Actions</span>
+			</a>
+		</div>
+		<div class="col-2 text-center black">
+			<a href="/action2/update/request" style="color: black;">
+				<img style ="padding-top:20px" width="120px" height="115px" src={{ url_for('static', filename='images/Action.png') }} alt="icon"></img>
+			  <br>
+			  <span>TTT Actions</span>
+			</a>
+		</div>
+		<div class="col-4"></div>
+	</div>
+	<script>
+        // JavaScript to toggle submenu visibility
+        const expandableItems = document.querySelectorAll('.expandable');
+
+        expandableItems.forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}

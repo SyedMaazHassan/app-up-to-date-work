@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">Procedure 1 Update</h1>
+      </div>
+    </div>
+        <form method="POST" action="/api/procedure_1/update/{{procedure_1[0]}}">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Name:</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ procedure_1[1] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="year">Sub System:</label>
+                <input type="text" class="form-control" id="sub_system" name="sub_system" value="{{ procedure_1[2] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Version:</label>
+                <input type="text" class="form-control" id="version" name="version" value="{{ procedure_1[3] }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Pdf Link:</label>
+                <input type="text" class="form-control" id="pdf_link" name="pdf_link" value="{{ procedure_1[4] }}">
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end align-items-center">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+          </form>
+  </div>
+{% endblock %}
+

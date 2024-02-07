@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ procedure_1[1] }}
+          {% if is_admin %}
+          <td>
+              <a href="/procedure_1/update/{{procedure_1[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/procedure_1/delete/{{procedure_1[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+        {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">procedure 1 Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>name:</strong> {{ procedure_1[1] }}</li>
+              <li><strong>Sub System:</strong> {{ procedure_1[2] }}</li>
+              <li><strong>Version:</strong> {{ procedure_1[3] }}</li>
+              <li><strong>Link: </strong> <a href="{{procedure_1[4]}}">{{ procedure_1[4] }}</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

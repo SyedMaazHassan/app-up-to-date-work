@@ -1,0 +1,1632 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_FCI_I205">
+    <description>Procedure Purpose:         FCI Deactivation
+
+Procedure Version:         2
+Responsibility:   Eleonora Bassi / Julien Rogissart
+Last Modified Date:        24.03.2023
+
+Version 2 (TAS - 24.03.2023) 
+Change History:
+Update from TAS attached to EUM/MTG/AR/6833: @P.6: Added block TCS setdown to NOP ranges. 
+
+Version 1: (EB - 06.10.2022)
+Change History:
+- Copied from FOM procedure N_FCI_I205 version 1 (delivered in FOM6) Verified with SRDB version MTG_I_PFM_14_01
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1;
+- Procedure updated: AIM#225572 and #225513 Added P6 call to N_TCS_I032
+
+Procedure Objectives:
+
+-This procedure send commands to deactivate FCI
+
+
+Procedure Overview:
+
+This procedure send commands to deactivate FCI
+- This is a satellite level procedure calling the FCI level procedures to bring the FCI from OBSERVATION / WAIT / CONFIGURATION / HEATER WARMP-UP or SATDNBY mode to SURVIVAL mode. From any other FCI mode, the user shall first complete the on-going operations and bring the FCI back to one of the above modes.
+
+Procedure Pre-conditions:            None
+
+Procedure Constraints:   None
+
+Spacecraft Configuration:            FCI in OBSERVATION / WAIT / CONFIGURATION / HEATER WARMP-UP or STANDBY mode
+
+Ground Segment Configuration:	None
+
+Remarks:	None</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>FCI de-activation</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_FCI_I205</UniqueId>
+    <author>rogissart_OPRE</author>
+    <LastModifiedDate>2023-03-24T13:22:13.058Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+Default:NomSysSAT::N_FCI_I730 called by steps: P.1.B1
+Default:NomFCI::N_FCI_I580 called by steps: P.2.B1
+Default:NomFCI::N_FCI_I046 called by steps: P.3.B1
+Default:NomFCI::N_FCI_I044 called by steps: P.4.B1
+Default:NomFCI::N_FCI_I042 called by steps: P.5.B1
+Default:NomTCS::N_TCS_I025 called by steps: P.6.A2, P.6.A5, P.6.A8, P.6.A9, P.6.A10
+Default:NomTCS::N_TCS_I015 called by steps: P.6.A3, P.6.A6, P.6.A11
+MTI1:NomTCS::N_TCS_I032 called by steps: P.7
+</hierarchy>
+    <version>11.0</version>
+    <history>Version 1: (EB - 06.10.2022)
+Change History:
+- Copied from FOM procedure N_FCI_I205 version 1 (delivered in FOM6)
+- Procedure Description field updated according to EUMETSAT template;
+- Procedure History field erased and restarted from Version 1;
+- Procedure updated: AIM#225572 and #225513 Added P6 call to N_TCS_I032
+
+Version 2 (TAS): 
+Change History:
+@P.6: Added block TCS setdown to NOP ranges</history>
+    <duration></duration>
+    <VerificationVersion>03.07.05</VerificationVersion>
+    <VerificationStatus>Unverified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>END_MODE</name>
+            <description>FCI mode at end of de-activation</description>
+            <type>12</type>
+            <value>SURVIVAL</value>
+            <EnumValues>
+                <EnumValue>
+                    <key>0</key>
+                    <value>SURVIVAL</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>1</key>
+                    <value>STANDBY</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>2</key>
+                    <value>HEATERWARMUP</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>3</key>
+                    <value>CONFIGURATIO</value>
+                </EnumValue>
+                <EnumValue>
+                    <key>4</key>
+                    <value>WAIT</value>
+                </EnumValue>
+            </EnumValues>
+        </ProcedureArgument>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables/>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>FCI in OBSERVATION mode</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "OBSERVATION"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.1.B1">
+        <description></description>
+        <title>N_FCI_I730 - Stop FWP and PF REPSEQ</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>1970/01/01,00:00:00:000000000</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_FCI_I730</ProcedureId>
+            <DomainId>Default:NomSysSAT:</DomainId>
+            <title>STOP FWP and PF REPSEQ</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.1.B2">
+        <description></description>
+        <title>Continue de-activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.1.B2.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>FCI in WAIT mode</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "WAIT"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.2.B1">
+        <description></description>
+        <title>N_FCI_I580 - FCI to CONFIGURATION mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_FCI_I580</ProcedureId>
+            <DomainId>Default:NomFCI:</DomainId>
+            <title>FCI WAIT to CONFIGURATION</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B2">
+        <description></description>
+        <title>Continue de-activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.2.B2.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>FCI in CONFIGURATION mode</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "CONFIGURATIO"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.3.B1">
+        <description></description>
+        <title>N_FCI_I046 - FCI to HEATER WARM-UP mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_FCI_I046</ProcedureId>
+            <DomainId>Default:NomFCI:</DomainId>
+            <title>FCI CONFIGURATION to HEATER WARM-UP</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.3.B2">
+        <description></description>
+        <title>Continue de-activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.3.B2.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>FCI in HEATERWARMUP mode</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "HEATERWARMUP"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.4.B1">
+        <description></description>
+        <title>N_FCI_I044 - FCI to STANDBY mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>STC</name>
+                    <description>STC to be powered</description>
+                    <type>12</type>
+                    <EnumValues>
+                        <EnumValue>
+                            <key>1</key>
+                            <value>STC-N</value>
+                        </EnumValue>
+                        <EnumValue>
+                            <key>2</key>
+                            <value>STC-R</value>
+                        </EnumValue>
+                    </EnumValues>
+                    <DefaultValue>STC-N</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_FCI_I044</ProcedureId>
+            <DomainId>Default:NomFCI:</DomainId>
+            <title>FCI HEATER WARM-UP to STANDBY</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.4.B2">
+        <description></description>
+        <title>Continue de-activation?</title>
+        <label></label>
+        <StepBody xsi:type="CaseStepBody" type="Case Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <condition>#P!FASEM01X != #PR!!END_MODE</condition>
+            <Branches>
+                <branch>
+                    <title>false</title>
+                    <steps>
+                        <step identifier="P.4.B2.A1">
+                            <description></description>
+                            <title>Go to END</title>
+                            <label></label>
+                            <StepBody xsi:type="GotoStepBody" type="GoTo step">
+<MaxExecutionTime></MaxExecutionTime>
+<GotoLabel>END</GotoLabel>
+                            </StepBody>
+                            <StepFailureRecoveries/>
+                        </step>
+                    </steps>
+                    <condition>false</condition>
+                </branch>
+                <branch>
+                    <title>true</title>
+                    <steps/>
+                    <condition>true</condition>
+                </branch>
+            </Branches>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.5">
+                    <description></description>
+                    <title>FCI in STANDBY mode</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#P!FASEM01X == "STANDBY"</condition>
+                        <Branches>
+                            <branch>
+<title>false</title>
+<steps/>
+<condition>false</condition>
+                            </branch>
+                            <branch>
+<title>true</title>
+<steps>
+    <step identifier="P.5.B1">
+        <description></description>
+        <title>N_FCI_I042 - FCI to SURVIVAL MECHANISMS UNLOCKED mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_FCI_I042</ProcedureId>
+            <DomainId>Default:NomFCI:</DomainId>
+            <title>FCI STANDBY to SURVIVAL MECHANISMS UNLOCKED</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>true</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.6">
+                    <description></description>
+                    <title>Set FCI thermal control and monitoring to Non-Op temperatures</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.6.A1">
+    <description>1st: elarge monitoring to NOP + 2: setdown regulation to NOP range</description>
+    <title>Setdown TCS / SCAE</title>
+    <label></label>
+    <StepBody xsi:type="LogStepBody" type="Log Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <LogText>Setdown TCS / SCAE</LogText>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A2">
+    <description></description>
+    <title>Set SCAE in TCS NOP Monitoring</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLED_OP", "ENABLED_NOP", "DISABLED"</description>
+                <type>12</type>
+                <value>ENABLED_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>DISABLED</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLED_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>ENABLED_NOP</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>DISABLED</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>ENTRY_ID</name>
+                <description>Thermal Monitoring Point Entry Identifier</description>
+                <type>12</type>
+                <value>FCI_SCAE</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>38</key>
+                        <value>FCI_CCE1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>39</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>40</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>41</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>57</key>
+                        <value>PL_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>58</key>
+                        <value>PL_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>111</key>
+                        <value>FCI_ICU_IO1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>112</key>
+                        <value>FCI_ICU_IO2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>113</key>
+                        <value>FCI_ICU_ME1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>114</key>
+                        <value>FCI_ICU_ME2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>115</key>
+                        <value>LI_LME1_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>116</key>
+                        <value>LI_LME2_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>117</key>
+                        <value>DG_DCS1_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>118</key>
+                        <value>DG_DCS2_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>119</key>
+                        <value>DG_DCS1_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>120</key>
+                        <value>DG_DCS2_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>121</key>
+                        <value>DG_GSAR_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>122</key>
+                        <value>DG_GSAR_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>123</key>
+                        <value>UHF_FE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>124</key>
+                        <value>UHF_FE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>125</key>
+                        <value>UHF_PANEL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>126</key>
+                        <value>M_FCI_CCE_2</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>FCI_CCE1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I025</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable MON POINT - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A3">
+    <description></description>
+    <title>N_TCS_I015 - Set SCAE in TCS OP config</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLE_OP", "ENABLE_NOP", "DISABLE"</description>
+                <type>12</type>
+                <value>ENABLE_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>ENABLE_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLE_NOP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>DISABLE</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>ENABLE_OP</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>LOOP_ID</name>
+                <description>Thermal Control Loop Identifier</description>
+                <type>12</type>
+                <value>FCI_SCAE</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>9</key>
+                        <value>LI_LME_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>17</key>
+                        <value>FCI_CCE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>25</key>
+                        <value>FCI_CCE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>26</key>
+                        <value>LI_LME_C</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>27</key>
+                        <value>FCI_ICU_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>34</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>42</key>
+                        <value>D_G_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>46</key>
+                        <value>D_G_MADM_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>54</key>
+                        <value>D_G_MADM_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>75</key>
+                        <value>D_G_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>19</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>LI_LME_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I015</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable TCS LOOP - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A4">
+    <description>1st: elarge monitoring to NOP + 2: setdown regulation to NOP range</description>
+    <title>Setdown TCS / CCE</title>
+    <label></label>
+    <StepBody xsi:type="LogStepBody" type="Log Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <LogText>Setdown TCS / CCE</LogText>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A5">
+    <description></description>
+    <title>N_TCS_I025 - NOP FCI-CCE-1 monitoring point</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLED_OP", "ENABLED_NOP", "DISABLED"</description>
+                <type>12</type>
+                <value>ENABLED_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>DISABLED</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLED_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>ENABLED_NOP</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>DISABLED</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>ENTRY_ID</name>
+                <description>Thermal Monitoring Point Entry Identifier</description>
+                <type>12</type>
+                <value>FCI_CCE1</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>38</key>
+                        <value>FCI_CCE1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>39</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>40</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>41</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>57</key>
+                        <value>PL_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>58</key>
+                        <value>PL_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>111</key>
+                        <value>FCI_ICU_IO1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>112</key>
+                        <value>FCI_ICU_IO2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>113</key>
+                        <value>FCI_ICU_ME1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>114</key>
+                        <value>FCI_ICU_ME2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>115</key>
+                        <value>LI_LME1_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>116</key>
+                        <value>LI_LME2_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>117</key>
+                        <value>DG_DCS1_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>118</key>
+                        <value>DG_DCS2_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>119</key>
+                        <value>DG_DCS1_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>120</key>
+                        <value>DG_DCS2_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>121</key>
+                        <value>DG_GSAR_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>122</key>
+                        <value>DG_GSAR_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>123</key>
+                        <value>UHF_FE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>124</key>
+                        <value>UHF_FE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>125</key>
+                        <value>UHF_PANEL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>126</key>
+                        <value>M_FCI_CCE_2</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>FCI_CCE1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I025</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable MON POINT - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A6">
+    <description></description>
+    <title>N_TCS_I015 - NOP CCE1 in TCS </title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLE_OP", "ENABLE_NOP", "DISABLE"</description>
+                <type>12</type>
+                <value>ENABLE_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>ENABLE_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLE_NOP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>DISABLE</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>ENABLE_OP</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>LOOP_ID</name>
+                <description>Thermal Control Loop Identifier</description>
+                <type>12</type>
+                <value>FCI_CCE_1</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>9</key>
+                        <value>LI_LME_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>17</key>
+                        <value>FCI_CCE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>25</key>
+                        <value>FCI_CCE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>26</key>
+                        <value>LI_LME_C</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>27</key>
+                        <value>FCI_ICU_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>34</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>42</key>
+                        <value>D_G_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>46</key>
+                        <value>D_G_MADM_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>54</key>
+                        <value>D_G_MADM_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>75</key>
+                        <value>D_G_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>19</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>LI_LME_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I015</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable TCS LOOP - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A7">
+    <description>1st: elarge monitoring to NOP + 2: setdown regulation to NOP range</description>
+    <title>Setdown TCS / ICU</title>
+    <label></label>
+    <StepBody xsi:type="LogStepBody" type="Log Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <LogText>Setdown TCS / ICU</LogText>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A8">
+    <description></description>
+    <title>N_TCS_I025 - NOP ICU-ME-1 monitoring point</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLED_OP", "ENABLED_NOP", "DISABLED"</description>
+                <type>12</type>
+                <value>ENABLED_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>DISABLED</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLED_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>ENABLED_NOP</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>DISABLED</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>ENTRY_ID</name>
+                <description>Thermal Monitoring Point Entry Identifier</description>
+                <type>12</type>
+                <value>FCI_ICU_ME1</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>38</key>
+                        <value>FCI_CCE1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>39</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>40</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>41</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>57</key>
+                        <value>PL_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>58</key>
+                        <value>PL_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>111</key>
+                        <value>FCI_ICU_IO1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>112</key>
+                        <value>FCI_ICU_IO2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>113</key>
+                        <value>FCI_ICU_ME1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>114</key>
+                        <value>FCI_ICU_ME2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>115</key>
+                        <value>LI_LME1_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>116</key>
+                        <value>LI_LME2_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>117</key>
+                        <value>DG_DCS1_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>118</key>
+                        <value>DG_DCS2_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>119</key>
+                        <value>DG_DCS1_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>120</key>
+                        <value>DG_DCS2_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>121</key>
+                        <value>DG_GSAR_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>122</key>
+                        <value>DG_GSAR_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>123</key>
+                        <value>UHF_FE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>124</key>
+                        <value>UHF_FE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>125</key>
+                        <value>UHF_PANEL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>126</key>
+                        <value>M_FCI_CCE_2</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>FCI_CCE1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I025</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable MON POINT - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A9">
+    <description></description>
+    <title>N_TCS_I025 - NOP ICU-A monitoring point</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLED_OP", "ENABLED_NOP", "DISABLED"</description>
+                <type>12</type>
+                <value>ENABLED_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>DISABLED</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLED_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>ENABLED_NOP</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>DISABLED</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>ENTRY_ID</name>
+                <description>Thermal Monitoring Point Entry Identifier</description>
+                <type>12</type>
+                <value>FCI_ICU_A</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>38</key>
+                        <value>FCI_CCE1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>39</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>40</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>41</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>57</key>
+                        <value>PL_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>58</key>
+                        <value>PL_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>111</key>
+                        <value>FCI_ICU_IO1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>112</key>
+                        <value>FCI_ICU_IO2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>113</key>
+                        <value>FCI_ICU_ME1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>114</key>
+                        <value>FCI_ICU_ME2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>115</key>
+                        <value>LI_LME1_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>116</key>
+                        <value>LI_LME2_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>117</key>
+                        <value>DG_DCS1_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>118</key>
+                        <value>DG_DCS2_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>119</key>
+                        <value>DG_DCS1_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>120</key>
+                        <value>DG_DCS2_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>121</key>
+                        <value>DG_GSAR_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>122</key>
+                        <value>DG_GSAR_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>123</key>
+                        <value>UHF_FE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>124</key>
+                        <value>UHF_FE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>125</key>
+                        <value>UHF_PANEL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>126</key>
+                        <value>M_FCI_CCE_2</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>FCI_CCE1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I025</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable MON POINT - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A10">
+    <description></description>
+    <title>N_TCS_I025 - NOP ICU-IO-1 monitoring point</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLED_OP", "ENABLED_NOP", "DISABLED"</description>
+                <type>12</type>
+                <value>ENABLED_OP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>DISABLED</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLED_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>ENABLED_NOP</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>DISABLED</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>ENTRY_ID</name>
+                <description>Thermal Monitoring Point Entry Identifier</description>
+                <type>12</type>
+                <value>FCI_ICU_IO1</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>38</key>
+                        <value>FCI_CCE1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>39</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>40</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>41</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>57</key>
+                        <value>PL_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>58</key>
+                        <value>PL_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>111</key>
+                        <value>FCI_ICU_IO1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>112</key>
+                        <value>FCI_ICU_IO2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>113</key>
+                        <value>FCI_ICU_ME1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>114</key>
+                        <value>FCI_ICU_ME2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>115</key>
+                        <value>LI_LME1_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>116</key>
+                        <value>LI_LME2_HS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>117</key>
+                        <value>DG_DCS1_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>118</key>
+                        <value>DG_DCS2_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>119</key>
+                        <value>DG_DCS1_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>120</key>
+                        <value>DG_DCS2_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>121</key>
+                        <value>DG_GSAR_EXT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>122</key>
+                        <value>DG_GSAR_INT</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>123</key>
+                        <value>UHF_FE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>124</key>
+                        <value>UHF_FE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>125</key>
+                        <value>UHF_PANEL</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>126</key>
+                        <value>M_FCI_CCE_2</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>FCI_CCE1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I025</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable MON POINT - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A11">
+    <description></description>
+    <title>Set ICU OTL to Non-OP in TCS OP config</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Activity</name>
+                <description>"ENABLE_OP", "ENABLE_NOP", "DISABLE"</description>
+                <type>12</type>
+                <value>ENABLE_NOP</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>ENABLE_OP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>ENABLE_NOP</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>DISABLE</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>ENABLE_OP</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>LOOP_ID</name>
+                <description>Thermal Control Loop Identifier</description>
+                <type>12</type>
+                <value>FCI_ICU_A</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>LI_LME_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>9</key>
+                        <value>LI_LME_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>17</key>
+                        <value>FCI_CCE_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>25</key>
+                        <value>FCI_CCE_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>26</key>
+                        <value>LI_LME_C</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>27</key>
+                        <value>FCI_ICU_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>34</key>
+                        <value>FCI_SCAE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>42</key>
+                        <value>D_G_SARTX</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>46</key>
+                        <value>D_G_MADM_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>54</key>
+                        <value>D_G_MADM_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>75</key>
+                        <value>D_G_DCS</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>19</key>
+                        <value>FCI_ICU_A</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>LI_LME_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TCS_I015</ProcedureId>
+        <DomainId>Default:NomTCS:</DomainId>
+        <title>Enable/Disable TCS LOOP - MTG-I PL only</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.7">
+                    <description></description>
+                    <title>Check + reset PF heater Power limits</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <arguments>
+                            <argument>
+<name>OBERTime</name>
+<description>On Board Execution Reference Time</description>
+<type>11</type>
+<EnumValues/>
+<DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+<required>true</required>
+<modifiable>true</modifiable>
+                            </argument>
+                        </arguments>
+                        <ProcedureId>N_TCS_I032</ProcedureId>
+                        <DomainId>MTI1:NomTCS:</DomainId>
+                        <title>Reset Heater Power Limit (after switch OFF)</title>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.8">
+                    <description></description>
+                    <title>Check SHUTTER position reading from PF</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="WaitStepBody" type="Wait Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <WaitCondition xsi:type="ExpressionWaitCondition">
+                            <expression>#P!HDHF096Z == "IN_SHUTTER"</expression>
+                            <window>60</window>
+                        </WaitCondition>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.9">
+                    <description></description>
+                    <title>END</title>
+                    <label>END</label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText></LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

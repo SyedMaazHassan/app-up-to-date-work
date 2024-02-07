@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ data[1] }}
+          {% if is_admin %}          
+            <td>
+                <a href="/procedure/update/request/verify/{{data[0]}}" class="btn-md" role="button">
+                    <i class="mdi mdi-check" title="verify"></i>
+                </a>
+            </td>
+            <td>
+              <a href="/procedure/update/request/implement/{{data[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-check" title="Implement"></i>
+              </a>
+            </td>
+
+          {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Update Request Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>s_c: </strong> {{ data[1] }}</li>
+              <li><strong>status: </strong> {{ data[2] }}</li>
+              <li><strong>originator: </strong> {{ data[3] }}</li>
+              <li><strong>date: </strong> {{ data[4] }}</li>
+              <li><strong>type: </strong> {{ data[5] }}</li>
+              <li><strong>Reason For Update: </strong> {{ data[6] }}</li>
+              <li><strong>Affected Tables: </strong> {{ data[7] }}</li>
+              <li><strong>title: </strong> {{ data[8] }}</li>
+              <li><strong>ar_ref: </strong> {{ data[9] }}</li>
+              <li><strong>swet_ref: </strong> {{ data[10] }}</li>
+              <li><strong>Attached Files: </strong> {{ data[11] }}</li>
+              <li><strong>Implemented: </strong> {{ data[12] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

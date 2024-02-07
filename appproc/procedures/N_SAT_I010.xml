@@ -1,0 +1,1075 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_SAT_I010">
+    <description>This procedure is used to perform a complete checkout of the Satellite</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>Satellite Health CHeck</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_SAT_I010</UniqueId>
+    <author>letor_OPRE</author>
+    <LastModifiedDate>2022-06-01T00:03:01.817Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+Default:NomSysPF::N_SYS_I001 called by steps: P.2.A1
+Default:NomLI::N_LIR_I512 called by steps: P.2.A2.A1, P.2.B5.A1.A1, P.2.B5.A1.B1, P.2.C2.A1, P.2.D2.A1, P.2.E2.A1, P.2.F2.A1
+Default:NomRMU::N_RMU_0030 called by steps: P.2.A2.A2, P.2.B5.A1.A2, P.2.B5.A1.B2, P.2.C2.A2, P.2.D2.A2, P.2.E2.A2, P.2.F2.A2
+Default:NomSysPF::N_SYS_I002 called by steps: P.2.B4
+Default:NomSysPF::N_SYS_0003 called by steps: P.2.C1, P.2.E1, P.2.F1
+</hierarchy>
+    <version>4.0</version>
+    <history>Version 1 - 17/01/2020 - Created
+Verified with SRDB version MTG-I_PFM_05_01
+
+Version 2 - 08/06/2021 - FOM v5
+Verified with SRDB version MTG-I_PFM_10_01
+Edited: APEX v01.01.13
+Changes: 
+@P.2: added PL Health Check per SAT mode
+@P.2.B1: Request report of AJ_SF_MISSION_PHASE
+</history>
+    <VerificationVersion>03.06.05-4</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables>
+        <ProcedureVariable>
+            <name>MISSION_PHASE</name>
+            <description></description>
+            <type>9</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>AOCS_MODE</name>
+            <description></description>
+            <type>9</type>
+            <EnumValues/>
+        </ProcedureVariable>
+        <ProcedureVariable>
+            <name>SAT_MODE</name>
+            <description></description>
+            <type>9</type>
+            <EnumValues/>
+        </ProcedureVariable>
+    </ProcedureVariables>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>Precondition</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.1.A1">
+    <description></description>
+    <title>Start of Procedure</title>
+    <label></label>
+    <StepBody xsi:type="LogStepBody" type="Log Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <LogText>Start of Procedure</LogText>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A2">
+    <description></description>
+    <title>Wait for valid TM</title>
+    <label></label>
+    <StepBody xsi:type="WaitStepBody" type="Wait Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <WaitCondition xsi:type="ExpressionWaitCondition">
+            <expression>#P!P88E000X.eng-value!="NULL"</expression>
+            <window>60</window>
+        </WaitCondition>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.1.A3">
+    <description></description>
+    <title>Get the current SAT Mode.</title>
+    <label></label>
+    <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+        <MaxExecutionTime>60</MaxExecutionTime>
+        <variable>Arg:SAT_MODEValue:null</variable>
+        <VariableValue>#P!P88E000X.eng-value</VariableValue>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>Switch SAT Mode</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CaseStepBody" type="Case Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <condition>#PR!!SAT_MODE</condition>
+                        <Branches>
+                            <branch>
+<title>LAM</title>
+<steps>
+    <step identifier="P.2.A1">
+        <description></description>
+        <title>Perform PF complete checkout in Launch Mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_SYS_I001</ProcedureId>
+            <DomainId>Default:NomSysPF:</DomainId>
+            <title>SAT LAM Mode Checkout - MTG-I Payload</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.A2">
+        <description>PayLoads OFF + Launch Locks ON</description>
+        <title>Perform Payloads complete checkout in Launch Mode</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.A2.A1">
+                        <description></description>
+                        <title>LI Health Check OFF</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description>Mode also cheked</description>
+    <type>9</type>
+    <value>"OFF"</value>
+    <EnumValues/>
+    <DefaultValue>"OPERATIVE"</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_LIR_I512</ProcedureId>
+                            <DomainId>Default:NomLI:</DomainId>
+                            <title>LI Health CHeck</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.A2.A2">
+                        <description></description>
+                        <title>RMU Health Check OFF</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description></description>
+    <type>12</type>
+    <value>OFF</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>OFF</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>OPERATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>CALIBRATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>ACQUISITION</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue></DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_RMU_0030</ProcedureId>
+                            <DomainId>Default:NomRMU:</DomainId>
+                            <title>RMU Health Check</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>LAM</condition>
+                            </branch>
+                            <branch>
+<title>SAQ</title>
+<steps>
+    <step identifier="P.2.B1">
+        <description></description>
+        <title>REPORT_VALUE_AOCS_AJ_SF_MISSION_PHASE </title>
+        <label></label>
+        <StepBody xsi:type="SendCommandStepBody" type="Send Command Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>P88H302U</name>
+                    <description>N_Param</description>
+                    <type>6</type>
+                    <MinValue>0</MinValue>
+                    <MaxValue>65535</MaxValue>
+                    <EnumValues/>
+                    <DefaultValue>1</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+                <argument>
+                    <name>P88H303X</name>
+                    <description>Parameter ID</description>
+                    <type>9</type>
+                    <EnumValues/>
+                    <DefaultValue>"A99EA52X"</DefaultValue>
+                    <required>false</required>
+                    <modifiable>false</modifiable>
+                </argument>
+            </arguments>
+            <CommandId>A99C00YP</CommandId>
+            <CommandDescription>TC152129A99EA52X</CommandDescription>
+            <critical>false</critical>
+            <authorised>false</authorised>
+            <WaitForVerification>true</WaitForVerification>
+            <OnBoardVerification>true</OnBoardVerification>
+            <OverrideStaticPTV>false</OverrideStaticPTV>
+            <OverrideDynamicPTV>false</OverrideDynamicPTV>
+            <DisableCEV>false</DisableCEV>
+            <TransmissionTime></TransmissionTime>
+            <ExecutionTime></ExecutionTime>
+            <SubscheduleId></SubscheduleId>
+            <MapId></MapId>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B2">
+        <description></description>
+        <title>Get the current Mission Phase</title>
+        <label></label>
+        <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+            <MaxExecutionTime>60</MaxExecutionTime>
+            <variable>Arg:MISSION_PHASEValue:null</variable>
+            <VariableValue>#P!A99EA52X.eng-value</VariableValue>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B3">
+        <description></description>
+        <title>Get the current AOCS Mode.</title>
+        <label></label>
+        <StepBody xsi:type="SetProcedureVariableStepBody" type="Set Procedure Var Step">
+            <MaxExecutionTime>60</MaxExecutionTime>
+            <variable>Arg:AOCS_MODEValue:null</variable>
+            <VariableValue>#P!A99E000Z.eng-value</VariableValue>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B4">
+        <description></description>
+        <title>Perform PF complete checkout in Sun Acquisition Mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_SYS_I002</ProcedureId>
+            <DomainId>Default:NomSysPF:</DomainId>
+            <title>SAT SAQ Mode Checkout - MTG-I Payload</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.B5">
+        <description>TBC</description>
+        <title>Perform Payloads complete checkout in SAQ Mode</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.B5.A1">
+                        <description></description>
+                        <title>Phase GEO ?</title>
+                        <label></label>
+                        <StepBody xsi:type="IfStepBody" type="If Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <condition>#PR!!MISSION_PHASE=="GEO"</condition>
+                            <Branches>
+<branch>
+    <title>true</title>
+    <steps>
+        <step identifier="P.2.B5.A1.A1">
+            <description></description>
+            <title>LI Health Check in WAIT Mode</title>
+            <label></label>
+            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>MODE</name>
+                        <description>Mode also cheked</description>
+                        <type>9</type>
+                        <value>"WAIT"</value>
+                        <EnumValues/>
+                        <DefaultValue>"OPERATIVE"</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>OBERTime</name>
+                        <description>On Board Execution Reference Time</description>
+                        <type>11</type>
+                        <EnumValues/>
+                        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <ProcedureId>N_LIR_I512</ProcedureId>
+                <DomainId>Default:NomLI:</DomainId>
+                <title>LI Health CHeck</title>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.2.B5.A1.A2">
+            <description></description>
+            <title>RMU Health Check in ACQUISITION</title>
+            <label></label>
+            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>MODE</name>
+                        <description></description>
+                        <type>12</type>
+                        <value>ACQUISITION</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>OFF</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>OPERATION</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>2</key>
+<value>CALIBRATION</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>3</key>
+<value>ACQUISITION</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>OBERTime</name>
+                        <description>On Board Execution Reference Time</description>
+                        <type>11</type>
+                        <EnumValues/>
+                        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <ProcedureId>N_RMU_0030</ProcedureId>
+                <DomainId>Default:NomRMU:</DomainId>
+                <title>RMU Health Check</title>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+    <condition>true</condition>
+</branch>
+<branch>
+    <title>false</title>
+    <steps>
+        <step identifier="P.2.B5.A1.B1">
+            <description></description>
+            <title>LI Health Check OFF</title>
+            <label></label>
+            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>MODE</name>
+                        <description>Mode also cheked</description>
+                        <type>9</type>
+                        <value>"OFF"</value>
+                        <EnumValues/>
+                        <DefaultValue>"OPERATIVE"</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>OBERTime</name>
+                        <description>On Board Execution Reference Time</description>
+                        <type>11</type>
+                        <EnumValues/>
+                        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <ProcedureId>N_LIR_I512</ProcedureId>
+                <DomainId>Default:NomLI:</DomainId>
+                <title>LI Health CHeck</title>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+        <step identifier="P.2.B5.A1.B2">
+            <description></description>
+            <title>RMU Health Check OFF</title>
+            <label></label>
+            <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                <MaxExecutionTime></MaxExecutionTime>
+                <arguments>
+                    <argument>
+                        <name>MODE</name>
+                        <description></description>
+                        <type>12</type>
+                        <value>OFF</value>
+                        <EnumValues>
+                            <EnumValue>
+<key>0</key>
+<value>OFF</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>1</key>
+<value>OPERATION</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>2</key>
+<value>CALIBRATION</value>
+                            </EnumValue>
+                            <EnumValue>
+<key>3</key>
+<value>ACQUISITION</value>
+                            </EnumValue>
+                        </EnumValues>
+                        <DefaultValue></DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                    <argument>
+                        <name>OBERTime</name>
+                        <description>On Board Execution Reference Time</description>
+                        <type>11</type>
+                        <EnumValues/>
+                        <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                        <required>true</required>
+                        <modifiable>true</modifiable>
+                    </argument>
+                </arguments>
+                <ProcedureId>N_RMU_0030</ProcedureId>
+                <DomainId>Default:NomRMU:</DomainId>
+                <title>RMU Health Check</title>
+            </StepBody>
+            <StepFailureRecoveries/>
+        </step>
+    </steps>
+    <condition>false</condition>
+</branch>
+                            </Branches>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>SAQ</condition>
+                            </branch>
+                            <branch>
+<title>NOM</title>
+<steps>
+    <step identifier="P.2.C1">
+        <description></description>
+        <title>Perform PF complete checkout in Nominal Mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_SYS_0003</ProcedureId>
+            <DomainId>Default:NomSysPF:</DomainId>
+            <title>OSV 10.1 Satellite Health Check</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.C2">
+        <description>PayLoads in Nom or CALIBRATION</description>
+        <title>Perform Payloads complete checkout in NOM</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.C2.A1">
+                        <description></description>
+                        <title>LI Health Check in OPERATIVE Mode</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description>Mode also cheked</description>
+    <type>9</type>
+    <value>"OPERATIVE"</value>
+    <EnumValues/>
+    <DefaultValue>"OPERATIVE"</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_LIR_I512</ProcedureId>
+                            <DomainId>Default:NomLI:</DomainId>
+                            <title>LI Health CHeck</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.C2.A2">
+                        <description></description>
+                        <title>RMU Health Check in ACQUISITION</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description></description>
+    <type>12</type>
+    <value>ACQUISITION</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>OFF</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>OPERATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>CALIBRATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>ACQUISITION</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue></DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_RMU_0030</ProcedureId>
+                            <DomainId>Default:NomRMU:</DomainId>
+                            <title>RMU Health Check</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>NOM</condition>
+                            </branch>
+                            <branch>
+<title>SM</title>
+<steps>
+    <step identifier="P.2.D1">
+        <description>TBC</description>
+        <title>Satellite in SAFE Mode !!!</title>
+        <label></label>
+        <StepBody xsi:type="AcknowledgeInteractionStepBody" type="ACK Interaction Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <message>Satellite in SAFE Mode !!!</message>
+            <ResponseWindow></ResponseWindow>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.D2">
+        <description>PayLoads OFF</description>
+        <title>Perform Payloads complete checkout in SAFE Mode</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.D2.A1">
+                        <description></description>
+                        <title>LI Health Check OFF</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description>Mode also cheked</description>
+    <type>9</type>
+    <value>"OFF"</value>
+    <EnumValues/>
+    <DefaultValue>"OPERATIVE"</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_LIR_I512</ProcedureId>
+                            <DomainId>Default:NomLI:</DomainId>
+                            <title>LI Health CHeck</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.D2.A2">
+                        <description></description>
+                        <title>RMU Health Check OFF</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description></description>
+    <type>12</type>
+    <value>OFF</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>OFF</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>OPERATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>CALIBRATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>ACQUISITION</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue></DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_RMU_0030</ProcedureId>
+                            <DomainId>Default:NomRMU:</DomainId>
+                            <title>RMU Health Check</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>SM</condition>
+                            </branch>
+                            <branch>
+<title>YFM</title>
+<steps>
+    <step identifier="P.2.E1">
+        <description></description>
+        <title>Perform PF complete checkout in Yaw-Flip Mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_SYS_0003</ProcedureId>
+            <DomainId>Default:NomSysPF:</DomainId>
+            <title>OSV 10.1 Satellite Health Check</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.E2">
+        <description>PayLoads in WAIT Mode</description>
+        <title>Perform Payloads complete checkout in YFM Mode</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.E2.A1">
+                        <description></description>
+                        <title>LI Health Check in WAIT Mode</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description>Mode also cheked</description>
+    <type>9</type>
+    <value>"WAIT"</value>
+    <EnumValues/>
+    <DefaultValue>"OPERATIVE"</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_LIR_I512</ProcedureId>
+                            <DomainId>Default:NomLI:</DomainId>
+                            <title>LI Health CHeck</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.E2.A2">
+                        <description></description>
+                        <title>RMU Health Check in ACQUISITION</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description></description>
+    <type>12</type>
+    <value>ACQUISITION</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>OFF</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>OPERATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>CALIBRATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>ACQUISITION</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue></DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_RMU_0030</ProcedureId>
+                            <DomainId>Default:NomRMU:</DomainId>
+                            <title>RMU Health Check</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>YFM</condition>
+                            </branch>
+                            <branch>
+<title>SBM</title>
+<steps>
+    <step identifier="P.2.F1">
+        <description></description>
+        <title>Perform PF complete checkout in Standby Mode</title>
+        <label></label>
+        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <arguments>
+                <argument>
+                    <name>OBERTime</name>
+                    <description>On Board Execution Reference Time</description>
+                    <type>11</type>
+                    <EnumValues/>
+                    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                    <required>true</required>
+                    <modifiable>true</modifiable>
+                </argument>
+            </arguments>
+            <ProcedureId>N_SYS_0003</ProcedureId>
+            <DomainId>Default:NomSysPF:</DomainId>
+            <title>OSV 10.1 Satellite Health Check</title>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+    <step identifier="P.2.F2">
+        <description>TBC</description>
+        <title>Perform Payloads complete checkout in Standby Mode</title>
+        <label></label>
+        <StepBody xsi:type="BlockStepBody" type="Block Step">
+            <MaxExecutionTime></MaxExecutionTime>
+            <StepList>
+                <title></title>
+                <steps>
+                    <step identifier="P.2.F2.A1">
+                        <description></description>
+                        <title>LI Health Check in "ANY" Mode</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description>Mode also cheked</description>
+    <type>9</type>
+    <value>"ANY"</value>
+    <EnumValues/>
+    <DefaultValue>"OPERATIVE"</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_LIR_I512</ProcedureId>
+                            <DomainId>Default:NomLI:</DomainId>
+                            <title>LI Health CHeck</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                    <step identifier="P.2.F2.A2">
+                        <description></description>
+                        <title>RMU Health Check in ACQUISITION</title>
+                        <label></label>
+                        <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+                            <MaxExecutionTime></MaxExecutionTime>
+                            <arguments>
+<argument>
+    <name>MODE</name>
+    <description></description>
+    <type>12</type>
+    <value>ACQUISITION</value>
+    <EnumValues>
+        <EnumValue>
+            <key>0</key>
+            <value>OFF</value>
+        </EnumValue>
+        <EnumValue>
+            <key>1</key>
+            <value>OPERATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>2</key>
+            <value>CALIBRATION</value>
+        </EnumValue>
+        <EnumValue>
+            <key>3</key>
+            <value>ACQUISITION</value>
+        </EnumValue>
+    </EnumValues>
+    <DefaultValue></DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+<argument>
+    <name>OBERTime</name>
+    <description>On Board Execution Reference Time</description>
+    <type>11</type>
+    <EnumValues/>
+    <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+    <required>true</required>
+    <modifiable>true</modifiable>
+</argument>
+                            </arguments>
+                            <ProcedureId>N_RMU_0030</ProcedureId>
+                            <DomainId>Default:NomRMU:</DomainId>
+                            <title>RMU Health Check</title>
+                        </StepBody>
+                        <StepFailureRecoveries/>
+                    </step>
+                </steps>
+            </StepList>
+        </StepBody>
+        <StepFailureRecoveries/>
+    </step>
+</steps>
+<condition>SBM</condition>
+                            </branch>
+                        </Branches>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>Confirmation</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.3.A1">
+    <description></description>
+    <title>End of Procedure</title>
+    <label>EXIT</label>
+    <StepBody xsi:type="LogStepBody" type="Log Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <LogText>End of Procedure</LogText>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

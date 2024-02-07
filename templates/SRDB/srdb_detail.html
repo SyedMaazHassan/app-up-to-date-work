@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ srdb[1] }}
+        {% if is_admin %}
+          <td>
+              <a href="/srdb/update/{{srdb[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/srdb/delete/{{srdb[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+        {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">SRDB Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>SRDB Name: </strong> {{ srdb[1] }}</li>
+              <li><strong>Version: </strong> {{ srdb[2] }}</li>
+              <li><strong>From: </strong> {{ srdb[3] }}</li>
+              <li><strong>Link: </strong> <a href="{{srdb[4]}}">{{ srdb[4] }}</a></li>
+              <li><strong>S/C: </strong> {{ srdb[5] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">MTG FD Schedule Details</h1>
+      </div>
+    </div>
+      <form method="POST" action="/api/fd_schedule_1/update/{{fd_schedule[0]}}">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>FD Id:</label>
+              <input type="text" class="form-control" id="fd_id" name="fd_id" value="{{ fd_schedule[1] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Version:</label>
+              <input type="text" class="form-control" id="version" name="version" value="{{ fd_schedule[2] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Creation Date:</label>
+              <input type="text" class="form-control" id="creation_date" name="creation_date" value="{{ fd_schedule[3] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Originator:</label>
+              <input type="text" class="form-control" id="originator" name="originator" value="{{ fd_schedule[4] }}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Object Name:</label>
+              <input type="text" class="form-control" id="object_name" name="object_name" value="{{ fd_schedule[5] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Object Id:</label>
+              <input type="text" class="form-control" id="object_id" name="object_id" value="{{ fd_schedule[6] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Center Name:</label>
+              <input type="text" class="form-control" id="center_name" name="center_name" value="{{ fd_schedule[7] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>REF Frame:</label>
+              <input type="text" class="form-control" id="ref_frame" name="ref_frame" value="{{ fd_schedule[8] }}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Time System:</label>
+              <input type="text" class="form-control" id="time_system" name="time_system" value="{{ fd_schedule[9] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Start Time :</label>
+              <input type="text" class="form-control" id="start_time" name="start_time" value="{{ fd_schedule[10] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Stop Time :</label>
+              <input type="text" class="form-control" id="stop_time" name="stop_time" value="{{ fd_schedule[11] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Type :</label>
+              <input type="text" class="form-control" id="type" name="type" value="{{ fd_schedule[12] }}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Epoch:</label>
+              <input type="text" class="form-control" id="epoch" name="epoch" value="{{ fd_schedule[13] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Duration:</label>
+              <input type="text" class="form-control" id="duration" name="duration" value="{{ fd_schedule[14] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Units:</label>
+              <input type="text" class="form-control" id="units" name="units" value="{{ fd_schedule[15] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Unique Id:</label>
+              <input type="text" class="form-control" id="unique_id" name="unique_id" value="{{ fd_schedule[16] }}">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Sensor Id:</label>
+              <input type="text" class="form-control" id="sensor_id" name="sensor_id" value="{{ fd_schedule[17] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Target:</label>
+              <input type="text" class="form-control" id="target" name="target" value="{{ fd_schedule[18] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Station:</label>
+              <input type="text" class="form-control" id="station" name="station" value="{{ fd_schedule[19] }}">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>Co Linearity Angle:</label>
+              <input type="text" class="form-control" id="co_linearity_angle" name="co_linearity_angle" value="{{ fd_schedule[20] }}">
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end align-items-center">
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+        </form>
+  </div>
+{% endblock %}
+

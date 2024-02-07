@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">Procedure Update Request </h1>
+      </div>
+    </div>
+        <form method="POST" enctype="multipart/form-data" action="/procedure/add/update/request">
+          <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <select id="person" name="person" class="form-control">
+                        {% for person in persons %}
+                        <option value="{{ person }}">{{ person }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Change Type:</label>
+                    <select id="type" name="type" class="form-control">
+                        {% for type in types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Affected Table:</label>
+                    <select id="table" name="table" class="form-control" multiple>
+                        {% for table in tables %}
+                        <option value="{{ table }}">{{ table }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Title:</label>
+                <input type="text" class="form-control" id="title" name="title" >
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Description:</label>
+                <input style="height:200px; width:1110px; word-break: break-word;" type="text" class="form-control" id="description" name="description" >
+              </div>
+            </div>
+          </div>
+        <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>S/C:</label>
+                <select id="s_c" name="s_c" class="form-control">
+                    {% for val in s_c_values %}
+                    <option value="{{ val }}">{{ val }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                  <label>AR Ref:</label>
+                  <input type="text" class="form-control" id="ar_ref" name="ar_ref" >
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                  <label>SWET Ref:</label>
+                  <input type="text" class="form-control" id="swet_ref" name="swet_ref" >
+                </div>
+            </div>            
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Affected files:</label>
+                <input type="file" class="form-control-file" id="affected_files" name="affected_files" multiple>
+              </div>
+          </div>            
+      </div>
+          <div class="d-flex justify-content-end align-items-center">
+            <button type="submit" class="btn btn-primary">Add</button>
+          </div>
+          </form>
+  </div>
+  <script>
+    $(document).ready(function() {
+      $('#table').select2();
+    });
+  </script>
+{% endblock %}
+

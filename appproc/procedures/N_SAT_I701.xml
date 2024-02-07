@@ -1,0 +1,1302 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Procedure identifier="N_SAT_I701">
+    <description>PROCEDURE PURPOSE:	Checkout of MTG-I1 S/C before LEOP Handover
+ 
+PROCEDURE VERSION:	1
+RESPONSIBILITY:	Andrew Birtle
+LAST MODIFIED DATE:	21 Dec 2022
+ 
+CHANGE HISTORY:
+Version 1: (ABi - 21 Dec 2022)
+Change History:
+- New procedure
+
+PROCEDURE OBJECTIVES:
+Checkout of MTG-I1 S/C before LEOP Handover
+ 
+PROCEDURE OVERVIEW:
+
+Procedure provides checkout based on the standard FOM procedures.
+
+PROCEDURE PRE-CONDITIONS:
+
+S/C in NOM/FPM
+ 
+PROCEDURE CONSTRAINTS:	
+
+All steps that send TCs in the children procedure need to be skipped, See associated MTG-I1 SOI for details.
+ 
+SPACECRAFT CONFIGURATION:
+- S/C in NOM and AOCS in FPM
+
+OTHER PROCEDURES CALLED:
+N_SYS_0003
+N_CRS_0001  
+N_GYR_0001
+N_RWA_0001
+N_STR_0001
+N_DNG_I040
+N_DHS_0001
+N_EPS_0001
+N_LIR_I510 
+N_RMU_0030 
+N_TTC_0040 
+N_TTC_0050
+N_UPS_0001</description>
+    <PrintScaling>100</PrintScaling>
+    <MaxInstances>1</MaxInstances>
+    <title>Checkout of MTG-I1 S/C before LEOP Handover</title>
+    <MaxExecutionTime></MaxExecutionTime>
+    <UniqueId>MTI1:NomSysSAT:N_SAT_I701</UniqueId>
+    <author>birtle_OPRE</author>
+    <LastModifiedDate>2022-12-21T19:05:51.016Z</LastModifiedDate>
+    <hierarchy>Child Procedures:
+Default::N_SYS_0003 called by steps: P.2.A1
+Default::N_CRS_0001 called by steps: P.3.A1, P.3.A2
+Default::N_GYR_0001 called by steps: P.3.A3, P.3.A4, P.3.A5, P.3.A6
+Default::N_RWA_0001 called by steps: P.3.A7, P.3.A8, P.3.A9, P.3.A10, P.3.A11
+Default::N_STR_0001 called by steps: P.3.A12, P.3.A13, P.3.A14
+Default::N_DHS_0001 called by steps: P.4.A1
+Default::N_EPS_0001 called by steps: P.5.A1
+Default::N_TTC_0040 called by steps: P.6.A1
+Default::N_TTC_0050 called by steps: P.6.A2, P.6.A3
+Default::N_UPS_0001 called by steps: P.7.A1
+Default::N_DNG_I040 called by steps: P.8.A1
+Default::N_LIR_I510 called by steps: P.9.A1
+Default::N_RMU_0030 called by steps: P.10.A1
+</hierarchy>
+    <version>1.0</version>
+    <history>Version 1: (ABi - 21 Dec 2022)
+Change History:
+- New procedure</history>
+    <duration></duration>
+    <VerificationVersion>03.07.03</VerificationVersion>
+    <VerificationStatus>Verified</VerificationStatus>
+    <ProcedureArguments>
+        <ProcedureArgument>
+            <name>OBERTime</name>
+            <description>On Board Execution Reference Time</description>
+            <type>11</type>
+            <value>1970/01/01,00:00:00:000000000</value>
+            <EnumValues/>
+        </ProcedureArgument>
+    </ProcedureArguments>
+    <ProcedureVariables/>
+    <ProcedureFailureRecoveries/>
+    <PrimaryThread label="">
+        <description></description>
+        <title></title>
+        <ExecutionMode>0</ExecutionMode>
+        <ReentrantFlag>false</ReentrantFlag>
+        <EnabledOnStartFlag>true</EnabledOnStartFlag>
+        <StepList>
+            <title></title>
+            <steps>
+                <step identifier="P.1">
+                    <description></description>
+                    <title>START</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText>S/C Checkout Start</LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.2">
+                    <description></description>
+                    <title>System Platform Checkout</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.2.A1">
+    <description></description>
+    <title>N_SYS_0003 - SAT/NOM/SBM/YFM Mode Checkout Platform</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_SYS_0003</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>OSV 10.1 Satellite Health Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.3">
+                    <description></description>
+                    <title>AOCS Subsystem Checkout</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.3.A1">
+    <description></description>
+    <title>N_CRS_0001 - CRS_A Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>CRS_unit</name>
+                <description></description>
+                <type>12</type>
+                <value>CRS_A</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>CRS_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>CRS_B</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>CRS_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_CRS_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>CRS Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A2">
+    <description></description>
+    <title>N_CRS_0001 - CRS_B Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>CRS_unit</name>
+                <description></description>
+                <type>12</type>
+                <value>CRS_B</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>CRS_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>CRS_B</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>CRS_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_CRS_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>CRS Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A3">
+    <description></description>
+    <title>N_GYR_0001 - GYRO_1 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>GYRO_channel</name>
+                <description></description>
+                <type>12</type>
+                <value>GYRO 1</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>GYRO 1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>GYRO 2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>GYRO 3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>GYRO 4</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>GYRO 1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_GYR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>GYRO Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A4">
+    <description></description>
+    <title>N_GYR_0001 - GYRO_2 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>GYRO_channel</name>
+                <description></description>
+                <type>12</type>
+                <value>GYRO 2</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>GYRO 1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>GYRO 2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>GYRO 3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>GYRO 4</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>GYRO 1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_GYR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>GYRO Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A5">
+    <description></description>
+    <title>N_GYR_0001 - GYRO_3 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>GYRO_channel</name>
+                <description></description>
+                <type>12</type>
+                <value>GYRO 3</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>GYRO 1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>GYRO 2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>GYRO 3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>GYRO 4</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>GYRO 1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_GYR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>GYRO Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A6">
+    <description></description>
+    <title>N_GYR_0001 - GYRO_4 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>GYRO_channel</name>
+                <description></description>
+                <type>12</type>
+                <value>GYRO 4</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>GYRO 1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>GYRO 2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>GYRO 3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>GYRO 4</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>GYRO 1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_GYR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>GYRO Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A7">
+    <description></description>
+    <title>N_RWA_0001 - RW_1 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>RW_number</name>
+                <description></description>
+                <type>12</type>
+                <value>RW_1</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>RW_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>RW_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>RW_3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>RW_4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>RW_5</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>RW_1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_RWA_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RWs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A8">
+    <description></description>
+    <title>N_RWA_0001 - RW_2 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>RW_number</name>
+                <description></description>
+                <type>12</type>
+                <value>RW_2</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>RW_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>RW_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>RW_3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>RW_4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>RW_5</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>RW_1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_RWA_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RWs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A9">
+    <description></description>
+    <title>N_RWA_0001 - RW_3 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>RW_number</name>
+                <description></description>
+                <type>12</type>
+                <value>RW_3</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>RW_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>RW_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>RW_3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>RW_4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>RW_5</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>RW_1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_RWA_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RWs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A10">
+    <description></description>
+    <title>N_RWA_0001 - RW_4 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>RW_number</name>
+                <description></description>
+                <type>12</type>
+                <value>RW_4</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>RW_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>RW_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>RW_3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>RW_4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>RW_5</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>RW_1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_RWA_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RWs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A11">
+    <description></description>
+    <title>N_RWA_0001 - RW_5 Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>RW_number</name>
+                <description></description>
+                <type>12</type>
+                <value>RW_5</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>RW_1</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>RW_2</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>RW_3</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>RW_4</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>5</key>
+                        <value>RW_5</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>RW_1</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_RWA_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RWs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A12">
+    <description></description>
+    <title>N_STR_0001 - STR_A Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>STR_unit</name>
+                <description></description>
+                <type>12</type>
+                <value>STR_A</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>STR_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>STR_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>STR_C</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>STR_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_STR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>STRs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A13">
+    <description></description>
+    <title>N_STR_0001 - STR_B Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>STR_unit</name>
+                <description></description>
+                <type>12</type>
+                <value>STR_B</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>STR_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>STR_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>STR_C</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>STR_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_STR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>STRs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.3.A14">
+    <description></description>
+    <title>N_STR_0001 - STR_C Status Check</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>STR_unit</name>
+                <description></description>
+                <type>12</type>
+                <value>STR_C</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>STR_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>STR_B</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>STR_C</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>STR_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_STR_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>STRs Status Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.4">
+                    <description></description>
+                    <title>DHS Subsystem Checkout</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.4.A1">
+    <description></description>
+    <title>N_DHS_0001 - DHS Subsystem Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_DHS_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>DHS Subsystem Checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.5">
+                    <description></description>
+                    <title>EPS Subsystem Checkout</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.5.A1">
+    <description></description>
+    <title>N_EPS_0001 - EPS Subsystem Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Season</name>
+                <description></description>
+                <type>12</type>
+                <value>POST-ECLIPSE</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>PRE-ECLIPSE</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>POST-ECLIPSE</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>PRE-ECLIPSE</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_EPS_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>EPS S/S Checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.6">
+                    <description></description>
+                    <title>TTC Subsystem Checkout</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.6.A1">
+    <description></description>
+    <title>N_TTC_0040 - TTC Rx Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TTC_0040</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RX Checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A2">
+    <description></description>
+    <title>N_TTC_0050 - TTC Tx_A Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>TX</name>
+                <description></description>
+                <type>12</type>
+                <value>TX_A</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>TX_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>TX_B</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>TX_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TTC_0050</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>TX Checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+<step identifier="P.6.A3">
+    <description></description>
+    <title>N_TTC_0050 - TTC Tx_B Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>TX</name>
+                <description></description>
+                <type>12</type>
+                <value>TX_B</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>TX_A</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>TX_B</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>TX_A</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_TTC_0050</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>TX Checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.7">
+                    <description></description>
+                    <title>UPS Subsystem Checkout</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.7.A1">
+    <description></description>
+    <title>N_UPS_0001 - UPS Subsystem Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>Case</name>
+                <description></description>
+                <type>12</type>
+                <value>Routine_FPM</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>LAM</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>After_Sep_Seq</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>After_He_LAE_Passivation</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>Routine_FPM</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>LAM</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_UPS_0001</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>UPS S/S Checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.8">
+                    <description></description>
+                    <title>DNG Subsystem Checkout (DNG OFF)</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.8.A1">
+    <description></description>
+    <title>N_DNG_0001 - DNG Subsystem Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>GEOSAR_STATUS</name>
+                <description>ON/OFF Status</description>
+                <type>9</type>
+                <value>"OFF"</value>
+                <EnumValues/>
+                <DefaultValue>"ON"</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>DCS_STATUS</name>
+                <description>ON/OFF Status</description>
+                <type>9</type>
+                <value>"OFF"</value>
+                <EnumValues/>
+                <DefaultValue>"ON"</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_DNG_I040</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>DNG Health Check </title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.9">
+                    <description></description>
+                    <title>LI Subsystem Checkout (LI OFF)</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.9.A1">
+    <description></description>
+    <title>N_LIR_I510 - LI Subsystem Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_LIR_I510</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>Pre-Switch-On checkout</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.10">
+                    <description></description>
+                    <title>RMU Subsystem Checkout (RMU OFF)</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="BlockStepBody" type="Block Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <StepList>
+                            <title></title>
+                            <steps>
+<step identifier="P.10.A1">
+    <description></description>
+    <title>N_RMU_0030 - RMU Subsystem Checkout</title>
+    <label></label>
+    <StepBody xsi:type="CallSubProcedureStepBody" type="Call Sub-Procedure Step">
+        <MaxExecutionTime></MaxExecutionTime>
+        <arguments>
+            <argument>
+                <name>MODE</name>
+                <description></description>
+                <type>12</type>
+                <value>OFF</value>
+                <EnumValues>
+                    <EnumValue>
+                        <key>0</key>
+                        <value>OFF</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>1</key>
+                        <value>OPERATION</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>2</key>
+                        <value>CALIBRATION</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>3</key>
+                        <value>ACQUISITION</value>
+                    </EnumValue>
+                    <EnumValue>
+                        <key>4</key>
+                        <value>ERR_DIAG</value>
+                    </EnumValue>
+                </EnumValues>
+                <DefaultValue>OFF</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+            <argument>
+                <name>OBERTime</name>
+                <description>On Board Execution Reference Time</description>
+                <type>11</type>
+                <EnumValues/>
+                <DefaultValue>convertASCIIBDateFormat("1970-001T00:00:00.000Z")</DefaultValue>
+                <required>true</required>
+                <modifiable>true</modifiable>
+            </argument>
+        </arguments>
+        <ProcedureId>N_RMU_0030</ProcedureId>
+        <DomainId>Default:</DomainId>
+        <title>RMU Health Check</title>
+    </StepBody>
+    <StepFailureRecoveries/>
+</step>
+                            </steps>
+                        </StepList>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+                <step identifier="P.11">
+                    <description></description>
+                    <title>FINISH</title>
+                    <label></label>
+                    <StepBody xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="LogStepBody" type="Log Step">
+                        <MaxExecutionTime></MaxExecutionTime>
+                        <LogText>S/C Checkout End</LogText>
+                    </StepBody>
+                    <StepFailureRecoveries/>
+                </step>
+            </steps>
+        </StepList>
+    </PrimaryThread>
+    <SecondaryThreads/>
+</Procedure>

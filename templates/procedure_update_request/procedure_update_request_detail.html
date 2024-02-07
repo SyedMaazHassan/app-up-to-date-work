@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ data[1] }}
+          {% if is_admin %}          
+            <td>
+                <a href="/procedure/update/request/verify/{{data[0]}}" class="btn-md" role="button" style="font-size: 30px;">
+                    Verify - <br>
+                </a>
+            </td>
+            <td>
+              <a href="/procedure/update/request/verify_tl/{{data[0]}}" class="btn-md" role="button" style="font-size: 30px;">
+                Verify TL <br>
+              </a>
+          </td>
+            <td>
+              <a href="/procedure/update/request/implement/{{data[0]}}" class="btn-md" role="button" style="font-size: 30px;">
+                  Implement <br>
+              </a>
+            </td>
+            <td>
+              <a href="/update/procedure/update/request/{{data[0]}}" class="btn-md" role="button" style="font-size: 30px;">
+                  Edit
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/procedure/update/request/delete/{{data[0]}}" class="btn-md" role="button" style="font-size: 30px;">
+                 Delete
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+          <td>
+            <a href="/procedure_update_request/download/file/{{ data[0] }}" class="btn-md" role="button" style="font-size: 30px;">
+               Download
+                <i class="mdi mdi-download"></i>
+            </a>
+          </td>
+          {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Update Request Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>S/C: </strong> {{ data[1] }}</li>
+              <li><strong>Status: </strong> {{ data[2] }}</li>
+              <li><strong>Status TL: </strong> {{ data[3] }}</li>
+              <li><strong>Originator: </strong> {{ data[4] }}</li>
+              <li><strong>Date: </strong> {{ data[5] }}</li>
+              <li><strong>Due date: </strong> {{ data[19] }}</li>
+              <li><strong>Type: </strong> {{ data[6] }}</li>
+              <li><strong>Reason For Update: </strong> {{ data[7] }}</li>
+              <li><strong>Affected Tables: </strong> {{ data[8] }}</li>
+              <li><strong>Title: </strong> {{ data[9] }}</li>
+              <li><strong>A/R_ref: </strong> {{ data[10] }}</li>
+              <li><strong>SWET_ref: </strong> {{ data[11] }}</li>
+              <li><strong>Attached Files: </strong> {{ data[12] }}</li>
+              <li><strong>Implemented: </strong> {{ data[13] }}</li>
+              <li><strong>Team Leader Name: </strong> {{ data[14] }}</li>
+              <li><strong>Analyst Name: </strong> {{ data[15] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

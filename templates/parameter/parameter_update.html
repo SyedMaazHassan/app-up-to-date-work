@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">Parameter Details</h1>
+      </div>
+    </div>
+        <form method="POST" action="/api/parameter/update/{{parameter[0]}}">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Name:</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ parameter[1] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Descr:</label>
+                <input type="text" class="form-control" id="descr" name="descr" value="{{ parameter[2] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Pid:</label>
+                <input type="text" class="form-control" id="pid" name="pid" value="{{ parameter[3] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Hyperlink:</label>
+                <input type="text" class="form-control" id="Hyperlink" name="Hyperlink" value="{{ parameter[4] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Type Code:</label>
+                <input type="text" class="form-control" id="type_code" name="type_code" value="{{ parameter[5] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Format Code:</label>
+                <input type="text" class="form-control" id="format_code" name="format_code" value="{{ parameter[6] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Width:</label>
+                <input type="text" class="form-control" id="width" name="width" value="{{ parameter[7] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Valid:</label>
+                <input type="text" class="form-control" id="valid" name="valid" value="{{ parameter[8] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Related:</label>
+                <input type="text" class="form-control" id="related" name="related" value="{{ parameter[9] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Categ:</label>
+                <input type="text" class="form-control" id="categ" name="categ" value="{{ parameter[10] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Natur:</label>
+                <input type="text" class="form-control" id="natur" name="natur" value="{{ parameter[11] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Curtx:</label>
+                <input type="text" class="form-control" id="curtx" name="curtx" value="{{ parameter[12] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Inter:</label>
+                <input type="text" class="form-control" id="inter" name="inter" value="{{ parameter[13] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Uscon:</label>
+                <input type="text" class="form-control" id="uscon" name="uscon" value="{{ parameter[14] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Decim:</label>
+                <input type="text" class="form-control" id="decim" name="decim" value="{{ parameter[15] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Parval:</label>
+                <input type="text" class="form-control" id="parval" name="parval" value="{{ parameter[16] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>SubSys:</label>
+                <input type="text" class="form-control" id="subsys" name="subsys" value="{{ parameter[17] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Valpar:</label>
+                <input type="text" class="form-control" id="valpar" name="valpar" value="{{ parameter[18] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Sptype:</label>
+                <input type="text" class="form-control" id="sptype" name="sptype" value="{{ parameter[19] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Coor:</label>
+                <input type="text" class="form-control" id="coor" name="coor" value="{{ parameter[20] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Obtid:</label>
+                <input type="text" class="form-control" id="obtid" name="obtid" value="{{ parameter[21] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Darc:</label>
+                <input type="text" class="form-control" id="darc" name="darc" value="{{ parameter[22] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Endian:</label>
+                <input type="text" class="form-control" id="endian" name="endian" value="{{ parameter[23] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Mon Check Name:</label>
+                <input type="text" class="form-control" id="mon_check_name" name="mon_check_name" value="{{ parameter[24] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Mon check Nbchck:</label>
+                <input type="text" class="form-control" id="mon_check_nbchck" name="mon_check_nbchck" value="{{ parameter[25] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Mon Check Nbool:</label>
+                <input type="text" class="form-control" id="mon_check_nbool" name="mon_check_nbool" value="{{ parameter[26] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Mon Check Inter:</label>
+                <input type="text" class="form-control" id="mon_check_inter" name="mon_check_inter" value="{{ parameter[27] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Mon check Codin:</label>
+                <input type="text" class="form-control" id="mon_check_codin" name="mon_check_codin" value="{{ parameter[28] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Name:</label>
+                <input type="text" class="form-control" id="ool_name" name="ool_name" value="{{ parameter[29] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Pos:</label>
+                <input type="text" class="form-control" id="ool_pos" name="ool_pos" value="{{ parameter[30] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Type:</label>
+                <input type="text" class="form-control" id="ool_type" name="ool_type" value="{{ parameter[31] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Vlalu:</label>
+                <input type="text" class="form-control" id="ool_vlalu" name="ool_vlalu" value="{{ parameter[32] }}">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Hvalu:</label>
+                <input type="text" class="form-control" id="ool_hvalu" name="ool_hvalu" value="{{ parameter[33] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Rlchk:</label>
+                <input type="text" class="form-control" id="ool_rlchk" name="ool_rlchk" value="{{ parameter[34] }}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>OOL Valpar:</label>
+                <input type="text" class="form-control" id="ool_valpar" name="ool_valpar" value="{{ parameter[35] }}">
+              </div>
+            </div>
+          </div>         
+          <div class="d-flex justify-content-end align-items-center">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+          </form>
+  </div>
+{% endblock %}
+

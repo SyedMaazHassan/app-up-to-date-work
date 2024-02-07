@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ parameter_1[1] }}
+          {% if is_admin %}
+          <td>
+              <a href="/parameter_1/update/{{parameter_1[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/parameter_1/delete/{{parameter_1[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+        {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Parameter 1 Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>DESCR:</strong> {{ parameter_1[2] }}</li>
+              <li><strong>Pid:</strong> {{ parameter_1[3] }}</li>
+              <li><strong>Hyperlink:</strong> <a href="{{parameter_1[4]}}">{{ parameter_1[4] }}</a></li>
+              <li><strong>Type Code:</strong> {{ parameter_1[5] }}</li>
+              <li><strong>Format Code:</strong> {{ parameter_1[6] }}</li>
+              <li><strong>Width:</strong> {{ parameter_1[7] }}</li>
+              <li><strong>Valid:</strong> {{ parameter_1[8] }}</li>
+              <li><strong>Related:</strong> {{ parameter_1[9] }}</li>
+              <li><strong>Categ:</strong> {{ parameter_1[10] }}</li>
+              <li><strong>Natur:</strong> {{ parameter_1[11] }}</li>
+              <li><strong>Curtx:</strong> {{ parameter_1[12] }}</li>
+              <li><strong>Inter:</strong> {{ parameter_1[13] }}</li>
+              <li><strong>Uscon:</strong> {{ parameter_1[14] }}</li>
+              <li><strong>Decim:</strong> {{ parameter_1[15] }}</li>
+              <li><strong>Parval:</strong> {{ parameter_1[16] }}</li>
+              <li><strong>Subsys:</strong> {{ parameter_1[17] }}</li>
+              <li><strong>Valpar:</strong> {{ parameter_1[18] }}</li>
+              <li><strong>Sptype:</strong> {{ parameter_1[19] }}</li>
+              <li><strong>Coor:</strong> {{ parameter_1[20] }}</li>
+              <li><strong>Obtid:</strong> {{ parameter_1[21] }}</li>
+              <li><strong>Darc:</strong> {{ parameter_1[22] }}</li>
+              <li><strong>Endian:</strong> {{ parameter_1[23] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Mon/OOL Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>Mon Check Name:</strong> {{ parameter_1[24] }}</li>
+              <li><strong>Mon Check Nbchck:</strong> {{ parameter_1[25] }}</li>
+              <li><strong>Mon Check Nbool:</strong> {{ parameter_1[26] }}</li>
+              <li><strong>Mon Check Inter:</strong> {{ parameter_1[27] }}</li>
+              <li><strong>Mon Check Codin:</strong> {{ parameter_1[28] }}</li>
+              <li><strong>OOL Name:</strong> {{ parameter_1[29] }}</li>
+              <li><strong>OOL Pos:</strong> {{ parameter_1[30] }}</li>
+              <li><strong>OOL Type:</strong> {{ parameter_1[31] }}</li>
+              <li><strong>OOL Vlalu:</strong> {{ parameter_1[32] }}</li>
+              <li><strong>OOL hvalu:</strong> {{ parameter_1[33] }}</li>
+              <li><strong>OOL rlchk:</strong> {{ parameter_1[34] }}</li>
+              <li><strong>OOL valpar:</strong> {{ parameter_1[35] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

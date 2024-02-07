@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-start mb-5">{{ event[7] }}
+          {% if is_admin %}
+          <td>
+              <a href="/event_1/update/{{event[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-update"></i>
+              </a>
+          </td>
+          <td>
+              <a href="/api/event_1/delete/{{event[0]}}" class="btn-md" role="button">
+                  <i class="mdi mdi-delete"></i>
+              </a>
+          </td>
+        {% endif %}
+        </h1>  
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Event Details</h3>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li><strong>Week: </strong> {{ event[1] }}</li>
+              <li><strong>Year: </strong> {{ event[2] }}</li>
+              <li><strong>From Time: </strong> {{ event[3] }}</li>
+              <li><strong>To Time: </strong> {{ event[4] }}</li>
+              <li><strong>Duration: </strong> {{ event[5] }}</li>
+              <li><strong>Facility: </strong> {{ event[6] }}</li>
+              <li><strong>Event: </strong> {{ event[7] }}</li>
+              <li><strong>Description: </strong> {{ event[8] }}</li>
+              <li><strong>AR Link: </strong> <a href="{{event[9]}}">{{ event[9] }}</a></li>
+              <li><strong>Impact: </strong> {{ event[10] }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
