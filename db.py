@@ -191,38 +191,38 @@ def init():
 
     fd_schedule_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule' (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        year INTEGER NOT NULL,
-        day INTEGER NOT NULL,
-        date DATE NOT NULL,
+        year INTEGER,
+        day INTEGER,
+        date DATE,
         penumbra_entry DATETIME NOT NULL,
-        penumbra_exit DATETIME NOT NULL,
-        umbra_entry DATETIME NOT NULL,
-        umbra_exit DATETIME NOT NULL,
-        duration VARCHAR(1000) NOT NULL
+        penumbra_exit DATETIME,
+        umbra_entry DATETIME,
+        umbra_exit DATETIME,
+        duration VARCHAR(1000)
     )"""
 
     fd_schedule_2_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_2' (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        year INTEGER NOT NULL,
-        day INTEGER NOT NULL,
-        date DATE NOT NULL,
+        year INTEGER,
+        day INTEGER,
+        date DATE,
         penumbra_entry DATETIME NOT NULL,
-        penumbra_exit DATETIME NOT NULL,
-        umbra_entry DATETIME NOT NULL,
-        umbra_exit DATETIME NOT NULL,
-        duration VARCHAR(1000) NOT NULL
+        penumbra_exit DATETIME,
+        umbra_entry DATETIME,
+        umbra_exit DATETIME,
+        duration VARCHAR(1000)
     )"""
 
     fd_schedule_3_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_3' (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        year INTEGER NOT NULL,
-        day INTEGER NOT NULL,
-        date DATE NOT NULL,
+        year INTEGER,
+        day INTEGER,
+        date DATE,
         penumbra_entry DATETIME NOT NULL,
-        penumbra_exit DATETIME NOT NULL,
-        umbra_entry DATETIME NOT NULL,
-        umbra_exit DATETIME NOT NULL,
-        duration VARCHAR(1000) NOT NULL
+        penumbra_exit DATETIME,
+        umbra_entry DATETIME,
+        umbra_exit DATETIME,
+        duration VARCHAR(1000)
     )"""
 
     srdb_update_request_table = """ CREATE TABLE IF NOT EXISTS 't_srdb_update_request' (
@@ -421,6 +421,8 @@ def init():
     
     c = conn.cursor()
     # c.execute("DROP TABLE 't_fd_schedule';")
+    # c.execute("DROP TABLE 't_fd_schedule_2';")
+    # c.execute("DROP TABLE 't_fd_schedule_3';")
     c.execute(schedule_table)
     c.execute(schedule_2_table)
     c.execute(schedule_3_table)

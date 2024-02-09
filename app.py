@@ -893,10 +893,14 @@ def fd_delete_schedule(fd_schedule_id):
 
 # Function to convert string to datetime
 def parse_datetime(datetime_obj):
+    if pd.isna(datetime_obj):
+        return ""
     return datetime_obj.strftime('%Y-%m-%d %H:%M:%S')
 
 # Function to convert string to date
 def parse_date(date_obj):
+    if pd.isna(date_obj):
+        return ""
     return date_obj.strftime('%Y-%m-%d')
 
 
@@ -904,12 +908,24 @@ def parse_date(date_obj):
 def insert_data_into_db_new(data, table_name='t_fd_schedule'):
     cursor = conn.cursor()
     for row in data.itertuples(index=False):
+        if len(row) < 4:  # Ensure row has at least 4 elements
+            continue
+        
+        penumbra_entry = parse_datetime(row[3])
+        if not penumbra_entry:  # Check if penumbra_entry is None or NaT
+            continue
+        
+        # Convert duration to string if not already
+        duration = str(row[7]) if len(row) > 7 and row[7] is not None else None
+        
+        # Insert data into the database
         cursor.execute(f'''
             INSERT INTO {table_name} (year, day, date, penumbra_entry, penumbra_exit, umbra_entry, umbra_exit, duration)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (row[0], row[1], parse_date(row[2]), parse_datetime(row[3]), parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), str(row[7])))
+        ''', (row[0], row[1], parse_date(row[2]), penumbra_entry, parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), duration))
     
     conn.commit()
+
 
 @app.route('/api/fd_schedule/upload', methods=['POST'])
 @check_login
