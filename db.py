@@ -190,27 +190,39 @@ def init():
     )"""
 
     fd_schedule_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule' (
-    'id' INTEGER PRIMARY KEY AUTOINCREMENT,
-    'fd_id' int(11) NOT NULL,
-    'version' int(11) NOT NULL,
-    'creation_date' varchar(1000) NOT NULL,
-    'originator' varchar(1000) NOT NULL,
-    'object_name' varchar(1000) NOT NULL,
-    'object_id' varchar(1000) NOT NULL,
-    'center_name' varchar(1000) NOT NULL,
-    'ref_frame' varchar(1000) NOT NULL,
-    'time_system' varchar(1000) NOT NULL,
-    'start_time' datetime NOT NULL,
-    'stop_time' datetime NOT NULL,
-    'type' varchar(1000) NOT NULL,
-    'epoch' datetime NOT NULL,
-    'duration' varchar(1000) NOT NULL,
-    'units' varchar(1000) NOT NULL,
-    'unique_id' varchar(1000) NOT NULL,
-    'sensor_id' varchar(1000) NOT NULL,
-    'target' varchar(1000) NOT NULL,   
-    'station' varchar(1000) NOT NULL,
-    'co_linearity_angle' varchar(1000) NOT NULL
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year INTEGER NOT NULL,
+        day INTEGER NOT NULL,
+        date DATE NOT NULL,
+        penumbra_entry DATETIME NOT NULL,
+        penumbra_exit DATETIME NOT NULL,
+        umbra_entry DATETIME NOT NULL,
+        umbra_exit DATETIME NOT NULL,
+        duration VARCHAR(1000) NOT NULL
+    )"""
+
+    fd_schedule_2_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_2' (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year INTEGER NOT NULL,
+        day INTEGER NOT NULL,
+        date DATE NOT NULL,
+        penumbra_entry DATETIME NOT NULL,
+        penumbra_exit DATETIME NOT NULL,
+        umbra_entry DATETIME NOT NULL,
+        umbra_exit DATETIME NOT NULL,
+        duration VARCHAR(1000) NOT NULL
+    )"""
+
+    fd_schedule_3_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_3' (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year INTEGER NOT NULL,
+        day INTEGER NOT NULL,
+        date DATE NOT NULL,
+        penumbra_entry DATETIME NOT NULL,
+        penumbra_exit DATETIME NOT NULL,
+        umbra_entry DATETIME NOT NULL,
+        umbra_exit DATETIME NOT NULL,
+        duration VARCHAR(1000) NOT NULL
     )"""
 
     srdb_update_request_table = """ CREATE TABLE IF NOT EXISTS 't_srdb_update_request' (
@@ -404,8 +416,11 @@ def init():
     'station' varchar(1000) NOT NULL,
     'co_linearity_angle' varchar(1000) NOT NULL
     )"""
+
+    
     
     c = conn.cursor()
+    # c.execute("DROP TABLE 't_fd_schedule';")
     c.execute(schedule_table)
     c.execute(schedule_2_table)
     c.execute(schedule_3_table)
@@ -420,6 +435,8 @@ def init():
     c.execute(srdb_table)
     c.execute(tmtcdb_table)
     c.execute(fd_schedule_table)    
+    c.execute(fd_schedule_2_table)    
+    c.execute(fd_schedule_3_table)    
     c.execute(srdb_update_request_table)
     c.execute(procedure_update_request_table)
     c.execute(soi_1_table)

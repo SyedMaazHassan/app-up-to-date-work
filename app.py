@@ -846,25 +846,37 @@ def tmtcdb_update(tmtcdb_id):
 @app.route('/fd_schedules', methods=['GET'])
 @check_login
 def get_fd_schedules():
-    
-    week_number = request.args.get('week')
-    today = datetime.date.today()
-    year = today.isocalendar()[0]
-    if week_number is None:        
-        week_number = today.isocalendar()[1] + 1
-
-    week_number = int(week_number)
-    first_day = datetime.datetime.strptime(f'{year}-W{week_number-1}-1', '%G-W%V-%u').date()
-    day_number =first_day.strftime("%j")
-    days = [first_day + datetime.timedelta(days=i) for i in range(7)]
-    weekday_numbers = [(i + int(day_number)) for i in range(7)]
-    data = get_schedule_for_week('t_fd_schedule', first_day, first_day + datetime.timedelta(days=6), 13, 12, ["%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"])
-    return render_template('fd_schedule/fd_schedule.html', week_number = week_number,
-                           fd_schedules = data,
-                           days = days, week = weekday_numbers,
+    t_fd_schedule = filter_data('t_fd_schedule')
+    print(t_fd_schedule)
+    return render_template('fd_schedule/fd_schedule.html',
+                           fd_schedules = t_fd_schedule,
                            menuVal = 'submenu1',
-                           is_admin = session.get('user'))    
+                           is_admin = session.get('user')
+                        )    
     
+@app.route('/fd_schedules_2', methods=['GET'])
+@check_login
+def get_fd_schedules_2():
+    t_fd_schedule_2 = filter_data('t_fd_schedule_2')
+    print(t_fd_schedule_2)
+    return render_template('fd_schedule_2/fd_schedule.html',
+                           fd_schedules = t_fd_schedule_2,
+                           menuVal = 'submenu1',
+                           is_admin = session.get('user')
+                        )    
+
+
+@app.route('/fd_schedules_3', methods=['GET'])
+@check_login
+def get_fd_schedules_3():
+    t_fd_schedule_3 = filter_data('t_fd_schedule_3')
+    print(t_fd_schedule_3)
+    return render_template('fd_schedule_3/fd_schedule.html',
+                           fd_schedules = t_fd_schedule_3,
+                           menuVal = 'submenu1',
+                           is_admin = session.get('user')
+                        )    
+
 @app.route('/fd_schedules/<int:fd_schedule_id>')
 @check_login
 def fd_schedule_detail(fd_schedule_id):
@@ -878,13 +890,59 @@ def fd_delete_schedule(fd_schedule_id):
     delete_record_by_table_name('t_fd_schedule', fd_schedule_id)
     url = url_for('get_fd_schedules')
     return redirect(url)
+
+# Function to convert string to datetime
+def parse_datetime(datetime_obj):
+    return datetime_obj.strftime('%Y-%m-%d %H:%M:%S')
+
+# Function to convert string to date
+def parse_date(date_obj):
+    return date_obj.strftime('%Y-%m-%d')
+
+
+# Function to insert data into SQLite database
+def insert_data_into_db_new(data, table_name='t_fd_schedule'):
+    cursor = conn.cursor()
+    for row in data.itertuples(index=False):
+        cursor.execute(f'''
+            INSERT INTO {table_name} (year, day, date, penumbra_entry, penumbra_exit, umbra_entry, umbra_exit, duration)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (row[0], row[1], parse_date(row[2]), parse_datetime(row[3]), parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), str(row[7])))
     
+    conn.commit()
+
 @app.route('/api/fd_schedule/upload', methods=['POST'])
 @check_login
 def fd_schedule_upload():    
-    insert_data_from_excel('t_fd_schedule', request.files['file'], [3,10,11,13])
+    # insert_data_from_excel('t_fd_schedule', request.files['file'], [3,10,11,13])
+    file = request.files['file']
+    df = pd.read_excel(file)
+    insert_data_into_db_new(df)
     url = url_for('get_fd_schedules')
     return redirect(url)
+
+
+@app.route('/api/fd_schedule_2/upload', methods=['POST'])
+@check_login
+def fd_schedule_upload_2():    
+    # insert_data_from_excel('t_fd_schedule', request.files['file'], [3,10,11,13])
+    file = request.files['file']
+    df = pd.read_excel(file)
+    insert_data_into_db_new(df, 't_fd_schedule_2')
+    url = url_for('get_fd_schedules_2')
+    return redirect(url)
+
+
+@app.route('/api/fd_schedule_3/upload', methods=['POST'])
+@check_login
+def fd_schedule_upload_3():    
+    # insert_data_from_excel('t_fd_schedule', request.files['file'], [3,10,11,13])
+    file = request.files['file']
+    df = pd.read_excel(file)
+    insert_data_into_db_new(df, 't_fd_schedule_3')
+    url = url_for('get_fd_schedules_3')
+    return redirect(url)
+
 
 @app.route('/fd_schedule/update/<int:fd_schedule_id>')
 @check_login
@@ -1482,6 +1540,10 @@ def delete_all_table_data(table_id):
     elif table_id == 10:        
         table_name = "t_fd_schedule"
         url_for_value = "get_fd_schedules"
+    elif table_id == 50:
+        table_name = "t_fd_schedule_2"
+    elif table_id == 51:
+        table_name = "t_fd_schedule_3"
     elif table_id == 11:        
         table_name = "t_srdb_update_request"
         url_for_value = "get_all_srdb_update_request"

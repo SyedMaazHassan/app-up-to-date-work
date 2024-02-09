@@ -96,6 +96,7 @@ def insert_data_from_excel(table_name, file_path, date_index=[]):
     # Read the Excel file into a DataFrame
     try:
         df = pd.read_excel(file_path)
+        print(df)
         df = df.fillna('-')
         # Convert DataFrame to list of tuples
         data = [(None,) + tuple(x) for x in df.values]    
@@ -118,13 +119,15 @@ def insert_data_from_excel(table_name, file_path, date_index=[]):
                         except Exception as e:
                             try:
                                 d = datetime.fromisoformat(col)
-                                arr.append(d)                    
+                                arr.append(d)      
+
                             except Exception as e:
                                 print(e)
                     else:    
                         arr.append(col)
             except Exception as e:
                 print(row, e)
+            print(arr)
             final_data.append(tuple(arr)) 
 
         placeholders = "?, " + ", ".join(["?" for _ in range(len(df.columns))])
@@ -134,7 +137,8 @@ def insert_data_from_excel(table_name, file_path, date_index=[]):
         conn.commit()
     except Exception as e:
         print("Error: ", e)
-    
+
+
 def update_data(table_name, id_value, **kwargs):
 
     folder_name = "files"
@@ -147,8 +151,9 @@ def update_data(table_name, id_value, **kwargs):
             with open(file_path, 'wb') as file_object:
                 file_object.write(file.read())
 
-    affected_files = ','.join([file.filename for file in kwargs.get('affected_files')]).strip()
-    kwargs['affected_files'] = affected_files
+    if kwargs.get('affected_files'):
+        affected_files = ','.join([file.filename for file in kwargs.get('affected_files')]).strip()
+        kwargs['affected_files'] = affected_files
     # Generate the SET clause for the update query
     set_clause = ", ".join([f"`{col}` = ?" for col in kwargs.keys()])
     # Generate the list of values for the update query
@@ -253,6 +258,7 @@ def save_update_request(table_name, **kwargs):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
 
+    
     for file in kwargs.get('affected_files', []):
         if file.filename != '':
             file_path = os.path.join(folder_name, file.filename)

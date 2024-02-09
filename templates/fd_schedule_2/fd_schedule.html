@@ -7,7 +7,7 @@
 {% block content %}
     <div class="schedule-main">
         <div class="row">
-            <h1> SSS FD Scheduled Operations</h1>
+            <h1> SSS FD 2 Scheduled Operations</h1>
         </div>
 
         <hr>
@@ -15,7 +15,7 @@
         <div class="row">
             <div clas="col-md-1">
             {% if is_admin %}
-                <form method="post" action="/api/fd_schedule/upload" enctype="multipart/form-data">
+                <form method="post" action="/api/fd_schedule_2/upload" enctype="multipart/form-data">
                     <input type="file" name="file" onchange="this.form.submit()">
                 </form>
             {% endif %}
@@ -24,7 +24,7 @@
             
             {% if is_admin %}
             <div class="col-md-2">
-                <form method="get" action="/api/delete/all/10">
+                <form method="get" action="/api/delete/all/50">
                     <button type="submit" class="btn btn-primary">Delete All</button>
                 </form>
             </div>
