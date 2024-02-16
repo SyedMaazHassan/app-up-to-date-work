@@ -990,26 +990,15 @@ def fd_schedule_update_view(fd_schedule_id):
 def fd_schedule_update(fd_schedule_id):
 
     update_data('t_fd_schedule', fd_schedule_id, 
-                fd_id = request.form.get('fd_id'),
-                version = request.form.get('version'),
-                creation_date = request.form.get('creation_date'),
-                originator = request.form.get('originator'),
-                object_name = request.form.get('object_name'),
-                object_id = request.form.get('object_id'),
-                center_name = request.form.get('center_name'),
-                ref_frame = request.form.get('ref_frame'),
-                time_system = request.form.get('time_system'),
-                start_time = request.form.get('start_time'),
-                stop_time = request.form.get('stop_time'),
-                type = request.form.get('type'),
-                epoch = request.form.get('epoch'),
+                year = request.form.get('year'),
+                day = request.form.get('day'),
+                date = request.form.get('date'),
+                penumbra_entry = request.form.get('penumbra_entry'),
+                penumbra_exit = request.form.get('penumbra_exit'),
+                umbra_entry = request.form.get('umbra_entry'),
+                umbra_exit = request.form.get('umbra_exit'),
                 duration = request.form.get('duration'),
-                units = request.form.get('units'),
-                unique_id = request.form.get('unique_id'),
-                sensor_id = request.form.get('sensor_id'),
-                target = request.form.get('target'),
-                station = request.form.get('station'),
-                co_linearity_angle = request.form.get('co_linearity_angle'))
+                ECL_TIME = request.form.get('ecl_time'))
 
     url = url_for('fd_schedule_update_view', fd_schedule_id = fd_schedule_id, is_admin = session.get('user'))
     return redirect(url)
