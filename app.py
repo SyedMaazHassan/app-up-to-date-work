@@ -873,6 +873,15 @@ def get_fd_schedules():
                            days = days, week = weekday_numbers
                         )    
     
+@app.route('/api/fd_schedule/delete/<int:fd_schedule_id>')
+@check_login
+def delete_fd_schedule(fd_schedule_id):
+    delete_record_by_table_name('t_fd_schedule', fd_schedule_id)
+    url = url_for('get_fd_schedules')
+    return redirect(url)
+
+
+
 @app.route('/fd_schedules_2', methods=['GET'])
 @check_login
 def get_fd_schedules_2():
