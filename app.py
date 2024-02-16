@@ -846,12 +846,31 @@ def tmtcdb_update(tmtcdb_id):
 @app.route('/fd_schedules', methods=['GET'])
 @check_login
 def get_fd_schedules():
+    week_number = request.args.get('week')
+    today = datetime.date.today()
+    year = today.isocalendar()[0]
+    if week_number is None:        
+        week_number = today.isocalendar()[1] + 1
+
+    week_number = int(week_number)
+    first_day = datetime.datetime.strptime(f'{year}-W{week_number-1}-1', '%G-W%V-%u').date()
+    day_number =first_day.strftime("%j")
+    days = [first_day + datetime.timedelta(days=i) for i in range(7)]
+    weekday_numbers = [(i + int(day_number)) for i in range(7)]
+    data, link = get_schedule_for_week('t_fd_schedule', first_day, first_day + datetime.timedelta(days=6), 3, 9, ['%Y-%m-%d'], True)
+
+    print(link)
+
     t_fd_schedule = filter_data('t_fd_schedule')
     print(t_fd_schedule)
     return render_template('fd_schedule/fd_schedule.html',
                            fd_schedules = t_fd_schedule,
                            menuVal = 'submenu1',
-                           is_admin = session.get('user')
+                           week_number = week_number,
+                           is_admin = session.get('user'),
+                           fd_schedules_new = data,
+                           link = link,
+                           days = days, week = weekday_numbers
                         )    
     
 @app.route('/fd_schedules_2', methods=['GET'])
@@ -920,9 +939,9 @@ def insert_data_into_db_new(data, table_name='t_fd_schedule'):
         
         # Insert data into the database
         cursor.execute(f'''
-            INSERT INTO {table_name} (year, day, date, penumbra_entry, penumbra_exit, umbra_entry, umbra_exit, duration)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (row[0], row[1], parse_date(row[2]), penumbra_entry, parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), duration))
+            INSERT INTO {table_name} (year, day, date, penumbra_entry, penumbra_exit, umbra_entry, umbra_exit, duration, ECL_TIME)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (row[0], row[1], parse_date(row[2]), penumbra_entry, parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), duration, row[8]))
     
     conn.commit()
 

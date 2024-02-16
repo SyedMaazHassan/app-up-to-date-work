@@ -198,7 +198,8 @@ def init():
         penumbra_exit DATETIME,
         umbra_entry DATETIME,
         umbra_exit DATETIME,
-        duration VARCHAR(1000)
+        duration VARCHAR(1000),
+        ECL_TIME VARCHAR(255)
     )"""
 
     fd_schedule_2_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_2' (
