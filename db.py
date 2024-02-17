@@ -199,7 +199,8 @@ def init():
         umbra_entry DATETIME,
         umbra_exit DATETIME,
         duration VARCHAR(1000),
-        ECL_TIME VARCHAR(255)
+        ECL_TIME VARCHAR(255),
+        S_C VARCHAR(255)
     )"""
 
     fd_schedule_2_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_2' (
@@ -211,7 +212,9 @@ def init():
         penumbra_exit DATETIME,
         umbra_entry DATETIME,
         umbra_exit DATETIME,
-        duration VARCHAR(1000)
+        duration VARCHAR(1000),
+        ECL_TIME VARCHAR(255),
+        S_C VARCHAR(255)
     )"""
 
     fd_schedule_3_table = """CREATE TABLE IF NOT EXISTS 't_fd_schedule_3' (
@@ -223,7 +226,9 @@ def init():
         penumbra_exit DATETIME,
         umbra_entry DATETIME,
         umbra_exit DATETIME,
-        duration VARCHAR(1000)
+        duration VARCHAR(1000),
+        ECL_TIME VARCHAR(255),
+        S_C VARCHAR(255)
     )"""
 
     srdb_update_request_table = """ CREATE TABLE IF NOT EXISTS 't_srdb_update_request' (

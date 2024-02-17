@@ -858,11 +858,7 @@ def get_fd_schedules():
     days = [first_day + datetime.timedelta(days=i) for i in range(7)]
     weekday_numbers = [(i + int(day_number)) for i in range(7)]
     data, link = get_schedule_for_week('t_fd_schedule', first_day, first_day + datetime.timedelta(days=6), 3, 9, ['%Y-%m-%d'], True)
-
-    print(link)
-
     t_fd_schedule = filter_data('t_fd_schedule')
-    print(t_fd_schedule)
     return render_template('fd_schedule/fd_schedule.html',
                            fd_schedules = t_fd_schedule,
                            menuVal = 'submenu1',
@@ -873,6 +869,64 @@ def get_fd_schedules():
                            days = days, week = weekday_numbers
                         )    
     
+
+@app.route('/fd_schedules_2', methods=['GET'])
+@check_login
+def get_fd_schedules_2():
+    week_number = request.args.get('week')
+    today = datetime.date.today()
+    year = today.isocalendar()[0]
+    if week_number is None:        
+        week_number = today.isocalendar()[1] + 1
+
+    week_number = int(week_number)
+    first_day = datetime.datetime.strptime(f'{year}-W{week_number-1}-1', '%G-W%V-%u').date()
+    day_number =first_day.strftime("%j")
+    days = [first_day + datetime.timedelta(days=i) for i in range(7)]
+    weekday_numbers = [(i + int(day_number)) for i in range(7)]
+    data, link = get_schedule_for_week('t_fd_schedule_2', first_day, first_day + datetime.timedelta(days=6), 3, 9, ['%Y-%m-%d'], True)
+    t_fd_schedule_2 = filter_data('t_fd_schedule_2')
+    return render_template('fd_schedule_2/fd_schedule.html',
+                           fd_schedules = t_fd_schedule_2,
+                           menuVal = 'submenu1',
+                           week_number = week_number,
+                           is_admin = session.get('user'),
+                           fd_schedules_new = data,
+                           link = link,
+                           days = days, week = weekday_numbers
+                        )    
+      
+
+
+@app.route('/fd_schedules_3', methods=['GET'])
+@check_login
+def get_fd_schedules_3():
+    week_number = request.args.get('week')
+    today = datetime.date.today()
+    year = today.isocalendar()[0]
+    if week_number is None:        
+        week_number = today.isocalendar()[1] + 1
+
+    week_number = int(week_number)
+    first_day = datetime.datetime.strptime(f'{year}-W{week_number-1}-1', '%G-W%V-%u').date()
+    day_number =first_day.strftime("%j")
+    days = [first_day + datetime.timedelta(days=i) for i in range(7)]
+    weekday_numbers = [(i + int(day_number)) for i in range(7)]
+    data, link = get_schedule_for_week('t_fd_schedule_3', first_day, first_day + datetime.timedelta(days=6), 3, 9, ['%Y-%m-%d'], True)
+    t_fd_schedule_3 = filter_data('t_fd_schedule_3')
+    return render_template('fd_schedule_3/fd_schedule.html',
+                           fd_schedules = t_fd_schedule_3,
+                           menuVal = 'submenu1',
+                           week_number = week_number,
+                           is_admin = session.get('user'),
+                           fd_schedules_new = data,
+                           link = link,
+                           days = days, week = weekday_numbers
+                        )    
+
+
+
+
 @app.route('/api/fd_schedule/delete/<int:fd_schedule_id>')
 @check_login
 def delete_fd_schedule(fd_schedule_id):
@@ -881,35 +935,42 @@ def delete_fd_schedule(fd_schedule_id):
     return redirect(url)
 
 
-
-@app.route('/fd_schedules_2', methods=['GET'])
+@app.route('/api/fd_schedule_2/delete/<int:fd_schedule_id>')
 @check_login
-def get_fd_schedules_2():
-    t_fd_schedule_2 = filter_data('t_fd_schedule_2')
-    print(t_fd_schedule_2)
-    return render_template('fd_schedule_2/fd_schedule.html',
-                           fd_schedules = t_fd_schedule_2,
-                           menuVal = 'submenu1',
-                           is_admin = session.get('user')
-                        )    
+def delete_fd_schedule_2(fd_schedule_id):
+    delete_record_by_table_name('t_fd_schedule_2', fd_schedule_id)
+    url = url_for('get_fd_schedules_2')
+    return redirect(url)
 
 
-@app.route('/fd_schedules_3', methods=['GET'])
+@app.route('/api/fd_schedule_3/delete/<int:fd_schedule_id>')
 @check_login
-def get_fd_schedules_3():
-    t_fd_schedule_3 = filter_data('t_fd_schedule_3')
-    print(t_fd_schedule_3)
-    return render_template('fd_schedule_3/fd_schedule.html',
-                           fd_schedules = t_fd_schedule_3,
-                           menuVal = 'submenu1',
-                           is_admin = session.get('user')
-                        )    
+def delete_fd_schedule_3(fd_schedule_id):
+    delete_record_by_table_name('t_fd_schedule_3', fd_schedule_id)
+    url = url_for('get_fd_schedules_3')
+    return redirect(url)
+
+
 
 @app.route('/fd_schedules/<int:fd_schedule_id>')
 @check_login
 def fd_schedule_detail(fd_schedule_id):
     data = get_record_by_table_name('t_fd_schedule', fd_schedule_id)
     return render_template('fd_schedule/fd_schedule_detail.html', fd_schedule=data, is_admin = session.get('user'))
+
+@app.route('/fd_schedules_2/<int:fd_schedule_id>')
+@check_login
+def fd_schedule_2_detail(fd_schedule_id):
+    data = get_record_by_table_name('t_fd_schedule_2', fd_schedule_id)
+    return render_template('fd_schedule_2/fd_schedule_detail.html', fd_schedule=data, is_admin = session.get('user'))
+
+@app.route('/fd_schedules_3/<int:fd_schedule_id>')
+@check_login
+def fd_schedule_3_detail(fd_schedule_id):
+    data = get_record_by_table_name('t_fd_schedule_3', fd_schedule_id)
+    return render_template('fd_schedule_3/fd_schedule_detail.html', fd_schedule=data, is_admin = session.get('user'))
+
+
 
 @app.route('/api/fd_schedules/delete/<int:fd_schedule_id>')
 @check_login
@@ -918,6 +979,23 @@ def fd_delete_schedule(fd_schedule_id):
     delete_record_by_table_name('t_fd_schedule', fd_schedule_id)
     url = url_for('get_fd_schedules')
     return redirect(url)
+
+
+@app.route('/api/fd_schedules_2/delete/<int:fd_schedule_id>')
+@check_login
+def fd_delete_schedule_2(fd_schedule_id):
+    delete_record_by_table_name('t_fd_schedule_2', fd_schedule_id)
+    url = url_for('get_fd_schedules_2')
+    return redirect(url)
+
+
+@app.route('/api/fd_schedules_3/delete/<int:fd_schedule_id>')
+@check_login
+def fd_delete_schedule_3(fd_schedule_id):
+    delete_record_by_table_name('t_fd_schedule_3', fd_schedule_id)
+    url = url_for('get_fd_schedules_3')
+    return redirect(url)
+
 
 # Function to convert string to datetime
 def parse_datetime(datetime_obj):
@@ -948,9 +1026,9 @@ def insert_data_into_db_new(data, table_name='t_fd_schedule'):
         
         # Insert data into the database
         cursor.execute(f'''
-            INSERT INTO {table_name} (year, day, date, penumbra_entry, penumbra_exit, umbra_entry, umbra_exit, duration, ECL_TIME)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (row[0], row[1], parse_date(row[2]), penumbra_entry, parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), duration, row[8]))
+            INSERT INTO {table_name} (year, day, date, penumbra_entry, penumbra_exit, umbra_entry, umbra_exit, duration, ECL_TIME, S_C)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (row[0], row[1], parse_date(row[2]), penumbra_entry, parse_datetime(row[4]), parse_datetime(row[5]), parse_datetime(row[6]), duration, row[8], row[9]))
     
     conn.commit()
 
@@ -1007,10 +1085,68 @@ def fd_schedule_update(fd_schedule_id):
                 umbra_entry = request.form.get('umbra_entry'),
                 umbra_exit = request.form.get('umbra_exit'),
                 duration = request.form.get('duration'),
-                ECL_TIME = request.form.get('ecl_time'))
+                ECL_TIME = request.form.get('ecl_time'),
+                S_C = request.form.get('s_c'))
 
     url = url_for('fd_schedule_update_view', fd_schedule_id = fd_schedule_id, is_admin = session.get('user'))
     return redirect(url)
+
+
+
+@app.route('/fd_schedule_2/update/<int:fd_schedule_id>')
+@check_login
+def fd_schedule_2_update_view(fd_schedule_id):
+    data = get_record_by_table_name('t_fd_schedule_2', fd_schedule_id)
+    return render_template('fd_schedule_2/fd_schedule_update.html', fd_schedule=data)
+
+@app.route('/api/fd_schedule_2/update/<int:fd_schedule_id>', methods=['POST'])
+@check_login
+def fd_schedule_2_update(fd_schedule_id):
+
+    update_data('t_fd_schedule_2', fd_schedule_id, 
+                year = request.form.get('year'),
+                day = request.form.get('day'),
+                date = request.form.get('date'),
+                penumbra_entry = request.form.get('penumbra_entry'),
+                penumbra_exit = request.form.get('penumbra_exit'),
+                umbra_entry = request.form.get('umbra_entry'),
+                umbra_exit = request.form.get('umbra_exit'),
+                duration = request.form.get('duration'),
+                ECL_TIME = request.form.get('ecl_time'),
+                S_C = request.form.get('s_c'))
+
+    url = url_for('fd_schedule_2_update_view', fd_schedule_id = fd_schedule_id, is_admin = session.get('user'))
+    return redirect(url)
+
+
+
+@app.route('/fd_schedule_3/update/<int:fd_schedule_id>')
+@check_login
+def fd_schedule_3_update_view(fd_schedule_id):
+    data = get_record_by_table_name('t_fd_schedule_3', fd_schedule_id)
+    return render_template('fd_schedule_3/fd_schedule_update.html', fd_schedule=data)
+
+@app.route('/api/fd_schedule_3/update/<int:fd_schedule_id>', methods=['POST'])
+@check_login
+def fd_schedule_3_update(fd_schedule_id):
+    update_data('t_fd_schedule_3', fd_schedule_id, 
+                year = request.form.get('year'),
+                day = request.form.get('day'),
+                date = request.form.get('date'),
+                penumbra_entry = request.form.get('penumbra_entry'),
+                penumbra_exit = request.form.get('penumbra_exit'),
+                umbra_entry = request.form.get('umbra_entry'),
+                umbra_exit = request.form.get('umbra_exit'),
+                duration = request.form.get('duration'),
+                ECL_TIME = request.form.get('ecl_time'),
+                S_C = request.form.get('s_c'))
+
+    url = url_for('fd_schedule_3_update_view', fd_schedule_id = fd_schedule_id, is_admin = session.get('user'))
+    return redirect(url)
+
+
+
+
     
 @app.route('/srdb/update/request', methods=['GET'])
 @check_login

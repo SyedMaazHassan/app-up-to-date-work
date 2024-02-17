@@ -4,15 +4,15 @@
   <div class="container my-5">
     <div class="row">
       <div class="col-12">
-        <h1 class="text-start mb-5">{{ fd_schedule[1] }}
+        <h1 class="text-start mb-5">{{ fd_schedule[10] }}
         {% if is_admin %}
         <td>
-            <a href="/fd_schedule/update/{{fd_schedule[0]}}" class="btn-md" role="button">
+            <a href="/fd_schedule_2/update/{{fd_schedule[0]}}" class="btn-md" role="button">
                 <i class="mdi mdi-update"></i>
             </a>
         </td>
         <td>
-            <a href="/api/fd_schedule/delete/{{fd_schedule[0]}}" class="btn-md" role="button">
+            <a href="/api/fd_schedule_2/delete/{{fd_schedule[0]}}" class="btn-md" role="button">
                 <i class="mdi mdi-delete"></i>
             </a>
         </td>
@@ -24,44 +24,25 @@
       <div class="col-md-6">
         <div class="card mb-4">
           <div class="card-header">
-            <h3 class="card-title">FD Schedule Details</h3>
+            <h3 class="card-title">FD Schedule 2 Details</h3>
           </div>
           <div class="card-body">
             <ul class="list-unstyled">
-              <li><strong>Version:</strong> {{ fd_schedule[2] }}</li>
-              <li><strong>Creation Date:</strong> {{ fd_schedule[3] }}</li>
-              <li><strong>Originator:</strong> {{ fd_schedule[4] }}</li>
-              <li><strong>Object Name:</strong> {{ fd_schedule[5] }}</li>
-              <li><strong>Object Id:</strong> {{ fd_schedule[6] }}</li>
-              <li><strong>Center Name:</strong> {{ fd_schedule[7] }}</li>
-              <li><strong>Ref Frame:</strong> {{ fd_schedule[8] }}</li>
-              <li><strong>Time system:</strong> {{ fd_schedule[9] }}</li>
-              <li><strong>Start Time:</strong> {{ fd_schedule[10] }}</li>
-              <li><strong>Stop Time:</strong> {{ fd_schedule[11] }}</li>
-              <li><strong>Type:</strong> {{ fd_schedule[12] }}</li>
-              <li><strong>Epoch:</strong> {{ fd_schedule[13] }}</li>
+              <li><strong>ID:</strong> {{ fd_schedule[0] }}</li>
+              <li><strong>Year:</strong> {{ fd_schedule[1] }}</li>
+              <li><strong>Day:</strong> {{ fd_schedule[2] }}</li>
+              <li><strong>Date:</strong> {{ fd_schedule[3] }}</li>
+              <li><strong>Penumbra Entry:</strong> {{ fd_schedule[4] }}</li>
+              <li><strong>Penumbra Exit:</strong> {{ fd_schedule[5] }}</li>
+              <li><strong>Umbra Entry:</strong> {{ fd_schedule[6] }}</li>
+              <li><strong>Umbra Exit:</strong> {{ fd_schedule[7] }}</li>
+              <li><strong>Duration:</strong> {{ fd_schedule[8] }}</li>
+              <li><strong>ECL Time:</strong> {{ fd_schedule[9] }}</li>
             </ul>
           </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h3 class="card-title">Details</h3>
-          </div>
-          <div class="card-body">
-            <ul class="list-unstyled">
-              <li><strong>Duration:</strong> {{ fd_schedule[14] }}</li>
-              <li><strong>Units:</strong> {{ fd_schedule[15] }}</li>
-              <li><strong>unique Id:</strong> {{ fd_schedule[16] }}</li>
-              <li><strong>Sensor Id:</strong> {{ fd_schedule[17] }}</li>
-              <li><strong>Target:</strong> {{ fd_schedule[18] }}</li>
-              <li><strong>Station:</strong> {{ fd_schedule[19] }}</li>
-              <li><strong>Co Linearity Angle:</strong> {{ fd_schedule[20] }}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      
     </div>
   </div>
 {% endblock %}
