@@ -3,6 +3,8 @@
 from flask import Flask, render_template, request, \
     redirect, url_for, make_response, session
 import pandas as pd
+from io import BytesIO
+import xlsxwriter
 import csv
 from io import StringIO
 from db import conn, init
@@ -667,30 +669,68 @@ def upload_event():
     url = url_for('get_event_all')
     return redirect(url)
 
+# @app.route('/api/event/export', methods=['POST'])
+# @check_login
+# def export_event():    
+#     ids = request.form.get('event_id')
+#     cur = conn.cursor()
+#     cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
+#     # cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
+#     events = cur.fetchall()
+#     cur.close()
+    
+#     csv_data = StringIO()
+#     writer = csv.writer(csv_data)
+    
+#     # Add headers to the CSV data
+#     writer.writerow(['T Time', 'To', 'Facility', 'Events', 'AR Link', 'Impact'])
+#     # Add rows of data to the CSV data
+#     for event in events:
+#          writer.writerow(list(event))
+    
+#     # Create a response with the CSV data
+#     response = make_response(csv_data.getvalue().encode('utf-8'))
+#     response.headers.set('Content-Disposition', 'attachment', filename='events.csv')
+#     response.headers.set('Content-Type', 'text/csv')
+#     return response
+
+
 @app.route('/api/event/export', methods=['POST'])
 @check_login
 def export_event():    
     ids = request.form.get('event_id')
     cur = conn.cursor()
     cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
-    # cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
     events = cur.fetchall()
     cur.close()
     
-    csv_data = StringIO()
-    writer = csv.writer(csv_data)
+    # Create a BytesIO object to store Excel file in memory
+    excel_data = BytesIO()
     
-    # Add headers to the CSV data
-    writer.writerow(['T Time', 'To', 'Facility', 'Events', 'AR Link', 'Impact'])
-    # Add rows of data to the CSV data
-    for event in events:
-         writer.writerow(list(event))
+    # Create a new Excel workbook and add a worksheet
+    workbook = xlsxwriter.Workbook(excel_data)
+    worksheet = workbook.add_worksheet()
     
-    # Create a response with the CSV data
-    response = make_response(csv_data.getvalue().encode('utf-8'))
-    response.headers.set('Content-Disposition', 'attachment', filename='events.csv')
-    response.headers.set('Content-Type', 'text/csv')
+    # Write headers to the Excel file
+    headers = ['T Time', 'To', 'Facility', 'Events', 'AR Link', 'Impact']
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header)
+    
+    # Write rows of data to the Excel file
+    for row, event in enumerate(events, start=1):
+        for col, value in enumerate(event):
+            worksheet.write(row, col, value)
+    
+    # Close the workbook
+    workbook.close()
+    
+    # Set response headers
+    response = make_response(excel_data.getvalue())
+    response.headers.set('Content-Disposition', 'attachment', filename='events.xlsx')
+    response.headers.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     return response
+
+
     
 
 @app.route('/api/event/delete/<int:event_id>')
