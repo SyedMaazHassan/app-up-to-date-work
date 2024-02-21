@@ -672,12 +672,12 @@ def upload_event():
 # @app.route('/api/event/export', methods=['POST'])
 # @check_login
 # def export_event():    
-#     ids = request.form.get('event_id')
-#     cur = conn.cursor()
-#     cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
-#     # cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
-#     events = cur.fetchall()
-#     cur.close()
+    # ids = request.form.get('event_id')
+    # cur = conn.cursor()
+    # cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
+    # # cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
+    # events = cur.fetchall()
+    # cur.close()
     
 #     csv_data = StringIO()
 #     writer = csv.writer(csv_data)
@@ -700,10 +700,11 @@ def upload_event():
 def export_event():    
     ids = request.form.get('event_id')
     cur = conn.cursor()
-    cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
+    # cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
+    cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
     events = cur.fetchall()
     cur.close()
-    
+
     # Create a BytesIO object to store Excel file in memory
     excel_data = BytesIO()
     
@@ -719,6 +720,7 @@ def export_event():
     # Write rows of data to the Excel file
     for row, event in enumerate(events, start=1):
         for col, value in enumerate(event):
+            print(value)
             worksheet.write(row, col, value)
     
     # Close the workbook
@@ -730,8 +732,6 @@ def export_event():
     response.headers.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     return response
 
-
-    
 
 @app.route('/api/event/delete/<int:event_id>')
 @check_login
