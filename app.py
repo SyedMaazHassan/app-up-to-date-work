@@ -594,7 +594,13 @@ def pus_update(pus_id):
 @app.route('/event', methods=['GET'])
 @check_login
 def get_event_all():
-
+    error_message = None
+    filter_facility = request.args.get('facility', None)
+    filter_event = request.args.get('event', None)
+    filter_impact = request.args.get('impact', None)
+    filter_from_time = request.args.get('from', None)
+    filter_to_time = request.args.get('to', None)
+    
     query_parameters = request.args
     filters = {key: query_parameters.get(key) for key in query_parameters}
     table_name = 't_event'
@@ -606,22 +612,26 @@ def get_event_all():
                            )
     else:
         data = filter_data(table_name)
-    from_time = filters.get('from')
-    to_time = filters.get('to')
-    format_string = "%Y-%m-%d %H:%M:%S"
-    if from_time is not None and from_time != '':
-        from_time = datetime.datetime.strptime(from_time, format_string)
-    else:
-        from_time = None
-    if to_time is not None and to_time != '':
-        to_time = datetime.datetime.strptime(to_time, format_string)
-    else:
-        to_time = None
+    try:
+        from_time = filters.get('from')
+        to_time = filters.get('to')
+        format_string = "%Y-%m-%d %H:%M:%S"
+        if from_time is not None and from_time != '':
+            from_time = datetime.datetime.strptime(from_time, format_string)
+        else:
+            from_time = None
+        if to_time is not None and to_time != '':
+            to_time = datetime.datetime.strptime(to_time, format_string)
+        else:
+            to_time = None
+    except Exception as e:
+        error_message = str(e)
+        from_time = to_time = None
 
     ids = ""
     filtered_data = []
     for row in data:
-        ids = ids + str(row[0]) + ','
+        # ids = ids + str(row[0]) + ','
         row_date = datetime.datetime.strptime(row[3], format_string)
         flag = False
         if to_time is None and from_time is None:
@@ -635,8 +645,19 @@ def get_event_all():
         
         if flag:        
             filtered_data.append(row)
-            ids = ids[:-1]
-    return render_template('event/event.html', event_all = filtered_data, is_admin = session.get('user'), ids = ids, menuVal = 'submenu1')    
+    ids = ','.join(str(row[0]) for row in filtered_data)
+    return render_template('event/event.html', 
+                           event_all = filtered_data, 
+                           is_admin = session.get('user'), 
+                           ids = ids, 
+                           menuVal = 'submenu1',
+                           filter_facility=filter_facility,
+                           filter_event=filter_event,
+                           filter_impact=filter_impact,
+                           filter_from_time=filter_from_time,
+                           filter_to_time=filter_to_time,
+                           error_message=error_message
+                        )    
 
 # Create a route to handle the API request
 @app.route('/api/event/upload', methods=['POST'])
@@ -651,7 +672,8 @@ def upload_event():
 def export_event():    
     ids = request.form.get('event_id')
     cur = conn.cursor()
-    cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
+    cur.execute('SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` IN (%s)' % ','.join('?' * len(ids)), ids)
+    # cur.execute(f'SELECT t_time, `to`, facility, `event`, ar_link, impact FROM t_event WHERE `id` in ({ids}) ')
     events = cur.fetchall()
     cur.close()
     
