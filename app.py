@@ -595,11 +595,11 @@ def pus_update(pus_id):
 @check_login
 def get_event_all():
     error_message = None
-    filter_facility = request.args.get('facility', None)
-    filter_event = request.args.get('event', None)
-    filter_impact = request.args.get('impact', None)
-    filter_from_time = request.args.get('from', None)
-    filter_to_time = request.args.get('to', None)
+    filter_facility = request.args.get('facility', '')
+    filter_event = request.args.get('event', '')
+    filter_impact = request.args.get('impact', '')
+    filter_from_time = request.args.get('from', '')
+    filter_to_time = request.args.get('to', '')
     
     query_parameters = request.args
     filters = {key: query_parameters.get(key) for key in query_parameters}
